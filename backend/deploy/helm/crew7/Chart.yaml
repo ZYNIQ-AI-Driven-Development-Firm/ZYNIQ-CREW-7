@@ -1,0 +1,5 @@
+apiVersion: v2
+name: crew7
+version: 0.1.0
+description: Crew-7 API + Worker + Redis + Nginx + Qdrant + MinIO + Ollama
+type: application

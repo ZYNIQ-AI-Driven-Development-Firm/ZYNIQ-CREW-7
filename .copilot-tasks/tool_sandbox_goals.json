@@ -1,0 +1,14 @@
+{
+  "tool_sandbox_goals": [
+    {
+      "id": "sandbox_policies",
+      "title": "Tool Sandbox Policies",
+      "copilot_prompt": "Tool sandbox policies for Crew-7:\n1) All code execution (git, pytest, bash, linters, formatters) must happen inside a sandbox (Docker container or isolated process) with strict CPU, RAM, and time limits.\n2) The sandbox must have a per-crew workspace directory; no tool may write outside that workspace.\n3) Network access must be disabled by default and only enabled for whitelisted domains (e.g., GitHub when creating PRs).\n4) Tool APIs should return structured JSON (exit code, stdout, stderr, duration) and never arbitrary printouts.\n5) Errors from tools should be captured and surfaced to the user as readable messages.\n\nCopilot: When working on tool runners or adding new tools, enforce these sandbox policies and never run shell commands directly from request handlers."
+    },
+    {
+      "id": "sandbox_observability",
+      "title": "Sandbox Observability",
+      "copilot_prompt": "Sandbox observability goals:\n1) Every tool execution should be traceable: which crew, which run, which agent, start time, end time.\n2) Tool failures should emit structured events that can be consumed by the traces system and the Agent Graph.\n3) Logs must not leak secrets or full environment variables.\n\nCopilot: When modifying tool execution code, make sure you emit events in a consistent format and avoid logging sensitive data."
+    }
+  ]
+}

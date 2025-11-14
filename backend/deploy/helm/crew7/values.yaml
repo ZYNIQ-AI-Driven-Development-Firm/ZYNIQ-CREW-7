@@ -1,0 +1,36 @@
+image:
+  repo: your-registry/crew7-api
+  tag: latest
+
+env:
+  APP_SECRET: "change-me"
+  OLLAMA_BASE_URL: "http://ollama:11434"
+  MODEL_GENERAL: "llama3:instruct"
+  MODEL_EMBED: "all-minilm:latest"
+  STRIPE_SECRET: ""
+  STRIPE_PRICE_CREDITS: ""
+  CREDITS_PER_RUN: 10
+
+resources:
+  api:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+  worker:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+
+replicaCount:
+  api: 2
+  worker: 2
+
+ingress:
+  enabled: true
+  host: crew7.yourdomain.com

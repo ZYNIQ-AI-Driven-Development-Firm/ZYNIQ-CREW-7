@@ -1,0 +1,142 @@
+{
+  "landing_page_enhanced": {
+    "goal": "Turn Crew-7 into a cinematic, multi-industry AI marketplace where users can hire, rent, buy, or evolve autonomous teams powered by Web3 identity, skill portfolios, and tokenized ownership.",
+    "brand_tone": "mythic futurism, cosmic intelligence, economic empowerment, sovereign creativity, frictionless automation.",
+    "sections": [
+
+      {
+        "id": "hero_reimagined",
+        "robot_narrator": "ORION — Universal Orchestrator",
+        "animation_prompt": "A cosmic-scale neon circuit map spreads across the screen. Light nodes spawn, forming constellations that morph into silhouettes of teams: marketing, business, finance, engineering, design, legal, analytics, operations.",
+        "copy_prompt": "Rewrite hero copy to emphasize that Crew-7 is not just software development; it’s universal AI labor. Teams for any profession, any domain.",
+        "extra_copy": {
+          "headline": "Your Autonomous AI Teams for Every Mission.",
+          "subheadline": "From code to commerce. From finance to funnels. From ideas to reality.",
+          "cta": "Build Your First Universal Crew"
+        },
+        "copilot_prompt": "Update hero section to show a multi-industry scope: business, finance, marketing, research, engineering. Use galaxy-like transitions where agent icons represent different professions."
+      },
+
+      {
+        "id": "industry_showcase",
+        "robot_narrator": "VEGA — Multi-domain Specialist",
+        "animation_prompt": "Animated holographic cards flip in 3D space: Software Engineering Team → Marketing Crew → Business Strategy Crew → Finance Analysis Crew → Operations Crew → Event Management Crew.",
+        "copy_prompt": "Introduce the idea that crews can be trained for ANY PROBLEM: market research, company formation, SaaS building, investment analysis, legal summaries, event management, and more.",
+        "examples": [
+          "Marketing Crew — funnels, ads, copywriting, A/B testing",
+          "Business Crew — pitch decks, business plans, competitor analysis",
+          "Finance Crew — forecasting, valuation, portfolio simulation",
+          "Event Crew — planning, logistics, budgets",
+          "Startup Crew — prototype your MVP in 48 hours",
+          "Engineering Crew — full-stack SaaS, APIs, infra, deployment"
+        ],
+        "copilot_prompt": "Create a horizontal scroll section with animated cards for various industries, narrated by Vega. Each card should glow when hovered and animate into deeper detail."
+      },
+
+      {
+        "id": "marketplace_focus",
+        "robot_narrator": "QUARK — Marketplace Guardian",
+        "animation_prompt": "A futuristic bazaar of glowing crew capsules floating mid-air. Each capsule rotates with metadata: XP, skills, reputation, past missions, rental fee, specialization.",
+        "copy_prompt": "Emphasize that Crew-7 Marketplace is the first place where AI teams are assets with portfolios, reputations, and economic value.",
+        "key_features": [
+          "Buy & Sell AI Crews",
+          "Rent teams for missions",
+          "Marketplace ratings & rankings",
+          "Crew XP, reputation, and track record",
+          "Web3 identity: provable ownership via NFT crew tokens",
+          "Auto-signed smart contracts for rentals"
+        ],
+        "copilot_prompt": "Create a cinematic marketplace section showing crew capsules rotating in 3D. Include ‘Rent Crew’, ‘Buy Crew’, and ‘View Portfolio’ buttons. Animate skill stats when hovering."
+      },
+
+      {
+        "id": "crew_portfolio_system",
+        "robot_narrator": "NOVA — Portfolio Architect",
+        "animation_prompt": "Nova opens a glowing book of light. Pages flip to reveal portfolio items: apps built, business plans created, marketing funnels shipped, financial models executed.",
+        "copy_prompt": "Explain that each Crew is a living CV: missions completed, hours worked, skills mastered, domains specialized in.",
+        "portfolio_elements": [
+          "Missions Completed",
+          "Success Rate",
+          "Hours Worked",
+          "Skills Unlocked",
+          "Industries Served",
+          "Artifacts Produced",
+          "Client Ratings",
+          "Crew Evolution Tree"
+        ],
+        "copilot_prompt": "Build a portfolio UI animation: glowing tabs switching between performance charts, mission logs, artifacts, skills, and badges. Nova narrates the scene."
+      },
+
+      {
+        "id": "web3_integration",
+        "robot_narrator": "HELIX — Blockchain Sentinel",
+        "animation_prompt": "Glowing blockchain chains spin around Helix, merging into a transparent ledger that shows Crew ownership, rental contracts, and reputation tokens.",
+        "copy_prompt": "Introduce the Web3 layer: crews are tokenized, reputation is immutable, ownership is provable, and rental contracts are trustless.",
+        "web3_features": [
+          "NFT Crew Ownership (Soulbound optional)",
+          "Reputation Tokens and XP stored on-chain",
+          "Smart Contracts for Renting Crews",
+          "Transparent earning history",
+          "Crypto payments for tasks",
+          "Decentralized identity for crews"
+        ],
+        "copilot_prompt": "Create a section with animated blockchain nodes connecting to Crew avatars. Highlight secure ownership, rental contracts, and token-based trust systems."
+      },
+
+      {
+        "id": "tokenomics_intro",
+        "robot_narrator": "SIGMA — Economic Architect",
+        "animation_prompt": "Sigma unleashes a cosmic economic diagram: token flows, staking pools, crew earnings, rental fees, reputation token minting.",
+        "copy_prompt": "Introduce the Crew-7 Token Economy: users pay crews in tokens, crews earn reputation, owners stake crews to earn passive rewards.",
+        "tokenomics_components": [
+          "Utility Token (C7T): used to rent, buy, or pay crews.",
+          "Reputation Token (R7): earned from successful missions.",
+          "Staking Pools: stake Crew tokens for yield.",
+          "Crew Earnings: revenue split between crew owner and Crew-7.",
+          "XP & Levels: Crew evolution over time."
+        ],
+        "copilot_prompt": "Create a tokenomics section using animated token flow diagrams. Sigma explains how buying, renting, XP, and staking work."
+      },
+
+      {
+        "id": "mission_examples",
+        "robot_narrator": "ATLAS — Mission Commander",
+        "animation_prompt": "Atlas slams a holographic panel showing real-world use cases.",
+        "mission_types": [
+          "Launch a SaaS MVP in 48 hours",
+          "Build a business plan + pitch deck",
+          "Run a full marketing funnel and analytics",
+          "Produce a financial valuation of a company",
+          "Plan a full real-world event",
+          "Automate your operations stack"
+        ],
+        "copy_prompt": "Show that ANYONE can command a crew to execute ANY mission.",
+        "copilot_prompt": "Build a animated mission-carousel with holographic panels showing 6 real-world example missions."
+      },
+
+      {
+        "id": "cta_epic_finale",
+        "robot_narrator": "ALL CREW",
+        "animation_prompt": "All robot avatars form a circle. A large Crew-7 logo ignites in the center like a star being born.",
+        "copy_prompt": "End with a cinematic, motivational finale.",
+        "final_cta": {
+          "title": "Assemble Your First AI Crew.",
+          "subtitle": "The future of work is autonomous. Start building with Crew-7.",
+          "cta_primary": "Deploy Your First Crew",
+          "cta_secondary": "Explore the Marketplace"
+        },
+        "copilot_prompt": "Create a final cinematic CTA section with all robot avatars in a dynamic ring formation and a large glowing Crew-7 logo."
+      }
+
+    ],
+
+    "global_prompts": [
+      "Use deep cinematic motion and subtle sound cues for city-scale futurism.",
+      "All robot faces must animate subtly (eye blinks, micro-movements, neon pulses).",
+      "Use smooth scroll-driven storytelling with intersection observers.",
+      "Add slight camera shake on transitions for heavier scenes.",
+      "Fade in code lines and holographic UI components using matrix-style glyph trails.",
+      "Use parallax backgrounds with nebula themes and glowing grids."
+    ]
+  }
+}

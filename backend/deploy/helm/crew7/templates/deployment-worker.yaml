@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crew7-worker
+spec:
+  replicas: { { .Values.replicaCount.worker } }
+  selector:
+    matchLabels:
+      app: crew7-worker
+  template:
+    metadata:
+      labels:
+        app: crew7-worker
+    spec:
+      containers:
+        - name: worker
+          image: "{{ .Values.image.repo }}:{{ .Values.image.tag }}"
+          command:
+            - python
+            - /app/worker.py
+          env:
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: crew7-secrets
+                  key: APP_SECRET
+            - name: OLLAMA_BASE_URL
+              value: "{{ .Values.env.OLLAMA_BASE_URL }}"
+            - name: MODEL_GENERAL
+              value: "{{ .Values.env.MODEL_GENERAL }}"
+            - name: MODEL_EMBED
+              value: "{{ .Values.env.MODEL_EMBED }}"
+            - name: STRIPE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: crew7-secrets
+                  key: STRIPE_SECRET
+          resources: { { - toYaml .Values.resources.worker | nindent 12 } }

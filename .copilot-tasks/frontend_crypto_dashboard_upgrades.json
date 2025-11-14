@@ -1,0 +1,52 @@
+{
+  "frontend_crypto_dashboard_upgrades": [
+    {
+      "id": "wallet_connect_ui",
+      "title": "Wallet Connect UI & Status",
+      "path_hint": "frontend/src/components/Wallet/WalletConnect.tsx",
+      "copilot_prompt": "Implement a WalletConnect component for Crew-7.\nRequirements:\n1) Show a 'Connect Wallet' button if no wallet is linked.\n2) When clicked, in mock mode: open a modal that lets the user paste an address to link; in real Web3 mode (optional), integrate a simple injected provider (e.g., window.ethereum / MetaMask) and request accounts.\n3) Display the shortened wallet address, network name (if available), and connection status (Connected/Not Connected).\n4) Call backend POST /wallet/link to store the wallet address after user approval.\n5) Integrate this component into the top-right of the app header, next to profile/avatar.\n\nCopilot: Keep implementation modular, with a simple hook useWallet() to manage state and API calls."
+    },
+    {
+      "id": "token_balance_chip",
+      "title": "User Token Balance Chip",
+      "path_hint": "frontend/src/components/Header/TokenBalanceChip.tsx",
+      "copilot_prompt": "Create a small token balance chip in the header that shows the user's C7T balance.\nRequirements:\n1) Fetch from GET /dashboard/stats or /wallet endpoint.\n2) Show an icon (token glyph) and balance like '1,250 C7T'.\n3) On hover, show a tooltip explaining that C7T is used to rent/buy AI crews.\n4) If mock mode is active and the backend returns a flag, show a small 'testnet' or 'simulation' label.\n\nCopilot: Style this chip to match the neon Crew-7 design language and place it near the wallet status."
+    },
+    {
+      "id": "marketplace_pricing_and_actions",
+      "title": "Marketplace Pricing in C7T & Rent/Buy CTAs",
+      "path_hint": "frontend/src/pages/Marketplace.tsx",
+      "copilot_prompt": "Upgrade the Marketplace page to show Crew pricing in C7T and support Rent/Buy actions.\nRequirements:\n1) Each crew card should show:\n   - Price (Buy: base_price_c7t)\n   - Rent price (rental_price_c7t per mission or per time unit)\n   - XP level and rating (if available)\n2) Add buttons:\n   - 'Rent Crew' → opens a modal summarizing the rental details and calls POST /market/rent_crew/{crew_id}.\n   - 'Buy Crew' → opens a modal with a confirmation and calls POST /market/buy_crew/{crew_id}.\n3) After successful Rent/Buy, show a success toast and update the UI to reflect new ownership or active rental.\n4) If user lacks enough tokens, show a 'Not enough C7T' message and a link to a 'Get more C7T' info panel.\n\nCopilot: Keep all Web3/crypto wording friendly; explain that tokens may be in test or mock mode."
+    },
+    {
+      "id": "crew_portfolio_view",
+      "title": "Crew Portfolio & Reputation View",
+      "path_hint": "frontend/src/pages/CrewDetails.tsx",
+      "copilot_prompt": "Add a portfolio and reputation section to the Crew Details page.\nRequirements:\n1) Call GET /crews/{crew_id}/portfolio.\n2) Display:\n   - Missions completed\n   - Hours worked\n   - Success rate\n   - Rating (stars + number of ratings)\n   - Industries served (chips)\n   - Total earned C7T\n3) Show XP and level with a progress bar and a short description (e.g., 'Level 5 — Senior AI Team').\n4) Add a 'Rate this Crew' interaction after a completed mission (stars + optional comment), sending POST /crews/{crew_id}/rate.\n\nCopilot: Design this like a glowing futuristic profile card for the crew, with robot avatars in the header."
+    },
+    {
+      "id": "dashboard_crypto_cards",
+      "title": "Dashboard Crypto & Marketplace Cards",
+      "path_hint": "frontend/src/pages/Dashboard.tsx",
+      "copilot_prompt": "Enhance the dashboard with crypto + marketplace insight cards.\nRequirements:\n1) Show cards for:\n   - Total C7T balance\n   - Total C7T spent on rentals\n   - Total C7T earned by owned crews\n   - Number of crews owned\n   - Active rentals\n2) Use GET /dashboard/stats for data.\n3) Add a 'View Marketplace' CTA on the marketplace card, and 'Manage Crews' CTA on the owned crews card.\n\nCopilot: Use the same card component style as existing analytics cards for consistency, but give these cards a subtle token motif."
+    },
+    {
+      "id": "rental_and_ownership_badges",
+      "title": "Rental & Ownership Badges",
+      "path_hint": "frontend/src/components/Crew/CrewCard.tsx",
+      "copilot_prompt": "Add visual badges to Crew cards representing ownership and rental status.\nRequirements:\n1) If user owns the crew: show a 'Owned' badge (e.g., Owner, Co-pilot) and a small C7T earnings icon.\n2) If crew is rented by the user: show 'Rented' badge with remaining time or missions.\n3) If crew is for sale: show 'For Sale' or 'Available to Rent' with prices.\n4) All badge states must be derived from marketplace data and portfolio stats.\n\nCopilot: Make badges small but visually clear, using neon outlines matching the Crew-7 color palette."
+    },
+    {
+      "id": "wallet_and_token_settings_section",
+      "title": "Wallet & Token Settings Section",
+      "path_hint": "frontend/src/pages/settings/WalletAndTokens.tsx",
+      "copilot_prompt": "Create a settings page for Wallet & Tokens.\nRequirements:\n1) Show linked wallet address, chain, and a 'Change Wallet' button.\n2) Show current C7T balance, basic transaction history (from token_transactions endpoint), and a status indicator (Mock Mode vs Live Mode).\n3) Add an educational panel that explains:\n   - What C7T is used for (rent/buy crews)\n   - That for now it may be running in mock/test mode\n4) If in mock mode, allow a 'Request Test Tokens' button that calls a backend endpoint to credit some C7T.\n\nCopilot: Keep the tone clear and beginner-friendly so non-crypto users are not scared away."
+    },
+    {
+      "id": "advanced_mode_crypto_overlay",
+      "title": "Advanced Mode Crypto Overlay",
+      "path_hint": "frontend/src/components/graph/AgentGraphOverlay.tsx",
+      "copilot_prompt": "Add a small overlay in Advanced Mode showing economic stats for the current run.\nRequirements:\n1) When a run is created from a rented crew, show:\n   - Rental cost in C7T\n   - Estimated C7T burn per minute or per mission\n2) Show a small status: 'This mission is being executed by a rented crew. Earnings and XP will go to the owner.'\n3) If the user owns the crew, show 'Earnings from this mission will go to you.'\n\nCopilot: Keep this overlay subtle and non-blocking; it should add context, not clutter."
+    }
+  ]
+}

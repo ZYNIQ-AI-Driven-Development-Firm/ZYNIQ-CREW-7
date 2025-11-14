@@ -1,0 +1,19 @@
+{
+  "ui_goals": [
+    {
+      "id": "ui_design_language",
+      "title": "UI Design Language",
+      "copilot_prompt": "UI design goals for Crew-7:\n1) Dark theme by default with subtle gradients and neon accents (red/orange highlights, slate backgrounds).\n2) Rounded corners, soft shadows, and compact spacing to keep the interface feeling like an AI cockpit, not a corporate dashboard.\n3) Robot avatars represent agents; no human stock photos.\n4) Clear visual hierarchy: primary actions stand out, secondary actions are quieter.\n5) Everything should look consistent across pages (same typography, spacing scale, and border radii).\n\nCopilot: When changing UI components, preserve this visual language and reuse existing design tokens/classes when possible."
+    },
+    {
+      "id": "ui_information_density",
+      "title": "Information Density & Clarity",
+      "copilot_prompt": "Information density rules:\n1) Crew-7 is information-rich, but never cluttered.\n2) Primary views (Dashboard, Chat) should show only the most important metrics and controls.\n3) Secondary details (logs, traces, configuration) live in drawers, modals, or Advanced Mode.\n4) Tooltips and helper text are preferred to always-visible walls of text.\n\nCopilot: When adding new UI, keep primary views simple and delegate complex controls to collapsible or advanced sections."
+    },
+    {
+      "id": "ui_responsiveness",
+      "title": "Responsiveness & Layouts",
+      "copilot_prompt": "Responsiveness goals:\n1) Layout must work on laptops first (1280x720+) and degrade gracefully on smaller screens.\n2) Sidebar collapses elegantly; chat and graphs should remain usable when space is constrained.\n3) Avoid fixed pixel widths whenever flexible fractions can be used.\n\nCopilot: When editing layout components, keep them responsive and avoid hard-coded sizes that break on smaller screens."
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "backend_crypto_upgrades": [
+    {
+      "id": "crypto_architecture_layer",
+      "title": "Crypto Architecture Layer & Configuration",
+      "path_hint": "backend/app/core/crypto_config.py",
+      "copilot_prompt": "Add a crypto/Web3 configuration module that abstracts blockchain-specific details. Requirements:\n1) Create a CryptoConfig class or module that reads ENV vars for:\n   - C7T_TOKEN_ADDRESS (ERC-20 utility token)\n   - CREW_NFT_ADDRESS (ERC-721 crew token)\n   - RENTAL_CONTRACT_ADDRESS (smart contract that manages renting crews)\n   - RPC_URL (EVM-compatible RPC endpoint, e.g., Polygon, testnet, or local node)\n2) Provide helper methods to get a Web3 client instance using web3.py.\n3) Do NOT hardcode any chain-specific values; use env variables and sensible defaults (like mock mode using an in-memory ledger if RPC_URL is missing).\n4) Expose a flag `CRYPTO_MOCK_MODE` that, when true, bypasses real chain calls and uses an in-memory or database-backed token ledger instead.\n5) Ensure this module can be imported without causing side effects or crashes even if Web3 dependencies are not fully configured.\n\nCopilot: Implement this as a clean abstraction layer so all other modules use this config and do not talk directly to Web3."
+    },
+    {
+      "id": "user_wallet_binding",
+      "title": "User Wallet Binding & Profile Linking",
+      "path_hint": "backend/app/routes/users_wallets.py",
+      "copilot_prompt": "Create backend endpoints to link a user's Web3 wallet address to their Crew-7 account.\nRequirements:\n1) POST /wallet/link: accepts a signed message + address and verifies signature (if crypto is available). If CRYPTO_MOCK_MODE is true, skip actual signature verification but still store the address.\n2) GET /wallet: returns the stored wallet address and any cached balances for the logged-in user.\n3) Store wallet addresses in a new table user_wallets (user_id, address, chain, created_at).\n4) Do not allow multiple wallet addresses per user for now; if a wallet already exists, allow updating via a secured route.\n5) Think ahead: structure code for multi-chain support by including a `chain` column or field.\n\nCopilot: Ensure the wallet linking logic is secure and idempotent, and never logs raw signatures."
+    },
+    {
+      "id": "token_balance_and_ledger",
+      "title": "C7T Token Balance & Off-chain Ledger Fallback",
+      "path_hint": "backend/app/services/token_service.py",
+      "copilot_prompt": "Implement a token service to manage balances of the Crew-7 utility token (C7T) with Web3 and off-chain fallback.\nRequirements:\n1) If CRYPTO_MOCK_MODE is false and Web3 is configured, implement a method `get_onchain_balance(address)` using ERC-20 balanceOf.\n2) Add an off-chain ledger table token_balances (user_id, token_symbol, balance) to track balances when on-chain mode is not ready.\n3) Implement:\n   - get_balance(user_id): returns combined view of on-chain (if available) and off-chain balance for C7T.\n   - credit(user_id, amount, reason): increase off-chain balance and store a transaction record.\n   - debit(user_id, amount, reason): decrease balance safely with error if insufficient funds.\n4) Create simple transaction history table token_transactions (user_id, amount, direction, reason, created_at).\n5) All public endpoints should use this service instead of directly reading/writing raw values.\n\nCopilot: Keep all token logic behind this service so switching from mock mode to real on-chain tokens later is easy."
+    },
+    {
+      "id": "marketplace_pricing_in_tokens",
+      "title": "Marketplace Pricing & Payments in Tokens",
+      "path_hint": "backend/app/routes/marketplace.py",
+      "copilot_prompt": "Extend the marketplace endpoints to support pricing crews in C7T tokens and handling basic payment flows.\nRequirements:\n1) Add pricing fields to crew templates and installed crews: base_price_c7t, rental_price_c7t.\n2) Implement endpoint POST /market/rent_crew/{crew_id} that:\n   - Checks the user's C7T balance via token_service.\n   - Debits the rental_price_c7t from the user.\n   - Records a rental record crew_rentals (crew_id, renter_user_id, start_time, end_time, tx_reference).\n   - Returns a rent contract summary (duration, crew, remaining balance).\n3) Implement endpoint POST /market/buy_crew/{crew_id}:\n   - If the crew is template-backed and for sale, debit base_price_c7t and transfer ownership (owner_user_id) record.\n   - This should be abstracted so later it can map to NFT transfers.\n4) All payment operations should use the token_service debit/credit methods and be mock-mode compatible.\n\nCopilot: Do NOT integrate with actual smart contracts yet; design it so later we can just hook in real on-chain transfers without changing the API."
+    },
+    {
+      "id": "crew_portfolio_and_xp",
+      "title": "Crew Portfolio, XP & Reputation",
+      "path_hint": "backend/app/routes/crew_portfolio.py",
+      "copilot_prompt": "Create endpoints and data models that represent the portfolio and reputation of each crew.\nRequirements:\n1) New tables:\n   - crew_portfolio (crew_id, missions_completed, hours_worked, rating_avg, rating_count, industries, last_mission_at)\n   - crew_xp (crew_id, xp, level)\n2) Each completed run can optionally contribute XP and mission statistics to the crew.\n3) Implement GET /crews/{crew_id}/portfolio: returns portfolio stats, XP, level, plus token-based metrics (total_earned_c7t, total_rented_count).\n4) Support POST /crews/{crew_id}/rate: allow users to rate a crew (1-5 stars) after a mission. Recalculate rating_avg and rating_count.\n5) Do not overfit to a single domain; metrics should make sense for software, marketing, finance, etc.\n\nCopilot: When integrating with run completion logic, ensure XP and portfolio stats update safely and idempotently."
+    },
+    {
+      "id": "rental_contracts_onchain_adapter",
+      "title": "Rental Contract On-chain Adapter (Future Hook)",
+      "path_hint": "backend/app/services/rental_contract_adapter.py",
+      "copilot_prompt": "Create a rental contract adapter that defines the interface to future on-chain rental contracts, with mock implementation for now.\nRequirements:\n1) Define functions:\n   - create_rental_agreement(crew_id, renter_address, duration, price_c7t)\n   - complete_rental(agreement_id)\n   - get_rental_status(agreement_id)\n2) If CRYPTO_MOCK_MODE is true, just create records in a crew_rental_agreements table (crew_id, renter_address, status, start_time, end_time, price_c7t).\n3) If CRYPTO_MOCK_MODE is false and Web3 is available, implement stubs that are ready to call a smart contract (do not generate Solidity; just call a configured contract address with method names and ABIs stored in a config file).\n4) Ensure the marketplace rent_crew endpoint calls this adapter rather than directly touching rental tables.\n\nCopilot: This layer must be a clean boundary that separates Crew-7 business logic from chain details."
+    },
+    {
+      "id": "dashboard_backend_stats_tokens",
+      "title": "Dashboard Backend Stats for Crypto & Marketplace",
+      "path_hint": "backend/app/routes/dashboard_stats.py",
+      "copilot_prompt": "Extend the dashboard stats endpoint to include marketplace and token metrics.\nRequirements:\n1) Add fields:\n   - total_crews_listed\n   - total_crews_rented\n   - total_c7t_volume (sum of rental + purchase operations)\n   - user_c7t_balance\n   - user_crews_owned_count\n   - user_active_rentals_count\n2) Implement GET /dashboard/stats pulling from marketplace tables, token_transactions, and crew_rentals.\n3) This endpoint should be fast and use aggregation queries.\n\nCopilot: Make sure this endpoint supports both mock token mode and future real on-chain data by reading from our existing services."
+    }
+  ]
+}

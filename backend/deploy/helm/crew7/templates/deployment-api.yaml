@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crew7-api
+spec:
+  replicas: { { .Values.replicaCount.api } }
+  selector:
+    matchLabels:
+      app: crew7-api
+  template:
+    metadata:
+      labels:
+        app: crew7-api
+    spec:
+      containers:
+        - name: api
+          image: "{{ .Values.image.repo }}:{{ .Values.image.tag }}"
+          command:
+            - gunicorn
+            - -k
+            - uvicorn.workers.UvicornWorker
+            - app.main:app
+            - -b
+            - 0.0.0.0:8000
+            - --workers
+            - "4"
+            - --timeout
+            - "120"
+          env:
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: crew7-secrets
+                  key: APP_SECRET
+            - name: OLLAMA_BASE_URL
+              value: "{{ .Values.env.OLLAMA_BASE_URL }}"
+            - name: MODEL_GENERAL
+              value: "{{ .Values.env.MODEL_GENERAL }}"
+            - name: MODEL_EMBED
+              value: "{{ .Values.env.MODEL_EMBED }}"
+            - name: STRIPE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: crew7-secrets
+                  key: STRIPE_SECRET
+            - name: STRIPE_PRICE_CREDITS
+              value: "{{ .Values.env.STRIPE_PRICE_CREDITS }}"
+            - name: CREDITS_PER_RUN
+              value: "{{ .Values.env.CREDITS_PER_RUN | quote }}"
+          ports:
+            - containerPort: 8000
+          resources: { { - toYaml .Values.resources.api | nindent 12 } }

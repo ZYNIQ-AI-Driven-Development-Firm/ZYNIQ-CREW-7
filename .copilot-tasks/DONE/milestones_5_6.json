@@ -1,0 +1,106 @@
+{
+  "milestones": [
+    {
+      "id": 5,
+      "title": "Crew-7 Avatars & UI Polish",
+      "steps": [
+        {
+          "description": "Add neon robot avatars as SVG/Lottie assets (Crew-7: Orchestrator, Orion, Vega, Nova, Atlas, Lyra, Helix, Quark, Sigma).",
+          "path_hint": "frontend/src/assets/avatars/",
+          "copilot_prompt": "Create SVG robot avatars matching dark neon style; export as reusable React components with optional glow animation prop."
+        },
+        {
+          "description": "Integrate avatar component with Crew panel and agent badges.",
+          "path_hint": "frontend/src/components/Crew/",
+          "copilot_prompt": "Replace current agent face placeholders with the new RobotAvatar component; support status-based glow on active agents."
+        },
+        {
+          "description": "Add breathing/hover glow animation for active or selected avatars.",
+          "path_hint": "frontend/src/components/avatars/",
+          "copilot_prompt": "Implement CSS keyframes for breathing glow; trigger on hover or when status==='typing'."
+        },
+        {
+          "description": "Update sidebar icons to include Dashboard, Projects, Collections, Workspace, Marketplace, Crews, Runs, Settings, and Sign-out.",
+          "path_hint": "frontend/src/layout/Sidebar.tsx",
+          "copilot_prompt": "Add icon imports and SidebarItem components with current route highlighting and red glow on active."
+        },
+        {
+          "description": "Add dashboard analytics cards (Runs, Success Rate, Avg Latency, Token Usage).",
+          "path_hint": "frontend/src/pages/Dashboard.tsx",
+          "copilot_prompt": "Create grid of analytics cards pulling metrics from /runs/stats endpoint."
+        },
+        {
+          "description": "Implement notification dropdown with Signal Feed items (SUCCESS, INFO, WARNING).",
+          "path_hint": "frontend/src/components/Notifications/",
+          "copilot_prompt": "Render scrollable list of signal events; mark all read and color-code status badges."
+        },
+        {
+          "description": "Finalize workspace switcher UI with active highlight and 'Create new workspace' button.",
+          "path_hint": "frontend/src/components/WorkspaceSwitcher.tsx",
+          "copilot_prompt": "Implement dropdown menu for workspaces with active state glow and create new workspace modal trigger."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Advanced Mode: XYFlow Graph, Traces, LLM Connections, Marketplace",
+      "steps": [
+        {
+          "description": "Integrate XYFlow graph panel beside chat for Advanced Mode.",
+          "path_hint": "frontend/src/components/graph/AgentGraph.tsx",
+          "copilot_prompt": "Implement ReactFlow canvas with agent nodes and message edges; fitView on load; style using dark theme."
+        },
+        {
+          "description": "Implement node glow for active agents, edge labels for messages, and live updates via WebSocket.",
+          "path_hint": "frontend/src/components/graph/useGraphStore.ts",
+          "copilot_prompt": "Subscribe to /ws/graph; update node status on agent_start/agent_end; add edge label on edge messages."
+        },
+        {
+          "description": "Add Pause, Resume, Cancel run controls linked to backend endpoints.",
+          "path_hint": "frontend/src/components/graph/AgentGraph.tsx",
+          "copilot_prompt": "Add buttons triggering POST to /graph/runs/{id}/pause|resume|cancel with optimistic UI feedback."
+        },
+        {
+          "description": "Backend endpoint to persist and load crew graph layout JSON.",
+          "path_hint": "backend/app/routes/graph.py",
+          "copilot_prompt": "Implement GET/PUT /graph/{crew_id} endpoints storing layout JSON in crew_graphs table; upsert on PUT."
+        },
+        {
+          "description": "Add execution traces viewer with filters (status, type) and 'Get started' empty state.",
+          "path_hint": "frontend/src/pages/Traces.tsx",
+          "copilot_prompt": "Create Traces page listing trace batches with filters by status/type and placeholder when empty."
+        },
+        {
+          "description": "Implement Environment Variables management panel.",
+          "path_hint": "frontend/src/pages/EnvVars.tsx",
+          "copilot_prompt": "Add table to list, create, and edit key/value pairs; POST to /env/store endpoint; use modal for new variable."
+        },
+        {
+          "description": "Implement LLM Connections panel for API keys and providers.",
+          "path_hint": "frontend/src/pages/LLMConnections.tsx",
+          "copilot_prompt": "Create form with provider select (OpenAI, Ollama), API key input, and bulk view toggle; list existing connections."
+        },
+        {
+          "description": "Add Marketplace section with 3 installable crew templates.",
+          "path_hint": "frontend/src/pages/Marketplace.tsx",
+          "copilot_prompt": "Render grid of templates; on click POST /market/install/{id} to create a new crew instance."
+        },
+        {
+          "description": "Backend GitHub PR tool to scaffold generated code and open a pull request.",
+          "path_hint": "backend/app/tools/github.py",
+          "copilot_prompt": "Implement endpoint that creates branch, commits files, and opens PR using GITHUB_TOKEN; return pr_url."
+        },
+        {
+          "description": "Add quick-start actions on Dashboard: 'Backend Scaffold' and 'Frontend Scaffold'.",
+          "path_hint": "frontend/src/pages/Dashboard.tsx",
+          "copilot_prompt": "Add two CTA buttons that trigger predefined crew templates via /market/install; show PR toast on success."
+        },
+        {
+          "description": "Add 'Advanced Mode' toggle in chat header to reveal or hide XYFlow board.",
+          "path_hint": "frontend/src/layout/ChatHeader.tsx",
+          "copilot_prompt": "Add switch component that toggles between chat-only and split-view with AgentGraph."
+        }
+      ]
+    }
+  ]
+}

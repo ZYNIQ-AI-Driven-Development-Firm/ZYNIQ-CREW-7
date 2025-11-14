@@ -1,0 +1,77 @@
+:root{
+  --crew7-stroke:#94A3B8;
+  --crew7-accent:#E5484D;
+  --crew7-plate:#0F1A24;
+}
+
+.c7-hover:hover .c7-accent {
+  filter: drop-shadow(0 0 4px var(--crew7-accent));
+}
+
+.c7-idle {
+  animation: c7-breathe 3.6s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+
+/* Avatar glow animations */
+.c7-glow {
+  filter: drop-shadow(0 0 8px var(--crew7-accent));
+  animation: c7-pulse-glow 2s ease-in-out infinite;
+}
+
+.c7-typing {
+  filter: drop-shadow(0 0 12px var(--crew7-accent)) drop-shadow(0 0 20px var(--crew7-accent));
+  animation: c7-typing-glow 1.5s ease-in-out infinite;
+}
+
+.c7-hover:hover {
+  filter: drop-shadow(0 0 6px var(--crew7-accent));
+  transition: filter 0.3s ease;
+}
+
+@keyframes c7-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: .95;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes c7-pulse-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px var(--crew7-accent));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px var(--crew7-accent)) drop-shadow(0 0 16px var(--crew7-accent));
+  }
+}
+
+@keyframes c7-typing-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px var(--crew7-accent)) drop-shadow(0 0 16px var(--crew7-accent));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px var(--crew7-accent)) drop-shadow(0 0 24px var(--crew7-accent));
+  }
+}
+
+.c7-32 {
+  width:32px;
+  height:32px;
+}
+
+.c7-40 {
+  width:40px;
+  height:40px;
+}
+
+.c7-64 {
+  width:64px;
+  height:64px;
+}

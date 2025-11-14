@@ -1,0 +1,8 @@
+{
+  "name": "Gemini Idea Builder",
+  "description": "An interface to build and explore ideas using the Gemini API, inspired by the Google AI Studio builder.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}

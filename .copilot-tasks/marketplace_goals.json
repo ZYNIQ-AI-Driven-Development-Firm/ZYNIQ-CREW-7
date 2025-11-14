@@ -1,0 +1,14 @@
+{
+  "marketplace_goals": [
+    {
+      "id": "marketplace_value",
+      "title": "Marketplace Value Proposition",
+      "copilot_prompt": "Marketplace goals:\n1) Provide a curated set of useful, opinionated crews (Backend Builder, Frontend Builder, Simple ETL, etc.).\n2) Each crew template should have a clear description of inputs, outputs, and what problem it solves.\n3) Installation should be one click and immediately runnable with minimal extra configuration.\n\nCopilot: Keep marketplace features focused on discoverability and easy installation of high-quality crews, not on generic plugin systems."
+    },
+    {
+      "id": "marketplace_safety",
+      "title": "Marketplace Safety & Ownership",
+      "copilot_prompt": "Marketplace safety rules:\n1) Installing a template must create a new crew under the user's workspace; never mutate or delete existing crews.\n2) Templates must not ship hardcoded credentials or unsafe tool configurations.\n3) Template execution must still follow all sandbox and security policies.\n\nCopilot: When modifying marketplace code, do not bypass sandbox, security, or multi-tenant safeguards."
+    }
+  ]
+}

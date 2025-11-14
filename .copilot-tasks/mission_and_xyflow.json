@@ -1,0 +1,16 @@
+{
+  "tasks": [
+    {
+      "id": "mission_websocket_runtime_test",
+      "title": "Mission WebSocket runtime and handshake",
+      "path_hint": "backend/app/routes/ws_mission.py",
+      "copilot_prompt": "Mission WebSocket now exists: backend streams mission status, crew-change, and alert events via Redis-backed bus; frontend listener already hooked up. Orchestrator should broadcast busy/available transitions and failure alerts so presence and notifications track the run lifecycle.\n\nTask:\n1) Open the Mission WebSocket route (likely /ws/mission) and ensure it accepts a Bearer ACCESS_TOKEN during the handshake and validates it using our existing auth logic.\n2) Wire the socket to the internal Redis-backed bus so events of type 'mission_status', 'crew_change', and 'alert' are forwarded into the WebSocket.\n3) Make sure messages are sent as small JSON payloads { type, payload } where type is 'signal' | 'crew-change' | 'alert'.\n4) Add minimal logging for connect, disconnect, and error cases.\n5) Do not change existing public function signatures; if implementation already exists, only add what is missing.\n\nDo not break any other WebSocket routes. Keep the code idempotent so running this task on an already working implementation is a no-op."
+    },
+    {
+      "id": "xyflow_agent_graph_panel",
+      "title": "Implement XYFlow Agent Graph panel beside chat",
+      "path_hint": "frontend/src/components/graph/AgentGraph.tsx",
+      "copilot_prompt": "Implement the XYFlow agent graph panel used in Advanced Mode. The graph should visualize the Crew-7 agents as nodes and their communication as edges, and react to live backend events.\n\nRequirements:\n1) Use @xyflow/react (or ReactFlow) to render nodes for: Orchestrator, Backend Engineer, Frontend Engineer, QA Engineer, DevOps, Data Engineer, Security Analyst.\n2) Import custom nodeTypes from nodes.ts so each node uses our RobotAvatar component and supports status: 'idle' | 'typing' | 'done' | 'error'. When status is 'typing', show a red glow animation.\n3) Connect to the /ws/graph WebSocket endpoint and handle events:\n   - { type: 'agent_start', agent } -> mark that agent as typing.\n   - { type: 'agent_token', agent, text } -> optional for bubbles, but at minimum keep node in typing state.\n   - { type: 'edge', from, to, message } -> ensure an edge exists between from and to and update its label with the latest message.\n   - { type: 'agent_end', agent, status, tokens } -> set status to 'done' or 'error' and show token count on the node.\n4) Add Pause, Resume, and Cancel buttons that call POST /graph/runs/{runId}/pause, /resume, and /cancel with the current runId prop; show a small toast or inline message on success.\n5) Load the initial layout by requesting GET /graph/{crewId} on mount and apply nodes/edges positions; when the user drags nodes or changes the layout, debounce and PUT the updated layout back to /graph/{crewId}.\n6) Do not break the existing chat UI; when AgentGraph is not visible, nothing should change. When visible, it should fit the available height and call fitView on first render.\n\nIf some parts are already implemented, only extend them to satisfy the above requirements without removing existing behavior."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: crew7-api
+spec:
+  type: ClusterIP
+  selector:
+    app: crew7-api
+  ports:
+    - port: 80
+      targetPort: 8000
