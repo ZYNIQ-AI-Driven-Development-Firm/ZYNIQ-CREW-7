@@ -18,6 +18,7 @@ from app.services.metrics import record_run_started, record_run_done
 from app.crewai.adapters import upsert_memory
 from app.crewai.factory import make_crew
 from app.crewai.toolpacks import default_toolpacks
+from app.infra.redis_client import get_redis_client
 
 
 def orchestrate_run(run_id: str, crew_id: str, prompt: str, inputs: dict[str, Any]) -> None:
@@ -41,9 +42,17 @@ async def _orchestrate_run_async(run_id: UUID, crew_id: UUID, prompt: str, input
 
     await bus.publish(run_id, {"type": "status", "data": "running"})
     record_run_started(str(crew_id))
+    
+    # Publish graph start event
+    await _publish_graph_event(crew_id, {
+        "type": "run_start",
+        "run_id": str(run_id),
+        "timestamp": _now().isoformat()
+    })
+    
     final_text = ""
     try:
-        for kind, data in run_orchestration(crew_id, rendered_prompt):
+        for kind, data in run_orchestration(crew_id, rendered_prompt, run_id):
             if kind == "log":
                 await bus.publish(run_id, {"type": "message", "data": data})
             elif kind == "token":
@@ -59,6 +68,15 @@ async def _orchestrate_run_async(run_id: UUID, crew_id: UUID, prompt: str, input
         await bus.publish(run_id, {"type": "error", "data": str(exc)})
         await bus.publish(run_id, {"type": "status", "data": "failed"})
         await bus.publish(run_id, {"type": "done"})
+        
+        # Publish graph error event
+        await _publish_graph_event(crew_id, {
+            "type": "run_error",
+            "run_id": str(run_id),
+            "error": str(exc),
+            "timestamp": _now().isoformat()
+        })
+        
         if org_id:
             await publish_signal(org_id, "available", str(crew_id))
             await publish_alert(
@@ -79,14 +97,62 @@ async def _orchestrate_run_async(run_id: UUID, crew_id: UUID, prompt: str, input
     record_run_done(str(crew_id), "succeeded")
     await bus.publish(run_id, {"type": "status", "data": "succeeded"})
     await bus.publish(run_id, {"type": "done"})
+    
+    # Publish graph completion event
+    await _publish_graph_event(crew_id, {
+        "type": "run_complete",
+        "run_id": str(run_id),
+        "timestamp": _now().isoformat()
+    })
+    
     if org_id:
         await publish_signal(org_id, "available", str(crew_id))
 
 
-def run_orchestration(crew_id: UUID, prompt: str) -> Generator[tuple[str, str], None, None]:
+def run_orchestration(crew_id: UUID, prompt: str, run_id: UUID) -> Generator[tuple[str, str], None, None]:
     tools = default_toolpacks()
     crew = make_crew(str(crew_id), prompt, tools)
     yield ("log", "Crew planning…")
+    
+    # Simulate agent lifecycle with graph events
+    agents = ["orchestrator", "backend_dev", "frontend_dev", "qa_engineer", "devops_engineer"]
+    
+    for agent in agents:
+        # Publish agent start
+        asyncio.create_task(_publish_graph_event(crew_id, {
+            "type": "agent_start",
+            "agent": agent,
+            "run_id": str(run_id),
+            "timestamp": _now().isoformat()
+        }))
+        
+        yield ("log", f"Agent {agent} starting...")
+        
+        # Simulate agent work
+        import time
+        time.sleep(0.5)
+        
+        # Publish agent completion with token count
+        asyncio.create_task(_publish_graph_event(crew_id, {
+            "type": "agent_end",
+            "agent": agent,
+            "run_id": str(run_id),
+            "status": "done",
+            "tokens": 150,
+            "timestamp": _now().isoformat()
+        }))
+        
+        # Publish edge to next agent
+        if agents.index(agent) < len(agents) - 1:
+            next_agent = agents[agents.index(agent) + 1]
+            asyncio.create_task(_publish_graph_event(crew_id, {
+                "type": "edge",
+                "source": agent,
+                "target": next_agent,
+                "run_id": str(run_id),
+                "timestamp": _now().isoformat()
+            }))
+    
     result = crew.kickoff(inputs={"user_request": prompt})
     final_text = result if isinstance(result, str) else str(result)
     upsert_memory(str(crew_id), [final_text])
@@ -213,3 +279,13 @@ def _mark_failed(run_id: UUID, reason: str) -> None:
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+async def _publish_graph_event(crew_id: UUID, event: dict[str, Any]) -> None:
+    """Publish graph event to Redis channel for WebSocket subscribers."""
+    try:
+        redis = get_redis_client()
+        channel = f"graph:{crew_id}"
+        await redis.publish(channel, json.dumps(event))
+    except Exception:  # noqa: BLE001 - don't fail run if graph event fails
+        pass

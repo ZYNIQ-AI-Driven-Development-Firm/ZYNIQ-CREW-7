@@ -109,7 +109,7 @@ async def ws_mission(ws: WebSocket) -> None:
 
 
 @router.websocket("/graph")
-async def ws_graph(ws: WebSocket) -> None:
+async def ws_graph(ws: WebSocket, crew_id: str) -> None:
     """WebSocket endpoint for live graph updates during run execution."""
     protocol, token = _extract_token(ws)
     user_ctx = _decode_token(token)
@@ -119,15 +119,42 @@ async def ws_graph(ws: WebSocket) -> None:
         return
 
     await ws.accept(subprotocol=protocol)
-    logger.info(f"Graph WebSocket: connected for org_id={user_ctx.org_id}")
+    logger.info(f"Graph WebSocket: connected for crew_id={crew_id}, org_id={user_ctx.org_id}")
 
-    # TODO: Subscribe to run events and forward agent_start, agent_token, edge, agent_end events
-    # For now, just keep connection alive
+    # Subscribe to graph events for this crew
+    from app.infra.redis_client import get_redis_client
+    
+    redis = get_redis_client()
+    channel = f"graph:{crew_id}"
+    pubsub = redis.pubsub()
+    
     try:
+        await pubsub.subscribe(channel)
+        logger.info(f"Graph WebSocket: subscribed to {channel}")
+        
+        # Listen for graph events and forward to WebSocket
         while True:
-            await asyncio.sleep(30)
-            await ws.send_json({"type": "ping"})
+            try:
+                message = await asyncio.wait_for(pubsub.get_message(ignore_subscribe_messages=True), timeout=30.0)
+                
+                if message and message["type"] == "message":
+                    # Forward the graph event to WebSocket client
+                    import json
+                    event = json.loads(message["data"])
+                    await ws.send_json(event)
+                    logger.info(f"Graph WebSocket: forwarded event {event.get('type')} for crew {crew_id}")
+                elif message is None:
+                    # Heartbeat
+                    await ws.send_json({"type": "ping"})
+                    
+            except asyncio.TimeoutError:
+                # Send heartbeat
+                await ws.send_json({"type": "ping"})
+                
     except WebSocketDisconnect:
-        logger.info(f"Graph WebSocket: disconnected for org_id={user_ctx.org_id}")
+        logger.info(f"Graph WebSocket: disconnected for crew_id={crew_id}")
     except Exception as exc:
-        logger.error(f"Graph WebSocket: error for org_id={user_ctx.org_id}: {exc!r}")
+        logger.error(f"Graph WebSocket: error for crew_id={crew_id}: {exc!r}")
+    finally:
+        await pubsub.unsubscribe(channel)
+        await pubsub.close()

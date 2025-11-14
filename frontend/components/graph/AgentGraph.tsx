@@ -148,7 +148,7 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({ crewId, runId, visible =
     if (!token) return;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws/graph`, ['Bearer', token]);
+    const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws/graph?crew_id=${crewId}`, ['Bearer', token]);
     wsRef.current = ws;
 
     ws.onmessage = (event) => {
