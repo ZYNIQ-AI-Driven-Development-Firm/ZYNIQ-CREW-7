@@ -6,7 +6,7 @@ import { AgentIcon, AgentKey } from './components/AgentIcon';
 import { AgentLottie } from './components/AgentLottie';
 import { Crew7Logo, AuthLogo } from './components/Crew7Logo';
 import { AgentGraph } from './components/graph/AgentGraph';
-import LandingPageV2 from './pages/LandingPageV2';
+import LandingPageV3 from './pages/LandingPageV3';
 import { crewSet, idForRole, AGENT_IDS } from './roles/avatar-utils';
 import './styles/crew7.css';
 import './styles/design-system.css';
@@ -262,7 +262,7 @@ const App: React.FC = () => {
   }, []);
 
   if (view === 'landing') {
-    return <LandingPageV2 />;
+    return <LandingPageV3 />;
   }
 
   if (view === 'auth') {
