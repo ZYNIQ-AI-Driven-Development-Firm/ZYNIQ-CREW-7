@@ -127,7 +127,7 @@ const BackgroundOrb: React.FC<{ scrollProgress: number }> = ({ scrollProgress })
 const FloatingNav: React.FC = () => (
   <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-2xl backdrop-blur-2xl bg-white/5 border border-white/10 shadow-2xl">
     <div className="flex items-center gap-8">
-      <Crew7Logo variant="symbol" size="sm" className="w-8 h-8" />
+      <Crew7Logo variant="sign" size="sm" />
       <div className="flex gap-6 text-sm font-medium">
         <a href="#industry" className="text-white/70 hover:text-white transition-colors">Universe</a>
         <a href="#marketplace" className="text-white/70 hover:text-white transition-colors">Marketplace</a>
@@ -537,7 +537,7 @@ const FinalCTA: React.FC<{ active: boolean; scrollProgress: number }> = ({ activ
             
             {/* Center logo */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <Crew7Logo variant="symbol" size="lg" className="w-32 h-32 animate-pulse" />
+              <Crew7Logo variant="sign" size="lg" />
             </div>
           </div>
         </div>
