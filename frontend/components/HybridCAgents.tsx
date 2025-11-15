@@ -13,6 +13,7 @@ type HybridCAgentFaceProps = {
   variant: AgentVariant;
   size?: number;
   className?: string;
+  enableHoverEffects?: boolean;
 };
 
 /**
@@ -84,17 +85,52 @@ export const HybridCAgentFace: React.FC<HybridCAgentFaceProps> = ({
   variant,
   size = 160,
   className,
+  enableHoverEffects = true,
 }) => {
   const cfg = VARIANT_CONFIG[variant];
+  const [isHovered, setIsHovered] = React.useState(false);
 
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 200 200"
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
+    <div 
+      className={`relative inline-block ${enableHoverEffects ? 'hover-agent-face' : ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        transform: isHovered && enableHoverEffects ? 'rotateY(5deg) rotateX(-5deg)' : 'none',
+        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      }}
     >
+      {/* Orbiting glow ring - only for Orchestrator when hovered */}
+      {variant === 'orchestrator' && isHovered && enableHoverEffects && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            animation: 'orbit 3s linear infinite',
+          }}
+        >
+          <div
+            className="absolute top-1/2 left-1/2 w-full h-full rounded-full"
+            style={{
+              background: `radial-gradient(circle, transparent 45%, ${cfg.accent}40 48%, transparent 51%)`,
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        </div>
+      )}
+
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 200 200"
+        className={className}
+        xmlns="http://www.w3.org/2000/svg"
+        style={{
+          filter: isHovered && enableHoverEffects 
+            ? `drop-shadow(0 0 20px ${cfg.accent}80) drop-shadow(0 0 40px ${cfg.accent}40)` 
+            : undefined,
+          transition: 'filter 0.3s ease',
+        }}
+      >
       <defs>
         {/* Background radial glow */}
         <radialGradient id={`bgGlow-${variant}`} cx="50%" cy="50%" r="70%">
@@ -338,6 +374,7 @@ export const HybridCAgentFace: React.FC<HybridCAgentFaceProps> = ({
         </text>
       </g>
     </svg>
+    </div>
   );
 };
 

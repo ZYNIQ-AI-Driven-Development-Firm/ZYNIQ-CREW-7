@@ -10,6 +10,7 @@ import {
   OperationsFace,
   FinancialFace,
 } from '../components/HybridCAgents';
+import { AnimatedCounter } from '../components/AnimatedCounter';
 import { useAnime, useScrollAnimation } from '../src/lib/useAnime';
 
 /**
@@ -503,16 +504,19 @@ const PortfolioScene: React.FC<{ active: boolean; scrollProgress: number }> = ({
 
           <div className="space-y-4">
             {[
-              { label: 'Missions Completed', value: '1,247', color: 'from-green-500 to-emerald-500' },
-              { label: 'Success Rate', value: '94.8%', color: 'from-blue-500 to-cyan-500' },
-              { label: 'Skills Unlocked', value: '186', color: 'from-purple-500 to-pink-500' },
-              { label: 'Client Rating', value: '4.9/5', color: 'from-yellow-500 to-orange-500' },
+              { label: 'Missions Completed', value: 1247, color: 'from-green-500 to-emerald-500' },
+              { label: 'Success Rate', value: 94.8, decimals: 1, suffix: '%', color: 'from-blue-500 to-cyan-500' },
+              { label: 'Skills Unlocked', value: 186, color: 'from-purple-500 to-pink-500' },
+              { label: 'Client Rating', value: 4.9, decimals: 1, suffix: '/5', color: 'from-yellow-500 to-orange-500' },
             ].map((stat) => (
               <div key={stat.label} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10">
                 <span className="text-white/70">{stat.label}</span>
-                <span className={`text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r ${stat.color}`}>
-                  {stat.value}
-                </span>
+                <AnimatedCounter 
+                  end={stat.value}
+                  decimals={stat.decimals || 0}
+                  suffix={stat.suffix || ''}
+                  className={`text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r ${stat.color}`}
+                />
               </div>
             ))}
           </div>
@@ -522,9 +526,11 @@ const PortfolioScene: React.FC<{ active: boolean; scrollProgress: number }> = ({
           <div className="aspect-square rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 p-8 shadow-2xl">
             <div className="h-full flex items-center justify-center">
               <div className="text-center">
-                <div className="text-6xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-orange-500">
-                  10K+
-                </div>
+                <AnimatedCounter 
+                  end={10000}
+                  suffix="+"
+                  className="text-6xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[#ea2323] to-orange-500"
+                />
                 <div className="text-xl text-white/70">Artifacts Created</div>
               </div>
             </div>

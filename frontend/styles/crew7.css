@@ -132,6 +132,16 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Orbit animation for agent hover effects */
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 /* Custom scrollbar for dark theme */
 ::-webkit-scrollbar {
   width: 8px;
