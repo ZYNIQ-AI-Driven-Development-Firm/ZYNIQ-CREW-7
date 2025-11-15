@@ -1,0 +1,114 @@
+{
+  "task": "Implement a full Crew-7 AI Crew Marketplace mockup UI",
+  "context": {
+    "product": "Crew-7 — marketplace for renting, buying, and managing AI crews (7-agent formations)",
+    "visual_style": "Hybrid-C, dark matte background, holographic grid, neon red/white accents, data-mesh faces, premium sci-fi SaaS dashboard.",
+    "tech": "React + Typescript + (Tailwind OR CSS Modules, whichever is already used)."
+  },
+  "layout": {
+    "page_id": "MarketplacePage",
+    "sections": [
+      {
+        "id": "hero",
+        "goal": "Explain what the marketplace is and give primary actions.",
+        "components": [
+          "Headline: 'Crew-7 Marketplace'",
+          "Subheadline: 'Rent, Own, and Deploy Autonomous AI Crews.'",
+          "Two primary buttons: 'Explore Crews' and 'Create a Crew'",
+          "Background: faint Hybrid-C grid with tiny glowing particles"
+        ]
+      },
+      {
+        "id": "filters_and_search",
+        "goal": "Let the user filter and search crews quickly.",
+        "components": [
+          "Search input: by crew name / tag",
+          "Dropdown filters: Industry, Skill Focus, Price Range, Level, XP Range, Success Rate, Availability",
+          "Toggle pills: 'Dev', 'Marketing', 'Business', 'Finance', 'Ops', 'Custom'",
+          "Sort dropdown: 'Most Active', 'Highest Rated', 'Most XP', 'Newest'"
+        ]
+      },
+      {
+        "id": "crew_grid",
+        "goal": "Display crew cards in a responsive grid with rich information.",
+        "components": [
+          "Responsive grid of <MarketplaceCard />",
+          "Each card shows: crew portrait (Hybrid-C mesh entity), crew name, type tags (Dev / Marketing etc), price per mission / per sprint, XP level, success rate, number of missions, rating, rarity glow.",
+          "Hover interaction: slight scale-up, glow intensifies, show quick actions ('View Details', 'Deploy', 'Add to Favorites')."
+        ]
+      },
+      {
+        "id": 'featured_row',
+        "goal": "Highlight top-performing or sponsored crews.",
+        "components": [
+          "Horizontal scroll row of 'Featured' MarketplaceCards with stronger glow frame and 'Featured' label.",
+          "Optional badge: 'Prime Orchestrator Inside'"
+        ]
+      },
+      {
+        "id": "side_panel_preview",
+        "goal": "Show details of the selected crew without leaving the page.",
+        "components": [
+          "Right-side slide-over panel that opens when a card is clicked.",
+          "Contains: larger Hybrid-C portrait, roles breakdown (Orchestrator + 6 specialists with icons), XP timeline, mission history summary, badges, CTA buttons: 'Deploy This Crew', 'View Full Profile'."
+        ]
+      }
+    ]
+  },
+  "components_to_implement": {
+    "MarketplacePage": "Main page assembling hero, filters, grid, and optional featured row.",
+    "MarketplaceCard": "Reusable card component displaying one crew.",
+    "CrewFiltersBar": "Top bar with search + filters + sort.",
+    "CrewPreviewPanel": "Slide-over detail panel rendered via portal.",
+    "Shared": [
+      "TagPill",
+      "Badge",
+      "NeonStatChip",
+      "XPBar",
+      "RarityGlowFrame"
+    ]
+  },
+  "styling_prompt": {
+    "base": "Use dark slate background (#05070B to #0B0F19), white text, accents in red (#EA2323) and cyan where needed. Use subtle gradients and box-shadows to simulate holographic glow.",
+    "effects": [
+      "Add hex-grid or data-mesh background using a low-opacity SVG pattern.",
+      "On hover of cards, apply transform: scale(1.03) and drop-shadow with red glow.",
+      "XPBar should be a horizontal gradient with animated shimmer (CSS keyframes)."
+    ]
+  },
+  "animation_prompt": {
+    "library": "anime.js (if available) or CSS keyframes fallback.",
+    "behaviors": [
+      "Card hover: smooth scale and glow.",
+      "Metric numbers (XP, missions) count up when cards enter viewport.",
+      "Rarity glow softly pulses using opacity + blur."
+    ]
+  },
+  "data_model_hint": {
+    "CrewMarketplaceItem": {
+      "id": "string",
+      "name": "string",
+      "slug": "string",
+      "typeTags": ["string"],
+      "category": "string",
+      "level": "number",
+      "xp": "number",
+      "xpMax": "number",
+      "missionsCompleted": "number",
+      "successRate": "number",
+      "rating": "number",
+      "rarity": "'common' | 'advanced' | 'elite' | 'prime'",
+      "pricePerMission": "number",
+      "priceCurrency": "string",
+      "avatarImageUrl": "string",
+      "onChainTokenId": "string | null",
+      "chainId": "string | null"
+    }
+  },
+  "acceptance_criteria": [
+    "Marketplace page renders with hero, filters, grid, and at least mock data for 6 crews.",
+    "MarketplaceCard is fully reusable and styled according to Hybrid-C theme.",
+    "Filters and sort work against mock in-memory dataset for now.",
+    "Clicking a card opens the preview slide-over panel."
+  ]
+}

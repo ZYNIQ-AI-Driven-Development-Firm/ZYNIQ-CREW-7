@@ -1,0 +1,131 @@
+{
+  "task": "Define and implement a Web3 metadata schema for Crew-7 AI Crew NFTs",
+  "context": {
+    "goal": "Each Crew (full 7-agent team) and each individual Agent (Orchestrator or Specialist) can be represented as an NFT-like digital asset with on-chain or off-chain metadata.",
+    "usage": "Metadata will be used in marketplace UI, Web3 minting, analytics, and portfolio evolution (XP/level).",
+    "standards": "Base it on common NFT metadata standards (e.g. OpenSea metadata) plus custom Crew-7 fields."
+  },
+  "deliverables": [
+    "TypeScript interfaces for metadata objects",
+    "JSON schema example for a Crew NFT and an Agent NFT",
+    "(Optional) Solidity struct sketch or comment block for future contract implementation"
+  ],
+  "metadata_core": {
+    "shared_fields": {
+      "name": "Human-friendly name of the crew or agent",
+      "description": "Rich text describing the role, specialization, and mission history.",
+      "image": "URL to Hybrid-C portrait or card render",
+      "external_url": "Link to Crew-7 dashboard profile page",
+      "attributes": "Array of trait objects in standard { trait_type, value } format."
+    },
+    "crew_specific_fields": {
+      "crew_id": "Unique internal Crew-7 ID (string or UUID).",
+      "crew_type": "e.g. 'Dev', 'Marketing', 'Business', 'Finance', 'Ops', 'Custom'.",
+      "formation": "Always 7; 1 orchestrator + 6 specialists.",
+      "orchestrator_ref": "Agent NFT tokenId or internal ID of orchestrator.",
+      "specialists_ref": "Array of up to 6 agent IDs or tokenIds.",
+      "level": "Integer level computed from XP.",
+      "xp": "Current XP integer.",
+      "xp_required_for_next_level": "Integer.",
+      "missions_completed": "Integer.",
+      "success_rate": "Percentage number (0–100).",
+      "client_rating": "Average rating (0–5).",
+      "rarity_tier": "'common' | 'advanced' | 'elite' | 'prime'.",
+      "market_status": "'not_listed' | 'for_rent' | 'for_sale'.",
+      "price_per_mission": "Optional number.",
+      "price_currency": "Symbol string, e.g. 'C7T', 'USDC', 'ETH'.",
+      "chain_id": "Network identifier string, e.g. 'eth-mainnet', 'polygon', 'base-testnet'.",
+      "token_id": "On-chain tokenId as string (if minted)."
+    },
+    "agent_specific_fields": {
+      "agent_id": "String ID internal to Crew-7.",
+      "role": "'orchestrator' | 'engineer' | 'analyst' | 'architect' | 'creative' | 'operations' | 'finance' | 'custom'.",
+      "skills": "Array of skill tags, e.g. ['TypeScript', 'Prompt Chaining', 'Pricing Models'].",
+      "primary_model": "LLM or model ID used most often.",
+      "xp": "Integer XP.",
+      "level": "Derived level.",
+      "missions_contributed": "Integer.",
+      "success_rate": "Percentage.",
+      "rarity_tier": "Same enum as crew.",
+      "linked_crew_ids": "Array of crew_id values this agent participates in."
+    }
+  },
+  "typescript_interfaces_prompt": {
+    "copilot_instruction": "Create TypeScript interfaces `CrewNftMetadata` and `AgentNftMetadata` that extend a base `BaseNftMetadata` with fields described above. Also export a helper `createCrewNftMetadata(crew: CrewMarketplaceItem): CrewNftMetadata` that maps the marketplace data model into the NFT metadata model."
+  },
+  "example_json_metadata": {
+    "crew_example": {
+      "name": "Crew-7 // Atlas Dev Squad",
+      "description": "A Prime-level autonomous dev crew led by the Orchestrator Atlas, specialized in SaaS MVPs, API backends, and infra-as-code.",
+      "image": "https://cdn.crew7.ai/crews/atlas-dev-squad.png",
+      "external_url": "https://app.crew7.ai/crews/atlas-dev-squad",
+      "attributes": [
+        { "trait_type": "Crew Type", "value": "Dev" },
+        { "trait_type": "Level", "value": 7 },
+        { "trait_type": "Rarity", "value": "Prime" },
+        { "trait_type": "Success Rate", "value": "94.7%" },
+        { "trait_type": "Missions Completed", "value": 142 }
+      ],
+      "crew_id": "crew_atlas_dev_squad",
+      "crew_type": "Dev",
+      "formation": 7,
+      "orchestrator_ref": "agent_orchestrator_atlas",
+      "specialists_ref": [
+        "agent_engineer_01",
+        "agent_architect_01",
+        "agent_analyst_01",
+        "agent_creative_01",
+        "agent_operations_01",
+        "agent_finance_01"
+      ],
+      "level": 7,
+      "xp": 10240,
+      "xp_required_for_next_level": 15000,
+      "missions_completed": 142,
+      "success_rate": 94.7,
+      "client_rating": 4.9,
+      "rarity_tier": "prime",
+      "market_status": "for_rent",
+      "price_per_mission": 250,
+      "price_currency": "C7T",
+      "chain_id": "polygon-testnet",
+      "token_id": "12345"
+    },
+    "agent_example": {
+      "name": "Atlas // Orchestrator",
+      "description": "Prime Orchestrator of the Atlas Dev Squad. Specializes in task decomposition, orchestration, and risk-aware planning.",
+      "image": "https://cdn.crew7.ai/agents/orchestrator-atlas.png",
+      "external_url": "https://app.crew7.ai/agents/orchestrator-atlas",
+      "attributes": [
+        { "trait_type": "Role", "value": "Orchestrator" },
+        { "trait_type": "Specialization", "value": "Orchestration & Planning" },
+        { "trait_type": "Level", "value": 7 },
+        { "trait_type": "Primary Model", "value": "gpt-5.1" }
+      ],
+      "agent_id": "agent_orchestrator_atlas",
+      "role": "orchestrator",
+      "skills": [
+        "Task decomposition",
+        "Multi-agent coordination",
+        "Risk analysis",
+        "Spec writing"
+      ],
+      "primary_model": "gpt-5.1",
+      "xp": 5600,
+      "level": 7,
+      "missions_contributed": 142,
+      "success_rate": 96.1,
+      "rarity_tier": "prime",
+      "linked_crew_ids": ["crew_atlas_dev_squad"]
+    }
+  },
+  "solidity_struct_hint": {
+    "copilot_instruction": "Add a commented Solidity struct sketch like `struct CrewMetaRef { uint256 tokenId; string crewId; uint32 level; uint32 xp; uint16 missionsCompleted; uint16 successRateBps; }` for future on-chain compact storage. Do not fully implement the contract yet, just prepare the data structure."
+  },
+  "acceptance_criteria": [
+    "TypeScript interfaces compile without errors.",
+    "Example JSON metadata files validate against the interfaces.",
+    "Mapping helper from marketplace model to NFT metadata exists.",
+    "Code is documented with comments explaining each major field."
+  ]
+}
