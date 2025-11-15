@@ -7,6 +7,9 @@ import { AgentLottie } from './components/AgentLottie';
 import { Crew7Logo, AuthLogo } from './components/Crew7Logo';
 import { AgentGraph } from './components/graph/AgentGraph';
 import LandingPageV3 from './pages/LandingPageV3';
+import { WalletProvider } from './components/Wallet/useWallet';
+import { WalletConnect } from './components/Wallet/WalletConnect';
+import { TokenBalanceChip } from './components/Wallet/TokenBalanceChip';
 import { crewSet, idForRole, AGENT_IDS } from './roles/avatar-utils';
 import './styles/crew7.css';
 import './styles/design-system.css';
@@ -270,11 +273,13 @@ const App: React.FC = () => {
   }
 
   return (
-    <ApplicationShell
-      activeSection={activeSection}
-      onNavigate={setActiveSection}
-      onSignOut={() => setView('auth')}
-    />
+    <WalletProvider>
+      <ApplicationShell
+        activeSection={activeSection}
+        onNavigate={setActiveSection}
+        onSignOut={() => setView('auth')}
+      />
+    </WalletProvider>
   );
 };
 
@@ -1172,6 +1177,10 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
         </div>
       </div>
       <div className="flex flex-wrap items-start justify-end gap-2 self-start lg:gap-3">
+      {/* Wallet Components */}
+      <TokenBalanceChip />
+      <WalletConnect />
+      
       {activeSection === 'chat' && onToggleAdvancedMode && (
         <button
           type="button"
