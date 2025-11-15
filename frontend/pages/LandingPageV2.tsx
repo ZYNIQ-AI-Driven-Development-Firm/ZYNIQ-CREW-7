@@ -10,6 +10,7 @@ import {
   OperationsFace,
   FinancialFace,
 } from '../components/HybridCAgents';
+import { useAnime, useScrollAnimation } from '../src/lib/useAnime';
 
 /**
  * ZYNIQ CREW-7 — CINEMATIC 3D LANDING PAGE
@@ -154,6 +155,14 @@ const FloatingNav: React.FC = () => (
 );
 
 const CrewLineupSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
+  const { staggerFadeIn } = useAnime();
+  const sectionRef = useScrollAnimation(() => {
+    if (sectionRef.current) {
+      const cards = sectionRef.current.querySelectorAll('.crew-card');
+      staggerFadeIn(cards, 80);
+    }
+  });
+
   const crewMembers = [
     { Face: OrchestratorFace, name: 'Orchestrator', role: 'Mission Control', desc: 'Coordinates all agents & delegates tasks' },
     { Face: EngineerFace, name: 'Engineer', role: 'Full-Stack Builder', desc: 'Develops SaaS, APIs, infrastructure' },
@@ -165,7 +174,7 @@ const CrewLineupSection: React.FC<{ scrollProgress: number }> = ({ scrollProgres
   ];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center py-32 px-6">
+    <section ref={sectionRef as any} className="relative min-h-screen flex items-center justify-center py-32 px-6">
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="text-center mb-20">
           <h2 className="text-5xl md:text-7xl font-black mb-6 text-white">
@@ -181,7 +190,7 @@ const CrewLineupSection: React.FC<{ scrollProgress: number }> = ({ scrollProgres
           {crewMembers.map((member, i) => (
             <div
               key={member.name}
-              className="group relative p-6 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/10 hover:border-[#ea2323]/50 hover:scale-105 transition-all duration-300"
+              className="crew-card group relative p-6 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/10 hover:border-[#ea2323]/50 hover:scale-105 transition-all duration-300 opacity-0"
               style={{
                 animationDelay: `${i * 0.1}s`,
               }}
@@ -226,6 +235,9 @@ const CrewLineupSection: React.FC<{ scrollProgress: number }> = ({ scrollProgres
 const HeroScene: React.FC<{ active: boolean; scrollProgress: number }> = ({ active, scrollProgress }) => {
   const opacity = Math.max(0, 1 - scrollProgress * 8);
   const scale = 1 - scrollProgress * 0.5;
+  const logoRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const { breathe, glowPulse, staggerFadeIn } = useAnime();
 
   const agents = [
     { Face: OrchestratorFace, name: 'Orchestrator' },
@@ -236,6 +248,22 @@ const HeroScene: React.FC<{ active: boolean; scrollProgress: number }> = ({ acti
     { Face: OperationsFace, name: 'Operations' },
     { Face: FinancialFace, name: 'Financial' },
   ];
+
+  // Hero entrance + idle animations
+  useEffect(() => {
+    if (!active) return;
+
+    // Logo breathe animation
+    if (logoRef.current) {
+      breathe(logoRef.current, 2400);
+    }
+
+    // Text stagger fade-in
+    if (textRef.current) {
+      const textElements = textRef.current.querySelectorAll('p, button');
+      staggerFadeIn(textElements, 100);
+    }
+  }, [active, breathe, staggerFadeIn]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center" style={{ opacity, transform: `scale(${scale})` }}>
@@ -265,8 +293,8 @@ const HeroScene: React.FC<{ active: boolean; scrollProgress: number }> = ({ acti
         </div>
 
         {/* Hero text */}
-        <div className="relative z-20 mt-64">
-          <div className="flex justify-center mb-8">
+        <div ref={textRef} className="relative z-20 mt-64">
+          <div ref={logoRef} className="flex justify-center mb-8">
             <Crew7Logo variant="vertical" size="lg" />
           </div>
           <p className="text-2xl md:text-4xl font-light text-white/95 mb-4">
