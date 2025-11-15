@@ -1,6 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Crew7Logo } from '../components/Crew7Logo';
 import { AgentIcon, type AgentKey } from '../components/AgentIcon';
+import {
+  OrchestratorFace,
+  EngineerFace,
+  AnalystFace,
+  ArchitectFace,
+  CreativeFace,
+  OperationsFace,
+  FinancialFace,
+} from '../components/HybridCAgents';
 
 /**
  * ZYNIQ CREW-7 — CINEMATIC 3D LANDING PAGE
@@ -40,6 +49,9 @@ export const LandingPageV2: React.FC = () => {
 
       {/* Hero Scene - Cosmic Gateway */}
       <HeroScene active={activeScene === 0} scrollProgress={scrollProgress} />
+
+      {/* Meet the Crew */}
+      <CrewLineupSection scrollProgress={scrollProgress} />
 
       {/* Industry Universe */}
       <IndustryShowcase active={activeScene === 1} scrollProgress={scrollProgress} />
@@ -141,31 +153,111 @@ const FloatingNav: React.FC = () => (
   </nav>
 );
 
+const CrewLineupSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
+  const crewMembers = [
+    { Face: OrchestratorFace, name: 'Orchestrator', role: 'Mission Control', desc: 'Coordinates all agents & delegates tasks' },
+    { Face: EngineerFace, name: 'Engineer', role: 'Full-Stack Builder', desc: 'Develops SaaS, APIs, infrastructure' },
+    { Face: AnalystFace, name: 'Analyst', role: 'Data Scientist', desc: 'Insights, metrics, business intelligence' },
+    { Face: ArchitectFace, name: 'Architect', role: 'System Designer', desc: 'Cloud architecture, scalability, security' },
+    { Face: CreativeFace, name: 'Creative', role: 'Brand Visionary', desc: 'Design, content, storytelling' },
+    { Face: OperationsFace, name: 'Operations', role: 'Process Optimizer', desc: 'Workflows, automation, efficiency' },
+    { Face: FinancialFace, name: 'Financial', role: 'CFO Agent', desc: 'Forecasting, valuation, budgets' },
+  ];
+
+  return (
+    <section className="relative min-h-screen flex items-center justify-center py-32 px-6">
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <div className="text-center mb-20">
+          <h2 className="text-5xl md:text-7xl font-black mb-6 text-white">
+            Meet Your Crew
+          </h2>
+          <p className="text-xl text-white/80 max-w-3xl mx-auto">
+            Seven specialized AI agents, each with unique capabilities. Deploy them individually or as a unified team.
+          </p>
+        </div>
+
+        {/* Agent Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          {crewMembers.map((member, i) => (
+            <div
+              key={member.name}
+              className="group relative p-6 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/10 hover:border-[#ea2323]/50 hover:scale-105 transition-all duration-300"
+              style={{
+                animationDelay: `${i * 0.1}s`,
+              }}
+            >
+              {/* Agent Face */}
+              <div className="flex justify-center mb-6">
+                <member.Face size={120} className="group-hover:scale-110 transition-transform duration-300" />
+              </div>
+
+              {/* Info */}
+              <div className="text-center">
+                <h3 className="text-2xl font-bold mb-2 text-white">{member.name}</h3>
+                <div className="text-sm text-[#ea2323] font-semibold mb-3 uppercase tracking-wider">{member.role}</div>
+                <p className="text-sm text-white/70 leading-relaxed">{member.desc}</p>
+              </div>
+
+              {/* Glow effect on hover */}
+              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-[#ea2323]/0 to-[#ea2323]/0 group-hover:from-[#ea2323]/20 group-hover:to-[#ea2323]/5 blur-xl transition-all duration-500 -z-10 opacity-0 group-hover:opacity-100" />
+            </div>
+          ))}
+        </div>
+
+        {/* Center "Full Lineup" visual */}
+        <div className="flex items-center justify-center gap-6 flex-wrap">
+          {crewMembers.map((member, i) => (
+            <div
+              key={`lineup-${member.name}`}
+              className="transition-transform hover:scale-125 hover:-translate-y-2 duration-300"
+              style={{
+                animationDelay: `${i * 0.15}s`,
+              }}
+            >
+              <member.Face size={i === 0 ? 100 : 80} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const HeroScene: React.FC<{ active: boolean; scrollProgress: number }> = ({ active, scrollProgress }) => {
   const opacity = Math.max(0, 1 - scrollProgress * 8);
   const scale = 1 - scrollProgress * 0.5;
 
+  const agents = [
+    { Face: OrchestratorFace, name: 'Orchestrator' },
+    { Face: EngineerFace, name: 'Engineer' },
+    { Face: AnalystFace, name: 'Analyst' },
+    { Face: ArchitectFace, name: 'Architect' },
+    { Face: CreativeFace, name: 'Creative' },
+    { Face: OperationsFace, name: 'Operations' },
+    { Face: FinancialFace, name: 'Financial' },
+  ];
+
   return (
     <section className="relative min-h-screen flex items-center justify-center" style={{ opacity, transform: `scale(${scale})` }}>
       <div className="relative z-10 text-center px-6">
-        {/* 3D Robot constellation */}
+        {/* Cyberpunk AI Faces Constellation */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative w-[600px] h-[600px]" style={{ transform: `rotateY(${scrollProgress * 180}deg)` }}>
-            {(['orion', 'vega', 'nova', 'atlas', 'lyra', 'helix'] as AgentKey[]).map((agent, i) => {
-              const angle = (i / 6) * Math.PI * 2;
-              const radius = 250;
+          <div className="relative w-[700px] h-[700px]" style={{ transform: `rotateY(${scrollProgress * 180}deg)` }}>
+            {agents.map((agent, i) => {
+              const angle = (i / agents.length) * Math.PI * 2;
+              const radius = 280;
               const x = Math.cos(angle) * radius;
               const y = Math.sin(angle) * radius;
               
               return (
                 <div
-                  key={agent}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  key={agent.name}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform duration-300 hover:scale-125"
                   style={{
                     transform: `translate(${x}px, ${y}px) rotateY(${-scrollProgress * 180}deg)`,
                   }}
                 >
-                  <AgentIcon agent={agent} size={64} className="drop-shadow-[0_0_30px_rgba(239,68,68,0.6)]" />
+                  <agent.Face size={i === 0 ? 100 : 80} className="drop-shadow-[0_0_40px_rgba(234,35,35,0.4)] animate-float" />
                 </div>
               );
             })}
