@@ -4,7 +4,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.infra.db import Base, SessionLocal, engine
 import app.models  # noqa: F401
-from app.routes import auth, billing, crews, evals, graph, health, marketplace, runs, stream, tools, ws
+from app.routes import (
+    auth,
+    billing,
+    crews,
+    crew_portfolio,
+    evals,
+    graph,
+    health,
+    marketplace,
+    runs,
+    stream,
+    tools,
+    wallet,
+    ws,
+)
 from app.services.bootstrap import ensure_seed_crews
 from app.infra.telemetry import setup_logging, setup_tracing
 from app.services.metrics import register_metrics_collector
@@ -51,6 +65,8 @@ register_metrics_collector()
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(crews.router)
+app.include_router(crew_portfolio.router)
+app.include_router(wallet.router)
 app.include_router(tools.router)
 app.include_router(evals.router)
 app.include_router(billing.router)

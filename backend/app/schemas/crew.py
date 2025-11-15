@@ -33,3 +33,7 @@ class CrewOut(BaseModel):
     models_json: dict
     tools_json: dict
     env_json: dict
+    base_price_c7t: float = 0
+    rental_price_c7t: float = 0
+    for_sale: bool = False
+    for_rent: bool = False

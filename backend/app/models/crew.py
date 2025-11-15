@@ -4,7 +4,7 @@ import uuid
 
 from sqlalchemy import Boolean, ForeignKey, JSON, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infra.db import Base
 
@@ -34,3 +34,9 @@ class Crew(Base):
     tools_json: Mapped[dict | None] = mapped_column(JSON, default=dict)
     env_json: Mapped[dict | None] = mapped_column(JSON, default=dict)
     api_key: Mapped[str | None] = mapped_column(String, nullable=True)
+    
+    # Crypto relationships
+    rentals = relationship("CrewRental", back_populates="crew")
+    portfolio = relationship("CrewPortfolio", back_populates="crew", uselist=False)
+    xp = relationship("CrewXP", back_populates="crew", uselist=False)
+    ratings = relationship("CrewRating", back_populates="crew")
