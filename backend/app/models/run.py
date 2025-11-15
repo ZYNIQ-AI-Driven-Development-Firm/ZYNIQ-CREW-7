@@ -5,7 +5,7 @@ import uuid
 
 from datetime import datetime
 
-from sqlalchemy import Enum as SAEnum, ForeignKey, String, TIMESTAMP
+from sqlalchemy import Enum as SAEnum, ForeignKey, Integer, String, TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -29,3 +29,4 @@ class Run(Base):
     started_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     prompt: Mapped[str] = mapped_column(String, default="")
+    total_tokens: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

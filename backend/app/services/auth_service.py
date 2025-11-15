@@ -3,8 +3,8 @@ from __future__ import annotations
 import time
 from typing import Any
 
+import bcrypt
 import jwt
-from passlib.hash import bcrypt
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -16,11 +16,15 @@ REFRESH_TTL = 60 * 60 * 24 * 7
 
 
 def hash_pw(password: str) -> str:
-    return bcrypt.hash(password)
+    # Bcrypt has a 72-byte limit, truncate password if necessary
+    pwd_bytes = password[:72].encode('utf-8')
+    return bcrypt.hashpw(pwd_bytes, bcrypt.gensalt()).decode('utf-8')
 
 
 def verify_pw(password: str, hashed: str) -> bool:
-    return bcrypt.verify(password, hashed)
+    # Bcrypt has a 72-byte limit, truncate password if necessary
+    pwd_bytes = password[:72].encode('utf-8')
+    return bcrypt.checkpw(pwd_bytes, hashed.encode('utf-8'))
 
 
 def _make_payload(user_id: str, org_id: str, role: str, kind: str, ttl: int) -> dict[str, Any]:

@@ -1,8 +1,24 @@
 FROM python:3.11-slim
+
 WORKDIR /app
-COPY ./app /app/app
+
+# Install git and build dependencies for bcrypt
+RUN apt-get update && apt-get install -y \
+    git \
+    gcc \
+    libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy only requirements first for better caching
 COPY requirements.txt /app/
+
+# Install dependencies - this layer will be cached unless requirements.txt changes
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code after dependencies are installed
+COPY ./app /app/app
 COPY worker.py /app/worker.py
+
 EXPOSE 8000
+
 CMD ["gunicorn","-k","uvicorn.workers.UvicornWorker","app.main:app","-b","0.0.0.0:8000","--workers","4","--timeout","120"]

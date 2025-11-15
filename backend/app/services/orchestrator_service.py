@@ -18,7 +18,7 @@ from app.services.metrics import record_run_started, record_run_done
 from app.crewai.adapters import upsert_memory
 from app.crewai.factory import make_crew
 from app.crewai.toolpacks import default_toolpacks
-from app.infra.redis_client import get_redis_client
+from app.infra.redis_client import get_redis
 
 
 def orchestrate_run(run_id: str, crew_id: str, prompt: str, inputs: dict[str, Any]) -> None:

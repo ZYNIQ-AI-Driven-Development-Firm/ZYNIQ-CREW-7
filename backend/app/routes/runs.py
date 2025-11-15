@@ -59,48 +59,6 @@ async def start(
     return _to_out(run)
 
 
-@router.get("/{run_id}", response_model=RunOut)
-def status(
-    run_id: UUID,
-    db: Session = Depends(get_db),
-    user: UserCtx | None = Depends(optional_auth),
-    api_key: str | None = Depends(crew_api_key),
-) -> RunOut:
-    obj = db.get(Run, run_id)
-    if not obj:
-        raise HTTPException(404, "Run not found")
-    crew = db.get(Crew, obj.crew_id)
-    if not crew:
-        raise HTTPException(404, "Crew not found")
-    _authorize(crew, user, api_key)
-    return _to_out(obj)
-
-
-@router.post("/{run_id}/artifacts")
-async def upload_artifact(
-    run_id: UUID,
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db),
-    user: UserCtx | None = Depends(optional_auth),
-    api_key: str | None = Depends(crew_api_key),
-) -> dict[str, str]:
-    run = db.get(Run, run_id)
-    if not run:
-        raise HTTPException(404, "Run not found")
-    crew = db.get(Crew, run.crew_id)
-    if not crew:
-        raise HTTPException(404, "Crew not found")
-    _authorize(crew, user, api_key)
-    content = await file.read()
-    uri = put_artifact(
-        run_id,
-        file.filename,
-        content,
-        file.content_type or "application/octet-stream",
-    )
-    return {"uri": uri}
-
-
 @router.get("/stats", response_model=dict[str, Any])
 def get_stats(
     db: Session = Depends(get_db),
@@ -147,3 +105,45 @@ def get_stats(
         "total_tokens": total_tokens,
         "total_runs": total,
     }
+
+
+@router.get("/{run_id}", response_model=RunOut)
+def status(
+    run_id: UUID,
+    db: Session = Depends(get_db),
+    user: UserCtx | None = Depends(optional_auth),
+    api_key: str | None = Depends(crew_api_key),
+) -> RunOut:
+    obj = db.get(Run, run_id)
+    if not obj:
+        raise HTTPException(404, "Run not found")
+    crew = db.get(Crew, obj.crew_id)
+    if not crew:
+        raise HTTPException(404, "Crew not found")
+    _authorize(crew, user, api_key)
+    return _to_out(obj)
+
+
+@router.post("/{run_id}/artifacts")
+async def upload_artifact(
+    run_id: UUID,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: UserCtx | None = Depends(optional_auth),
+    api_key: str | None = Depends(crew_api_key),
+) -> dict[str, str]:
+    run = db.get(Run, run_id)
+    if not run:
+        raise HTTPException(404, "Run not found")
+    crew = db.get(Crew, run.crew_id)
+    if not crew:
+        raise HTTPException(404, "Crew not found")
+    _authorize(crew, user, api_key)
+    content = await file.read()
+    uri = put_artifact(
+        run_id,
+        file.filename,
+        content,
+        file.content_type or "application/octet-stream",
+    )
+    return {"uri": uri}
