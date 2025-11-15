@@ -9,6 +9,7 @@ from app.routes import (
     billing,
     crews,
     crew_portfolio,
+    dashboard_stats,
     evals,
     graph,
     health,
@@ -67,6 +68,7 @@ app.include_router(auth.router)
 app.include_router(crews.router)
 app.include_router(crew_portfolio.router)
 app.include_router(wallet.router)
+app.include_router(dashboard_stats.router)
 app.include_router(tools.router)
 app.include_router(evals.router)
 app.include_router(billing.router)
