@@ -31,7 +31,7 @@ export const LandingPageV2: React.FC = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative bg-[#030712] text-white overflow-x-hidden">
+    <div ref={containerRef} className="relative bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* Dynamic 3D Background */}
       <BackgroundOrb scrollProgress={scrollProgress} />
       
@@ -73,22 +73,22 @@ const BackgroundOrb: React.FC<{ scrollProgress: number }> = ({ scrollProgress })
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
       {/* Animated mesh gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#030712] via-[#0f172a] to-[#1e1b4b]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#2a2a2a]" />
       
       {/* Primary orb */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[128px] opacity-40 transition-all duration-1000"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[128px] opacity-30 transition-all duration-1000"
         style={{
-          background: `radial-gradient(circle, #ef4444, #dc2626, #991b1b)`,
+          background: `radial-gradient(circle, #ea2323, #c41e1e, #9a1818)`,
           transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`,
         }}
       />
       
       {/* Secondary orb */}
       <div
-        className="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full blur-[128px] opacity-30 transition-all duration-1000"
+        className="absolute top-1/4 right-1/4 w-[600px] h-[600px] rounded-full blur-[128px] opacity-20 transition-all duration-1000"
         style={{
-          background: `radial-gradient(circle, #3b82f6, #1d4ed8, #1e3a8a)`,
+          background: `radial-gradient(circle, #ffffff, #e0e0e0, #c0c0c0)`,
           transform: `rotate(${-rotation}deg) scale(${1.2 - scrollProgress * 0.3})`,
         }}
       />
@@ -98,7 +98,7 @@ const BackgroundOrb: React.FC<{ scrollProgress: number }> = ({ scrollProgress })
         {[...Array(30)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-white/20 rounded-full animate-float"
+            className="absolute w-1 h-1 bg-white/30 rounded-full animate-float"
             style={{
               left: `${(i * 7) % 100}%`,
               top: `${(i * 13) % 100}%`,
@@ -110,11 +110,11 @@ const BackgroundOrb: React.FC<{ scrollProgress: number }> = ({ scrollProgress })
       </div>
 
       {/* Grid overlay */}
-      <div className="absolute inset-0 opacity-20"
+      <div className="absolute inset-0 opacity-10"
         style={{
           backgroundImage: `
-            linear-gradient(to right, #374151 1px, transparent 1px),
-            linear-gradient(to bottom, #374151 1px, transparent 1px)
+            linear-gradient(to right, #ffffff 1px, transparent 1px),
+            linear-gradient(to bottom, #ffffff 1px, transparent 1px)
           `,
           backgroundSize: '80px 80px',
           transform: `perspective(1000px) rotateX(${60 - scrollProgress * 30}deg) translateZ(0)`,
@@ -127,14 +127,14 @@ const BackgroundOrb: React.FC<{ scrollProgress: number }> = ({ scrollProgress })
 const FloatingNav: React.FC = () => (
   <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-2xl backdrop-blur-2xl bg-white/5 border border-white/10 shadow-2xl">
     <div className="flex items-center gap-8">
-      <Crew7Logo variant="sign" size="sm" />
+      <Crew7Logo variant="horizontal" size="sm" />
       <div className="flex gap-6 text-sm font-medium">
-        <a href="#industry" className="text-white/70 hover:text-white transition-colors">Universe</a>
-        <a href="#marketplace" className="text-white/70 hover:text-white transition-colors">Marketplace</a>
-        <a href="#web3" className="text-white/70 hover:text-white transition-colors">Web3</a>
-        <a href="#missions" className="text-white/70 hover:text-white transition-colors">Missions</a>
+        <a href="#industry" className="text-white/80 hover:text-white transition-colors">Universe</a>
+        <a href="#marketplace" className="text-white/80 hover:text-white transition-colors">Marketplace</a>
+        <a href="#web3" className="text-white/80 hover:text-white transition-colors">Web3</a>
+        <a href="#missions" className="text-white/80 hover:text-white transition-colors">Missions</a>
       </div>
-      <button className="px-6 py-2 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 font-semibold shadow-lg shadow-red-500/50 hover:shadow-red-500/70 transition-all">
+      <button className="px-6 py-2 rounded-xl bg-[#ea2323] font-semibold shadow-lg shadow-[#ea2323]/50 hover:shadow-[#ea2323]/70 hover:bg-[#ff2e2e] transition-all">
         Launch
       </button>
     </div>
@@ -174,22 +174,22 @@ const HeroScene: React.FC<{ active: boolean; scrollProgress: number }> = ({ acti
 
         {/* Hero text */}
         <div className="relative z-20 mt-64">
-          <h1 className="text-7xl md:text-9xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 animate-gradient">
-            CREW-7
-          </h1>
-          <p className="text-2xl md:text-4xl font-light text-white/90 mb-4">
+          <div className="flex justify-center mb-8">
+            <Crew7Logo variant="vertical" size="lg" />
+          </div>
+          <p className="text-2xl md:text-4xl font-light text-white/95 mb-4">
             Your Autonomous AI Teams
           </p>
-          <p className="text-xl text-white/70 max-w-2xl mx-auto mb-12">
+          <p className="text-xl text-white/80 max-w-2xl mx-auto mb-12">
             From code to commerce. From finance to funnels. From ideas to reality.
           </p>
           
           <div className="flex gap-4 justify-center">
-            <button className="group px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 font-semibold hover:bg-white/20 transition-all shadow-2xl">
+            <button className="group px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/25 font-semibold hover:bg-white/20 transition-all shadow-2xl text-white">
               Build Your Crew
               <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">→</span>
             </button>
-            <button className="px-8 py-4 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 font-semibold shadow-lg shadow-red-500/50 hover:shadow-red-500/70 transition-all">
+            <button className="px-8 py-4 rounded-2xl bg-[#ea2323] font-semibold shadow-lg shadow-[#ea2323]/50 hover:shadow-[#ea2323]/70 hover:bg-[#ff2e2e] transition-all">
               Explore Marketplace
             </button>
           </div>
@@ -222,14 +222,14 @@ const IndustryShowcase: React.FC<{ active: boolean; scrollProgress: number }> = 
         <div className="text-center mb-20">
           <div className="flex items-center justify-center gap-4 mb-6">
             <AgentIcon agent="vega" size={48} />
-            <span className="text-sm font-semibold text-red-400 uppercase tracking-wider">VEGA — Multi-Domain Specialist</span>
+            <span className="text-sm font-semibold text-[#ea2323] uppercase tracking-wider">VEGA — Multi-Domain Specialist</span>
           </div>
           <h2 className="text-5xl md:text-6xl font-black mb-6">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white/90 to-white/70">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white/95 to-white/80">
               Universal AI Teams
             </span>
           </h2>
-          <p className="text-xl text-white/70 max-w-3xl mx-auto">
+          <p className="text-xl text-white/80 max-w-3xl mx-auto">
             Deploy specialized crews for any mission. Every profession. Every domain.
           </p>
         </div>
@@ -304,12 +304,12 @@ const MarketplaceScene: React.FC<{ active: boolean; scrollProgress: number }> = 
       <div className="text-center mb-20">
         <div className="flex items-center justify-center gap-4 mb-6">
           <AgentIcon agent="quark" size={48} />
-          <span className="text-sm font-semibold text-red-400 uppercase tracking-wider">QUARK — Marketplace Guardian</span>
+          <span className="text-sm font-semibold text-[#ea2323] uppercase tracking-wider">QUARK — Marketplace Guardian</span>
         </div>
-        <h2 className="text-5xl md:text-7xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">
+        <h2 className="text-5xl md:text-7xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-white/95 to-white/85">
           AI Teams as Assets
         </h2>
-        <p className="text-xl text-white/70 max-w-3xl mx-auto">
+        <p className="text-xl text-white/80 max-w-3xl mx-auto">
           Buy, sell, rent autonomous crews with portfolios, reputation, and economic value.
         </p>
       </div>
@@ -372,12 +372,12 @@ const PortfolioScene: React.FC<{ active: boolean; scrollProgress: number }> = ({
         <div>
           <div className="flex items-center gap-4 mb-6">
             <AgentIcon agent="nova" size={48} />
-            <span className="text-sm font-semibold text-red-400 uppercase tracking-wider">NOVA — Portfolio Architect</span>
+            <span className="text-sm font-semibold text-[#ea2323] uppercase tracking-wider">NOVA — Portfolio Architect</span>
           </div>
-          <h2 className="text-5xl font-black mb-6">
+          <h2 className="text-5xl font-black mb-6 text-white">
             Living Portfolios
           </h2>
-          <p className="text-xl text-white/70 mb-8">
+          <p className="text-xl text-white/80 mb-8">
             Every crew builds a verifiable track record. Missions completed, skills mastered, reputation earned.
           </p>
 
@@ -420,16 +420,14 @@ const Web3Scene: React.FC<{ active: boolean; scrollProgress: number }> = ({ acti
     <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
       <div className="flex items-center justify-center gap-4 mb-6">
         <AgentIcon agent="helix" size={48} />
-        <span className="text-sm font-semibold text-red-400 uppercase tracking-wider">HELIX — Blockchain Sentinel</span>
+        <span className="text-sm font-semibold text-[#ea2323] uppercase tracking-wider">HELIX — Blockchain Sentinel</span>
       </div>
       
-      <h2 className="text-5xl md:text-7xl font-black mb-6">
-        <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400">
-          Powered by Web3
-        </span>
+      <h2 className="text-5xl md:text-7xl font-black mb-6 text-white">
+        Powered by Web3
       </h2>
       
-      <p className="text-xl text-white/70 max-w-3xl mx-auto mb-16">
+      <p className="text-xl text-white/80 max-w-3xl mx-auto mb-16">
         Tokenized crews, immutable reputation, trustless rentals, and provable ownership.
       </p>
 
@@ -463,12 +461,12 @@ const MissionsScene: React.FC<{ active: boolean; scrollProgress: number }> = ({ 
       <div className="text-center mb-20">
         <div className="flex items-center justify-center gap-4 mb-6">
           <AgentIcon agent="atlas" size={48} />
-          <span className="text-sm font-semibold text-red-400 uppercase tracking-wider">ATLAS — Mission Commander</span>
+          <span className="text-sm font-semibold text-[#ea2323] uppercase tracking-wider">ATLAS — Mission Commander</span>
         </div>
-        <h2 className="text-5xl md:text-7xl font-black mb-6">
+        <h2 className="text-5xl md:text-7xl font-black mb-6 text-white">
           Real-World Missions
         </h2>
-        <p className="text-xl text-white/70 max-w-3xl mx-auto">
+        <p className="text-xl text-white/80 max-w-3xl mx-auto">
           Deploy your crew for any challenge. Execute with precision.
         </p>
       </div>
@@ -484,10 +482,10 @@ const MissionsScene: React.FC<{ active: boolean; scrollProgress: number }> = ({ 
         ].map((mission, i) => (
           <div
             key={mission.title}
-            className="group relative p-8 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/10 hover:border-red-500/50 hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden"
+            className="group relative p-8 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/10 hover:border-[#ea2323]/50 hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden"
           >
             {/* Animated background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 to-orange-500/0 group-hover:from-red-500/10 group-hover:to-orange-500/10 transition-all duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#ea2323]/0 to-[#ea2323]/0 group-hover:from-[#ea2323]/10 group-hover:to-[#ea2323]/5 transition-all duration-500" />
             
             <div className="relative z-10">
               <h3 className="text-2xl font-bold mb-4">{mission.title}</h3>
@@ -495,7 +493,7 @@ const MissionsScene: React.FC<{ active: boolean; scrollProgress: number }> = ({ 
                 <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400">{mission.time}</span>
                 <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400">{mission.complexity}</span>
               </div>
-              <button className="mt-6 w-full py-3 rounded-xl bg-white/5 border border-white/10 font-semibold group-hover:bg-red-500 group-hover:border-red-500 transition-all">
+              <button className="mt-6 w-full py-3 rounded-xl bg-white/5 border border-white/10 font-semibold group-hover:bg-[#ea2323] group-hover:border-[#ea2323] transition-all">
                 Deploy Crew
               </button>
             </div>
@@ -542,19 +540,19 @@ const FinalCTA: React.FC<{ active: boolean; scrollProgress: number }> = ({ activ
           </div>
         </div>
 
-        <h2 className="text-6xl md:text-8xl font-black mb-8 bg-clip-text text-transparent bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 animate-gradient">
+        <h2 className="text-6xl md:text-8xl font-black mb-8 text-white">
           Assemble Your Crew
         </h2>
         
-        <p className="text-2xl text-white/70 mb-12 max-w-3xl mx-auto">
+        <p className="text-2xl text-white/80 mb-12 max-w-3xl mx-auto">
           The future of work is autonomous. Start building with AI teams that never sleep.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-6 justify-center">
-          <button className="px-12 py-6 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 text-xl font-bold shadow-2xl shadow-red-500/50 hover:shadow-red-500/70 hover:scale-105 transition-all">
+          <button className="px-12 py-6 rounded-2xl bg-[#ea2323] text-xl font-bold shadow-2xl shadow-[#ea2323]/50 hover:shadow-[#ea2323]/70 hover:scale-105 hover:bg-[#ff2e2e] transition-all">
             Deploy Your First Crew
           </button>
-          <button className="px-12 py-6 rounded-2xl bg-white/10 backdrop-blur-xl border-2 border-white/20 text-xl font-bold hover:bg-white/20 hover:border-white/30 transition-all">
+          <button className="px-12 py-6 rounded-2xl bg-white/10 backdrop-blur-xl border-2 border-white/25 text-xl font-bold hover:bg-white/20 hover:border-white/35 transition-all">
             Explore Marketplace
           </button>
         </div>
@@ -567,8 +565,8 @@ const FinalCTA: React.FC<{ active: boolean; scrollProgress: number }> = ({ activ
             { value: '95%', label: 'Success Rate' },
           ].map((stat) => (
             <div key={stat.label} className="p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10">
-              <div className="text-4xl font-black mb-2 text-red-400">{stat.value}</div>
-              <div className="text-sm text-white/60">{stat.label}</div>
+              <div className="text-4xl font-black mb-2 text-[#ea2323]">{stat.value}</div>
+              <div className="text-sm text-white/70">{stat.label}</div>
             </div>
           ))}
         </div>
