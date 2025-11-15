@@ -142,7 +142,7 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({ crewId, runId, visible =
 
   // WebSocket connection for live updates
   useEffect(() => {
-    if (!runId || !visible) return;
+    if (!visible) return;
 
     const token = window.localStorage.getItem('crew7_access_token');
     if (!token) return;
@@ -151,11 +151,30 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({ crewId, runId, visible =
     const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws/graph?crew_id=${crewId}`, ['Bearer', token]);
     wsRef.current = ws;
 
+    ws.onopen = () => {
+      console.log(`Graph WebSocket: connected for crew ${crewId}`);
+    };
+
+    ws.onerror = (error) => {
+      console.error('Graph WebSocket error:', error);
+    };
+
+    ws.onclose = () => {
+      console.log(`Graph WebSocket: disconnected for crew ${crewId}`);
+    };
+
     ws.onmessage = (event) => {
       try {
         const msg: GraphEvent = JSON.parse(event.data);
 
         if (msg.type === 'agent_start') {
+          setNodes((nds) =>
+            nds.map((node) =>
+              node.id === msg.agent ? { ...node, data: { ...node.data, status: 'typing' as NodeStatus } } : node
+            )
+          );
+        } else if (msg.type === 'agent_token') {
+          // Keep agent in typing state while tokens are streaming
           setNodes((nds) =>
             nds.map((node) =>
               node.id === msg.agent ? { ...node, data: { ...node.data, status: 'typing' as NodeStatus } } : node
@@ -197,7 +216,7 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({ crewId, runId, visible =
     return () => {
       ws.close();
     };
-  }, [runId, visible, setNodes, setEdges]);
+  }, [crewId, visible, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),

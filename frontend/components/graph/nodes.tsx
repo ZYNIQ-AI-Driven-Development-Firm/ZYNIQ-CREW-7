@@ -36,7 +36,7 @@ export const AgentNode: React.FC<AgentNodeProps> = ({ data }) => {
         style={{ minWidth: '120px' }}
       >
         <AgentIcon
-          id={agentId}
+          agent={agentId}
           size={48}
           status={status}
           hoverGlow={false}
