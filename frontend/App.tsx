@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { animate, remove, stagger } from 'animejs';
 import ChatInput from './components/ChatInput';
 import Dashboard, { type RunLogEvent } from './components/Dashboard';
 import SettingsPanel from './components/SettingsPanel';
@@ -7,6 +8,8 @@ import { AgentLottie } from './components/AgentLottie';
 import { Crew7Logo, AuthLogo } from './components/Crew7Logo';
 import { AgentGraph } from './components/graph/AgentGraph';
 import LandingPageV3 from './pages/LandingPageV3';
+import { MarketplacePage } from './pages/MarketplacePage';
+import { MissionLabPage } from './pages/MissionLabPage';
 import { WalletProvider } from './components/Wallet/useWallet';
 import { WalletConnect } from './components/Wallet/WalletConnect';
 import { TokenBalanceChip } from './components/Wallet/TokenBalanceChip';
@@ -17,9 +20,13 @@ import './styles/landing-page-enhanced.css';
 import {
   createRun,
   getCrew,
+  listCrews,
   getMe,
+  login,
+  register,
   missionSocket,
   streamRun,
+  runFullStackCrew,
   type Crew,
   type MissionMessage,
   type StreamEvent,
@@ -34,6 +41,7 @@ type Section =
   | 'collections'
   | 'workspace'
   | 'marketplace'
+  | 'missionlab'
   | 'crews'
   | 'runs'
   | 'settings';
@@ -265,7 +273,7 @@ const App: React.FC = () => {
   }, []);
 
   if (view === 'landing') {
-    return <LandingPageV3 />;
+    return <LandingPageV3 onNavigate={setView} />;
   }
 
   if (view === 'auth') {
@@ -290,6 +298,8 @@ type AuthScreenProps = {
 const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const isSignUp = mode === 'signUp';
   const canSubmit = formData.email.trim() && formData.password.trim() && (!isSignUp || formData.name.trim());
@@ -297,12 +307,35 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   const handleChange = (field: 'name' | 'email' | 'password') =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setFormData((prev) => ({ ...prev, [field]: event.target.value }));
+      setError(''); // Clear error when user types
     };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!canSubmit) return;
-    onAuthenticated();
+    if (!canSubmit || loading) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      if (isSignUp) {
+        // Register new user
+        await register({ email: formData.email, password: formData.password });
+        // After registration, log in
+        const loginResponse = await login({ email: formData.email, password: formData.password });
+        localStorage.setItem('crew7_token', loginResponse.access);
+      } else {
+        // Sign in existing user
+        const loginResponse = await login({ email: formData.email, password: formData.password });
+        localStorage.setItem('crew7_token', loginResponse.access);
+      }
+      onAuthenticated();
+    } catch (err: any) {
+      console.error('Auth error:', err);
+      setError(err.message || 'Authentication failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -386,43 +419,25 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                     required
                   />
                 </label>
+                {error && (
+                  <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+                    {error}
+                  </div>
+                )}
                 <button
                   type="submit"
-                  disabled={!canSubmit}
+                  disabled={!canSubmit || loading}
                   className="w-full rounded-xl bg-[#ea2323] py-3 text-sm font-semibold text-white shadow-lg shadow-[#ea232336] transition hover:bg-[#c81f1f] disabled:cursor-not-allowed disabled:bg-[#6b1c1c]"
                 >
-                  {isSignUp ? 'Create your account' : 'Sign in to Crew-7'}
+                  {loading ? 'Please wait...' : (isSignUp ? 'Create your account' : 'Sign in to Crew-7')}
                 </button>
               </form>
-              <div className="mt-6 space-y-4 text-xs text-[#acb6cf]">
+              <div className="mt-6 text-xs text-[#acb6cf]">
                 <p>
                   By continuing you agree to our{' '}
                   <a className="font-semibold text-[#ea2323] hover:text-[#ff4040]" href="#">Terms of Service</a> and{' '}
                   <a className="font-semibold text-[#ea2323] hover:text-[#ff4040]" href="#">Privacy Policy</a>.
                 </p>
-                <div className="relative">
-                  <div className="flex items-center justify-center">
-                    <span className="h-px flex-1 bg-[#3d4759]" />
-                    <span className="px-3 text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-[#a8b2c8]">or</span>
-                    <span className="h-px flex-1 bg-[#3d4759]" />
-                  </div>
-                  <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-                    <SocialButton label="Continue with Google" icon={<GoogleIcon className="w-4 h-4" />} />
-                    <SocialButton label="Continue with GitHub" icon={<GitHubLogo className="w-4 h-4" />} />
-                    <SocialButton label="Continue with Telegram" icon={<TelegramIcon className="w-4 h-4" />} />
-                    <SocialButton label="Continue with MetaMask" icon={<MetaMaskIcon className="w-4 h-4" />} />
-                  </div>
-                </div>
-                <div className="flex justify-center pt-1">
-                  <button
-                    type="button"
-                    onClick={onAuthenticated}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#ea2323]/10 px-4 py-2 text-sm font-semibold text-[#ea2323] transition hover:bg-[#ea2323]/20"
-                  >
-                    Continue as guest
-                    <ArrowIcon className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -455,15 +470,17 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
   const [missionStatus, setMissionStatus] = useState<'available' | 'busy' | 'offline'>('available');
   const [runEvents, setRunEvents] = useState<RunLogEvent[]>([]);
   const [activeCrew, setActiveCrew] = useState<Crew | null>(null);
+  const [crews, setCrews] = useState<Crew[]>([]);
   const [activeCrewId, setActiveCrewId] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return window.localStorage.getItem('crew7_active_crew_id') ?? 'crew-atlas';
+      return window.localStorage.getItem('crew7_active_crew_id') ?? '59aa8570-f55b-4422-8d8b-8c78bf6f6e7d';
     }
-    return 'crew-atlas';
+    return '59aa8570-f55b-4422-8d8b-8c78bf6f6e7d';
   });
   const streamCloseRef = useRef<(() => void) | null>(null);
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
   const [advancedMode, setAdvancedMode] = useState<boolean>(false);
+  const [crewType, setCrewType] = useState<'standard' | 'fullstack'>('standard');
 
   const notificationMenuRef = useRef<HTMLDivElement | null>(null);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
@@ -549,6 +566,27 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     if (typeof window === 'undefined') return;
     window.localStorage.setItem('crew7_active_crew_id', activeCrewId);
   }, [activeCrewId]);
+
+  // Fetch all crews
+  useEffect(() => {
+    let cancelled = false;
+    const loadCrews = async () => {
+      try {
+        const crewsData = await listCrews();
+        if (!cancelled) {
+          setCrews(crewsData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch crews', error);
+      }
+    };
+
+    void loadCrews();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!activeCrewId) {
@@ -695,7 +733,18 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     setPresenceStatus('busy');
 
     try {
-      const { id: runId } = await createRun({ crew_id: activeCrewId, prompt: content, mode: 'chat' });
+      let runId: string;
+      
+      // Use Full-Stack crew if selected, otherwise standard crew
+      if (crewType === 'fullstack') {
+        pushRunEvent('log', '🚀 Starting Full-Stack SaaS Crew (7 specialized agents)...');
+        const result = await runFullStackCrew(content);
+        runId = result.id;
+      } else {
+        const result = await createRun({ crew_id: activeCrewId, prompt: content, mode: 'chat' });
+        runId = result.id;
+      }
+      
       setCurrentRunId(runId);
       setMessages((prev) => [...prev, { id: runId, role: 'assistant', content: '' }]);
 
@@ -829,6 +878,10 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
             onPrefillConsumed={() => setPrefilledPrompt(null)}
             onSendMessage={handleSendMessage}
             onMessageAction={handleMessageAction}
+            crewType={crewType}
+            setCrewType={setCrewType}
+            advancedMode={advancedMode}
+            onToggleAdvancedMode={() => setAdvancedMode((prev) => !prev)}
           />
           <AgentGraph
             crewId={activeCrewId}
@@ -844,12 +897,24 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
           onPrefillConsumed={() => setPrefilledPrompt(null)}
           onSendMessage={handleSendMessage}
           onMessageAction={handleMessageAction}
+          crewType={crewType}
+          setCrewType={setCrewType}
+          advancedMode={advancedMode}
+          onToggleAdvancedMode={() => setAdvancedMode((prev) => !prev)}
         />
       );
     }
 
     if (activeSection === 'dashboard') {
       return <Dashboard crew={activeCrew} missionStatus={missionStatus} runEvents={runEvents} />;
+    }
+
+    if (activeSection === 'marketplace') {
+      return <MarketplacePage />;
+    }
+
+    if (activeSection === 'missionlab') {
+      return <MissionLabPage />;
     }
 
     if (activeSection === 'settings') {
@@ -863,6 +928,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
       collections: 'Vector collections list and detail drawers are coming soon.',
       workspace: 'Workspace canvas with file tree, viewers, and context panel is on the roadmap.',
       marketplace: 'Marketplace catalog of crew templates will appear here.',
+      missionlab: '',
       crews: 'Crew editor, member assignments, and orchestrations will land here.',
       runs: 'Runs feed, filters, and rerun actions will be added here.',
       settings: '',
@@ -900,6 +966,9 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
           workspaces={WORKSPACE_OPTIONS}
           orchestratorAgent={orchestratorAgent}
           crewMembers={crewMembers}
+          activeCrew={activeCrew}
+          crews={crews}
+          onSelectCrew={setActiveCrewId}
           onToggleNotifications={() => {
             setIsNotificationMenuOpen((prev) => !prev);
             setIsProfileMenuOpen(false);
@@ -947,120 +1016,159 @@ type ShellSidebarProps = {
   onHoverChange: (expanded: boolean) => void;
 };
 
-const ShellSidebar: React.FC<ShellSidebarProps> = ({ activeSection, onNavigate, onSignOut, isExpanded, onHoverChange }) => (
-  <aside
-    className={classNames(
-      'hidden sm:flex flex-col justify-between bg-[#1a2332]/98 text-white shadow-[6px_0_24px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-[width,background-color] duration-300 ease-out py-6 border-r border-white/10',
-      isExpanded ? 'w-60 px-4' : 'w-16 px-2'
-    )}
-    onMouseEnter={() => onHoverChange(true)}
-    onMouseLeave={() => onHoverChange(false)}
-    onFocusCapture={() => onHoverChange(true)}
-    onBlurCapture={(event) => {
-      if (!event.currentTarget.contains((event.relatedTarget as Node) ?? null)) {
-        onHoverChange(false);
-      }
-    }}
-  >
-    <div className={classNames('flex flex-col gap-6 transition-all duration-300', isExpanded ? 'items-stretch' : 'items-center')}>
-      <button
-        type="button"
-        onClick={() => onNavigate('chat')}
-        className={classNames(
-          'relative flex items-center rounded-xl font-semibold transition-all duration-200 shadow-lg shadow-[#ea232326]',
-          isExpanded
-            ? 'w-full gap-3 border border-[#ea2323]/50 bg-[#ea2323]/15 px-3 py-2 text-sm text-white'
-            : 'h-10 w-10 justify-center bg-[#ea2323] text-white hover:bg-[#c81f1f]'
-        )}
-        aria-label="Command feed"
-      >
-        <ChatBubbleIcon className="h-5 w-5 shrink-0" />
-        {isExpanded ? <span className="truncate">Command feed</span> : null}
-        <span
-          className={classNames(
-            'absolute inline-flex items-center justify-center rounded-full bg-white text-[0.55rem] font-bold text-[#ea2323] transition duration-200',
-            isExpanded ? 'right-3 top-1.5 h-4 w-4' : '-right-1 -top-1 h-4 w-4'
-          )}
+const ShellSidebar: React.FC<ShellSidebarProps> = ({ activeSection, onNavigate, onSignOut, isExpanded, onHoverChange }) => {
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sidebarRef.current) return;
+
+    remove(sidebarRef.current);
+    animate(sidebarRef.current, {
+      width: isExpanded ? 240 : 64,
+      duration: 200,
+      easing: 'easeOutQuad',
+    });
+
+    if (navRef.current) {
+      const navItems = navRef.current.querySelectorAll('button');
+      remove(navItems);
+      animate(navItems, {
+        opacity: [0.7, 1],
+        scale: [0.98, 1],
+        duration: 150,
+        delay: stagger(20),
+        easing: 'easeOutQuad',
+      });
+    }
+  }, [isExpanded]);
+
+  return (
+    <aside
+      ref={sidebarRef}
+      className="hidden sm:flex flex-col justify-between bg-[#0a0e14]/95 text-white shadow-[4px_0_16px_rgba(0,0,0,0.3)] backdrop-blur-xl py-6 border-r border-white/5"
+      style={{ width: isExpanded ? 240 : 64 }}
+      onMouseEnter={() => onHoverChange(true)}
+      onMouseLeave={() => onHoverChange(false)}
+    >
+      <div className="flex flex-col gap-6" style={{ alignItems: isExpanded ? 'stretch' : 'center', paddingLeft: isExpanded ? 16 : 8, paddingRight: isExpanded ? 16 : 8 }}>
+        <button
+          type="button"
+          onClick={() => onNavigate('chat')}
+          className="relative flex items-center rounded-2xl font-semibold shadow-md"
+          style={{
+            gap: isExpanded ? 12 : 0,
+            border: '1px solid rgba(234, 35, 35, 0.3)',
+            background: 'rgba(234, 35, 35, 0.1)',
+            padding: isExpanded ? '10px 14px' : '10px',
+            justifyContent: isExpanded ? 'flex-start' : 'center',
+            width: isExpanded ? '100%' : 40,
+            height: 40,
+            color: '#fff',
+            fontSize: isExpanded ? 14 : 0,
+          }}
         >
-          +
-        </span>
-      </button>
-      <nav className={classNames('flex flex-col gap-2 transition-all duration-300', isExpanded ? 'items-stretch' : 'items-center mt-2 gap-4')}>
-        {(
-          [
+          <ChatBubbleIcon className="h-5 w-5 shrink-0" />
+          {isExpanded && <span className="truncate">Command</span>}
+        </button>
+        
+        <nav ref={navRef} className="flex flex-col gap-2" style={{ alignItems: isExpanded ? 'stretch' : 'center' }}>
+          {([
             { id: 'dashboard', label: 'Dashboard', icon: AnalyticsIcon },
             { id: 'projects', label: 'Projects', icon: FolderIcon },
             { id: 'collections', label: 'Collections', icon: LayersIcon },
             { id: 'workspace', label: 'Workspace', icon: GridIcon },
             { id: 'marketplace', label: 'Marketplace', icon: StoreIcon },
+            { id: 'missionlab', label: 'Mission Lab', icon: WorkflowIcon },
             { id: 'crews', label: 'Crews', icon: WorkflowIcon },
             { id: 'runs', label: 'Runs', icon: RefreshIcon },
-          ] as Array<{ id: Section; label: string; icon: React.FC<IconProps> }>
-        ).map((item) => {
-          const isActive = activeSection === item.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onNavigate(item.id)}
-              className={classNames(
-                'flex items-center rounded-lg transition-all duration-200',
-                isExpanded ? 'w-full gap-3 px-3 py-2 text-sm font-medium' : 'h-9 w-9 justify-center',
-                isActive
-                  ? isExpanded
-                    ? 'border border-[#ea2323]/60 bg-[#ea2323]/15 text-white shadow-none'
-                    : 'bg-[#ea2323] text-white shadow-lg shadow-[#ea232336]'
-                  : isExpanded
-                  ? 'border border-transparent bg-transparent text-white/70 hover:bg-white/5 hover:text-white'
-                  : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
-              )}
-              aria-label={item.label}
-              title={item.label}
-            >
-              <item.icon className="h-5 w-5 shrink-0" />
-              {isExpanded ? <span className="truncate">{item.label}</span> : null}
-            </button>
-          );
-        })}
-      </nav>
-    </div>
-    <div className={classNames('flex flex-col gap-4 transition-all duration-300', isExpanded ? 'items-stretch' : 'items-center')}>
-      <button
-        type="button"
-        onClick={() => onNavigate('settings')}
-        className={classNames(
-          'flex items-center rounded-xl border transition-all duration-200 shadow-[0_10px_28px_rgba(6,8,12,0.45)]',
-          isExpanded ? 'w-full gap-3 px-3 py-2 text-sm font-semibold' : 'h-10 w-10 justify-center',
-          activeSection === 'settings'
-            ? isExpanded
-              ? 'border-[#ea2323]/60 bg-[#ea2323]/15 text-[#ea2323]'
-              : 'border-[#ea2323]/70 bg-[#ea2323]/20 text-[#ea2323]'
-            : isExpanded
-            ? 'border-[#2e3647] bg-[#1b2332]/80 text-white/75 hover:border-white/20 hover:text-white'
-            : 'border-[#2e3647] bg-[#1b2332] text-white/80 hover:border-[#ea2323]/50 hover:text-[#ea2323]'
-        )}
-        aria-label="Settings"
-        title="Settings"
-      >
-        <GearIcon className="h-5 w-5 shrink-0" />
-        {isExpanded ? <span className="truncate">Settings</span> : null}
-      </button>
-      <button
-        type="button"
-        onClick={onSignOut}
-        className={classNames(
-          'flex items-center rounded-xl border border-[#2e3647] bg-[#1b2332] text-[#ea2323] shadow-[0_10px_28px_rgba(6,8,12,0.45)] transition-all duration-200 hover:border-[#ea2323]/60 hover:bg-[#2a3345]',
-          isExpanded ? 'w-full gap-3 px-3 py-2 text-sm font-semibold' : 'h-10 w-10 justify-center'
-        )}
-        aria-label="Sign out"
-        title="Sign out"
-      >
-        <LogOutIcon className="h-5 w-5 shrink-0" />
-        {isExpanded ? <span className="truncate">Sign out</span> : null}
-      </button>
-    </div>
-  </aside>
-);
+          ] as Array<{ id: Section; label: string; icon: React.FC<IconProps> }>).map((item) => {
+            const isActive = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onNavigate(item.id)}
+                className="flex items-center rounded-xl"
+                style={{
+                  gap: isExpanded ? 12 : 0,
+                  padding: isExpanded ? '10px 14px' : '10px',
+                  fontSize: 14,
+                  fontWeight: 500,
+                  justifyContent: isExpanded ? 'flex-start' : 'center',
+                  width: isExpanded ? '100%' : 36,
+                  height: 36,
+                  background: isActive ? 'rgba(234, 35, 35, 0.12)' : 'transparent',
+                  border: isActive ? '1px solid rgba(234, 35, 35, 0.3)' : '1px solid transparent',
+                  color: isActive ? '#fff' : 'rgba(255,255,255,0.6)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                    e.currentTarget.style.color = '#fff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = 'rgba(255,255,255,0.6)';
+                  }
+                }}
+              >
+                <item.icon className="h-5 w-5 shrink-0" />
+                {isExpanded && <span className="truncate">{item.label}</span>}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+      
+      <div ref={bottomRef} className="flex flex-col gap-3" style={{ alignItems: isExpanded ? 'stretch' : 'center', paddingLeft: isExpanded ? 16 : 8, paddingRight: isExpanded ? 16 : 8 }}>
+        <button
+          type="button"
+          onClick={() => onNavigate('settings')}
+          className="flex items-center rounded-xl"
+          style={{
+            gap: isExpanded ? 12 : 0,
+            padding: isExpanded ? '10px 14px' : '10px',
+            fontSize: 14,
+            fontWeight: 600,
+            justifyContent: isExpanded ? 'flex-start' : 'center',
+            width: isExpanded ? '100%' : 40,
+            height: 40,
+            border: activeSection === 'settings' ? '1px solid rgba(234, 35, 35, 0.4)' : '1px solid rgba(255,255,255,0.08)',
+            background: activeSection === 'settings' ? 'rgba(234, 35, 35, 0.15)' : 'rgba(26, 35, 50, 0.6)',
+            color: activeSection === 'settings' ? '#ea2323' : 'rgba(255,255,255,0.75)',
+          }}
+        >
+          <GearIcon className="h-5 w-5 shrink-0" />
+          {isExpanded && <span className="truncate">Settings</span>}
+        </button>
+        <button
+          type="button"
+          onClick={onSignOut}
+          className="flex items-center rounded-xl"
+          style={{
+            gap: isExpanded ? 12 : 0,
+            padding: isExpanded ? '10px 14px' : '10px',
+            fontSize: 14,
+            fontWeight: 600,
+            justifyContent: isExpanded ? 'flex-start' : 'center',
+            width: isExpanded ? '100%' : 40,
+            height: 40,
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(26, 35, 50, 0.6)',
+            color: '#ea2323',
+          }}
+        >
+          <LogOutIcon className="h-5 w-5 shrink-0" />
+          {isExpanded && <span className="truncate">Sign out</span>}
+        </button>
+      </div>
+    </aside>
+  );
+};
 
 type ShellHeaderProps = {
   profile: { name: string; role: string; timezone: string; avatar: string };
@@ -1076,6 +1184,9 @@ type ShellHeaderProps = {
   workspaces: Array<{ id: string; name: string }>;
   orchestratorAgent: AgentKey;
   crewMembers: AgentKey[];
+  activeCrew: Crew | null;
+  crews: Crew[];
+  onSelectCrew: (crewId: string) => void;
   onToggleNotifications: () => void;
   onToggleProfile: () => void;
   onToggleWorkspace: () => void;
@@ -1110,6 +1221,9 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
   workspaces,
   orchestratorAgent,
   crewMembers,
+  activeCrew,
+  crews,
+  onSelectCrew,
   onToggleNotifications,
   onToggleProfile,
   onToggleWorkspace,
@@ -1129,6 +1243,8 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
   advancedMode = false,
   onToggleAdvancedMode,
 }) => {
+  const [isCrewMenuOpen, setIsCrewMenuOpen] = useState(false);
+  const crewMenuRef = useRef<HTMLDivElement | null>(null);
   const crewPreview = crewMembers.slice(0, 4);
   const overflowCount = Math.max(crewMembers.length - crewPreview.length, 0);
 
@@ -1151,13 +1267,65 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
             <SparkIcon className="h-4 w-4 text-[#ea2323]" />
             <span>{messageCount ? `${messageCount} transmissions logged` : 'Awaiting first command'}</span>
           </div>
-          <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-[#1e2635]/80 px-3 py-2 text-xs shadow-[0_12px_32px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-            <AgentLottie id={orchestratorAgent} size={44} />
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[0.6rem] font-semibold uppercase tracking-[0.26em] text-[#7c859f]">Lead orchestrator</span>
-              <span className="text-sm font-semibold text-white leading-tight">{formatAgentName(orchestratorAgent)}</span>
-            </div>
+          {/* Crew Selector with Orchestrator */}
+          <div ref={crewMenuRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setIsCrewMenuOpen((prev) => !prev)}
+              className="group flex items-center gap-3 rounded-2xl border border-white/15 bg-[#1e2635]/80 px-3 py-2 text-xs shadow-[0_12px_32px_rgba(0,0,0,0.3)] backdrop-blur-sm transition hover:border-[#ea2323]/60 hover:bg-[#1e2635]"
+              aria-haspopup="menu"
+              aria-expanded={isCrewMenuOpen}
+            >
+              <AgentLottie id={orchestratorAgent} size={38} />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[0.58rem] font-semibold uppercase tracking-[0.26em] text-[#7c859f]">Active Crew</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-white leading-tight">{activeCrew?.name ?? 'Select Crew'}</span>
+                  <ChevronDownIcon className="h-3.5 w-3.5 text-[#7c859f] transition group-hover:text-white" />
+                </div>
+              </div>
+            </button>
+            
+            {isCrewMenuOpen && (
+              <div className="absolute left-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635]/95 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl z-30">
+                <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[#7c859f]">Select Crew</p>
+                </div>
+                <ul className="max-h-72 overflow-y-auto py-2">
+                  {crews.length === 0 ? (
+                    <li className="px-5 py-6 text-center text-xs text-[#7c859f]">No crews available</li>
+                  ) : (
+                    crews.map((crew) => (
+                      <li key={crew.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSelectCrew(crew.id);
+                            setIsCrewMenuOpen(false);
+                          }}
+                          className={classNames(
+                            'flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition mx-2',
+                            crew.id === activeCrew?.id
+                              ? 'border-[#ea2323]/60 bg-[#ea2323]/10 text-white shadow-[0_12px_32px_rgba(234,35,35,0.25)]'
+                              : 'border-transparent text-[#d5d8e4] hover:border-white/10 hover:bg-white/5'
+                          )}
+                        >
+                          <div className="flex-1">
+                            <span className="font-semibold block">{crew.name}</span>
+                            <span className="text-xs text-white/50">{crew.role ?? 'Multi-purpose'}</span>
+                          </div>
+                          {crew.id === activeCrew?.id && (
+                            <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[#ea2323]">Active</span>
+                          )}
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
+            )}
           </div>
+          
           <div className="flex items-center gap-2 rounded-2xl border border-white/15 bg-[#1e2635]/80 px-3 py-2 text-xs text-[#acb6cf] shadow-[0_12px_32px_rgba(0,0,0,0.3)] backdrop-blur-sm">
             <span className="text-[0.58rem] uppercase tracking-[0.22em] text-[#7c859f]">Crew rotation</span>
             <div className="flex items-center gap-1">
@@ -1177,27 +1345,9 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
         </div>
       </div>
       <div className="flex flex-wrap items-start justify-end gap-2 self-start lg:gap-3">
-      {/* Wallet Components */}
+      {/* Token Balance Chip */}
       <TokenBalanceChip />
-      <WalletConnect />
       
-      {activeSection === 'chat' && onToggleAdvancedMode && (
-        <button
-          type="button"
-          onClick={onToggleAdvancedMode}
-          className={classNames(
-            'inline-flex h-10 items-center gap-2 rounded-full border px-4 text-xs font-semibold shadow-[0_16px_40px_rgba(0,0,0,0.3)] backdrop-blur-sm transition',
-            advancedMode
-              ? 'border-[#E5484D]/60 bg-[#2f1c1c] text-[#ff6b6b] hover:border-[#E5484D] hover:bg-[#3f2424]'
-              : 'border-white/15 bg-[#1e2635]/90 text-[#acb6cf] hover:border-white/30 hover:text-white'
-          )}
-          aria-label="Toggle Advanced Mode"
-          aria-pressed={advancedMode}
-        >
-          <GridIcon className="h-4 w-4" />
-          <span className="uppercase tracking-wider">Advanced Mode</span>
-        </button>
-      )}
       <div ref={notificationMenuRef} className="relative">
         <button
           type="button"
@@ -1268,19 +1418,17 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
         <button
           type="button"
           onClick={onToggleWorkspace}
-          className="group flex items-center gap-3 rounded-full border border-white/15 bg-[#1e2635]/90 pl-2.5 pr-3 py-1.5 text-left text-white shadow-[0_16px_40px_rgba(0,0,0,0.3)] backdrop-blur-sm transition hover:border-[#ea2323]/60"
+          className="group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#1e2635]/90 shadow-[0_16px_40px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-all hover:border-[#ea2323]/60 hover:w-auto hover:px-4 hover:gap-2"
           aria-haspopup="menu"
           aria-expanded={isWorkspaceMenuOpen}
         >
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#1b2332] text-[#ea2323]">
-            <WorkspaceIcon className="h-4 w-4" />
+          <span className="inline-flex items-center justify-center text-[#ea2323]">
+            <WorkspaceIcon className="h-5 w-5" />
           </span>
-          <span className="sm:hidden text-sm font-semibold text-white">{workspace.name}</span>
-          <span className="hidden sm:flex flex-col items-start leading-tight">
-            <span className="text-sm font-semibold text-white">{workspace.name}</span>
-            <span className="text-xs text-[#9ea6bd]">Active workspace</span>
+          <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 group-hover:max-w-xs group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold text-white">
+            {workspace.name}
+            <ChevronDownIcon className="h-4 w-4 text-[#7c859f]" />
           </span>
-          <ChevronDownIcon className="h-4 w-4 text-[#7c859f] transition group-hover:text-white" />
         </button>
         {isWorkspaceMenuOpen ? (
           <div className="absolute right-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635]/95 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl z-30">
@@ -1325,20 +1473,19 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
         <button
           type="button"
           onClick={onToggleProfile}
-          className="group flex items-center gap-3 rounded-full border border-white/15 bg-[#1e2635]/90 pl-1.5 pr-3 py-1.5 text-left text-white shadow-[0_16px_40px_rgba(0,0,0,0.3)] backdrop-blur-sm transition hover:border-[#ea2323]/60"
+          className="group relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#1e2635]/90 shadow-[0_16px_40px_rgba(0,0,0,0.3)] backdrop-blur-sm transition-all hover:border-[#ea2323]/60 hover:w-auto hover:px-4 hover:gap-2 overflow-hidden"
           aria-haspopup="menu"
           aria-expanded={isProfileMenuOpen}
         >
-          <span className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#ea2323] via-[#f26464] to-[#f2a45c] text-sm font-semibold uppercase">
+          <span className="relative inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#ea2323] via-[#f26464] to-[#f2a45c] text-sm font-semibold uppercase flex-shrink-0">
             <span className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${profile.avatar})` }} />
             <span className="relative z-10">{profileInitials}</span>
             <span className={classNames('absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-[#0e1626]', presence.dotClass)} aria-hidden="true" />
           </span>
-          <span className="hidden sm:flex flex-col items-start leading-tight">
-            <span className="text-sm font-semibold text-white">{profile.name}</span>
-            <span className="text-xs text-[#9ea6bd]">{profile.role}</span>
+          <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 group-hover:max-w-xs group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold text-white">
+            {profile.name}
+            <ChevronDownIcon className="h-4 w-4 text-[#7c859f]" />
           </span>
-          <ChevronDownIcon className="h-4 w-4 text-[#7c859f] transition group-hover:text-white" />
         </button>
         {isProfileMenuOpen ? (
           <div className="absolute right-0 mt-3 w-72 rounded-3xl border border-white/15 bg-[#1e2635]/95 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl z-30">
@@ -1380,6 +1527,7 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
               </ul>
             </div>
             <div className="flex flex-col gap-2 border-t border-white/10 px-5 py-4">
+              <WalletConnect />
               <button
                 type="button"
                 onClick={onGoToSettings}
@@ -1412,6 +1560,10 @@ type ChatSurfaceProps = {
   onPrefillConsumed: () => void;
   onSendMessage: (message: string) => void;
   onMessageAction: (action: 'copy' | 'share' | 'regenerate', message: Message) => void;
+  crewType: 'standard' | 'fullstack';
+  setCrewType: (type: 'standard' | 'fullstack') => void;
+  advancedMode?: boolean;
+  onToggleAdvancedMode?: () => void;
 };
 
 const ChatSurface: React.FC<ChatSurfaceProps> = ({
@@ -1421,6 +1573,10 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
   onPrefillConsumed,
   onSendMessage,
   onMessageAction,
+  crewType,
+  setCrewType,
+  advancedMode = false,
+  onToggleAdvancedMode,
 }) => (
   <section className="relative flex min-h-0 flex-1 flex-col">
     <div className="flex-1 overflow-y-auto px-5 pb-24 pt-5 md:px-8">
@@ -1495,6 +1651,8 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
         onSendMessage={onSendMessage}
         prefilledPrompt={prefilledPrompt ?? undefined}
         onPrefillConsumed={onPrefillConsumed}
+        advancedMode={advancedMode}
+        onToggleAdvancedMode={onToggleAdvancedMode}
       />
     </div>
   </section>
@@ -1521,17 +1679,6 @@ const HighlightCard: React.FC<{ title: string; description: string }> = ({ title
     <p className="text-sm font-semibold text-[#ea2323]">{title}</p>
     <p className="mt-1 text-xs text-[#cbd4e6]">{description}</p>
   </div>
-);
-
-const SocialButton: React.FC<{ icon: React.ReactNode; label: string }> = ({ icon, label }) => (
-  <button
-    type="button"
-    className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#3d4759] bg-[#1a2332] text-[#cbd4e6] shadow-sm transition hover:border-[#ea2323]/60 hover:bg-[#243140]"
-    aria-label={label}
-    title={label}
-  >
-    {icon}
-  </button>
 );
 
 type IconProps = {
@@ -1730,39 +1877,6 @@ const ArrowIcon: React.FC<IconProps> = ({ className }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M5 12h14" />
     <path d="m13 6 6 6-6 6" />
-  </svg>
-);
-
-const GoogleIcon: React.FC<IconProps> = ({ className }) => (
-  <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-    <path fill="#4285F4" d="M21.35 11.1h-9.17v2.96h5.64c-.24 1.5-1.74 4.4-5.64 4.4-3.39 0-6.16-2.8-6.16-6.26s2.77-6.26 6.16-6.26c1.93 0 3.22.82 3.96 1.53l2.71-2.63C17.45 3.34 15.32 2.3 12.18 2.3 6.94 2.3 2.7 6.6 2.7 11.8c0 5.2 4.24 9.5 9.48 9.5 5.48 0 9.1-3.85 9.1-9.27 0-.62-.07-1.09-.18-1.93Z" />
-  </svg>
-);
-
-const GitHubLogo: React.FC<IconProps> = ({ className }) => (
-  <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-    <path
-      fill="currentColor"
-      d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.55-3.88-1.55-.52-1.32-1.26-1.67-1.26-1.67-1.03-.72.08-.71.08-.71 1.14.08 1.74 1.18 1.74 1.18 1.01 1.75 2.66 1.25 3.31.96.1-.74.39-1.25.71-1.54-2.55-.29-5.24-1.28-5.24-5.71 0-1.26.45-2.3 1.18-3.11-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.15 1.18a10.82 10.82 0 0 1 2.87-.39c.97 0 1.95.13 2.87.39 2.18-1.5 3.14-1.18 3.14-1.18.62 1.57.23 2.73.11 3.02.73.81 1.18 1.85 1.18 3.11 0 4.44-2.69 5.42-5.26 5.7.4.35.76 1.04.76 2.11 0 1.52-.01 2.74-.01 3.11 0 .31.21.66.79.55A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"
-    />
-  </svg>
-);
-
-const TelegramIcon: React.FC<IconProps> = ({ className }) => (
-  <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-    <path
-      fill="#139bd0"
-      d="M22.54 3.23a1.23 1.23 0 0 0-1.39-.13L2.66 12.87a.88.88 0 0 0 .07 1.6l4.37 1.72 1.71 4.8a.88.88 0 0 0 1.52.22l2.48-3.05 4.28 3.55a1.23 1.23 0 0 0 1.93-.69l3.66-15.52a1.23 1.23 0 0 0-.14-.87ZM8.24 14.56l7.1-6.57-4.9 7.74a.88.88 0 0 0-.12.28l-.56 1.76-1.52-4.21Z"
-    />
-  </svg>
-);
-
-const MetaMaskIcon: React.FC<IconProps> = ({ className }) => (
-  <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-    <path
-      fill="#f6851b"
-      d="m20.52 4.37-6.3 4.6 1.17-2.76 5.13-1.84ZM3.49 4.37l6.3 4.6-1.17-2.76-5.13-1.84Zm5.26 14.25-2.91.79 2.06 1.43 3.68-1.26-.68-2.27Zm6.5 0 .68 2.27 3.68 1.26 2.06-1.43-2.91-.79Zm-1.9-.17h-2.7l.26 2.06 2.44.82 2.44-.82.26-2.06h-2.7ZM4.73 13.2l-1.85 5.58 5.47-2.35-.94-2.01-2.68-1.22Zm14.54 0-2.68 1.22-.94 2.01 5.47 2.35-1.85-5.58ZM7.84 9.24l.78 3.49 2.26.16.16-1.38-3.2-2.27Zm8.32 0-3.2 2.27.16 1.38 2.26-.16.78-3.49Zm1.16-2.43-5.5 2.67.33-.78 5.17-1.89Zm-10.64 0 5.17 1.89.33.78-5.5-2.67Z"
-    />
   </svg>
 );
 

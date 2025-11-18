@@ -15,6 +15,7 @@ from app.services.memory_service import kv_set
 from app.services.orchestrator_service import orchestrate_run
 from app.services.jobs import get_queue
 from app.services.billing import bill_run
+from app.services.agent_service import create_default_agents_for_crew
 
 
 def create_crew(db: Session, payload: CrewCreate, owner_id: str, org_id: str) -> Crew:
@@ -33,6 +34,15 @@ def create_crew(db: Session, payload: CrewCreate, owner_id: str, org_id: str) ->
     db.commit()
     db.refresh(crew)
     kv_set(crew.kv_namespace, "created_at", {"ts": time.time()})
+    
+    # Create default 7-agent formation for this crew
+    try:
+        create_default_agents_for_crew(db, crew.id, crew.role)
+    except Exception as e:
+        print(f"ERROR creating default agents: {e}")
+        import traceback
+        traceback.print_exc()
+    
     return crew
 
 
@@ -56,6 +66,10 @@ def fork_crew(db: Session, crew_id: UUID, new_name: str, owner_id: str, org_id: 
     db.commit()
     db.refresh(clone)
     kv_set(clone.kv_namespace, "forked_from", {"crew_id": str(base.id)})
+    
+    # Create default 7-agent formation for the forked crew
+    create_default_agents_for_crew(db, clone.id, clone.role)
+    
     return clone
 
 

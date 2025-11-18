@@ -35,6 +35,9 @@ class Crew(Base):
     env_json: Mapped[dict | None] = mapped_column(JSON, default=dict)
     api_key: Mapped[str | None] = mapped_column(String, nullable=True)
     
+    # Relationships
+    agents = relationship("Agent", back_populates="crew", cascade="all, delete-orphan")
+    
     # Crypto relationships
     rentals = relationship("CrewRental", back_populates="crew")
     portfolio = relationship("CrewPortfolio", back_populates="crew", uselist=False)

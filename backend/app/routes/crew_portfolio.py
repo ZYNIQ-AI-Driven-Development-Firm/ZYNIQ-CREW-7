@@ -1,7 +1,7 @@
 """
 Crew Portfolio routes - Reputation, XP, and ratings.
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from typing import Optional, List
@@ -240,7 +240,7 @@ async def get_crew_ratings(
 @router.post("/{crew_id}/add-xp")
 async def add_crew_xp(
     crew_id: UUID,
-    xp_amount: int = Field(..., ge=1, le=1000),
+    xp_amount: int = Query(..., ge=1, le=1000),
     user: UserCtx = Depends(auth),
     db: Session = Depends(get_db),
 ):

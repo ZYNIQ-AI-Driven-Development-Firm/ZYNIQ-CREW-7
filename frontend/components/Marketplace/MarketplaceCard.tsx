@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TagPill, NeonStatChip, XPBar, RarityGlowFrame } from './SharedComponents';
+import { RarityBadge, LevelBadge } from '../Wallet/PortfolioStatChip';
 
 export interface CrewMarketplaceItem {
   id: string;
@@ -80,6 +81,12 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
               </div>
             </div>
           )}
+          
+          {/* Level & Rarity Badges */}
+          <div className="absolute top-2 left-2 flex flex-col gap-2">
+            <RarityBadge rarity={crew.rarity} size="sm" />
+            <LevelBadge level={crew.level} size="sm" />
+          </div>
           
           {/* Favorite Button */}
           <button

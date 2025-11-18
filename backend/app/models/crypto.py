@@ -4,6 +4,7 @@ Database models for crypto/wallet features.
 from datetime import datetime
 from typing import Optional
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Index, Enum as SQLEnum
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import enum
 
@@ -166,11 +167,11 @@ class CrewRating(Base):
     __tablename__ = "crew_ratings"
     
     id = Column(Integer, primary_key=True, index=True)
-    crew_id = Column(Integer, ForeignKey("crews.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    crew_id = Column(UUID(as_uuid=True), ForeignKey("crews.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     rating = Column(Integer, nullable=False)  # 1-5
     comment = Column(String(1000), nullable=True)
-    run_id = Column(Integer, ForeignKey("runs.id"), nullable=True)  # Associated mission
+    run_id = Column(UUID(as_uuid=True), ForeignKey("runs.id"), nullable=True)  # Associated mission
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

@@ -1,4 +1,6 @@
 import { CrewMarketplaceItem } from './MarketplaceCard';
+import { crewToNftMetadata, batchCrewsToNftMetadata } from './crewMetadataHelper';
+import type { CrewNftMetadata } from '../../src/lib/web3/metadata';
 
 export const MOCK_CREWS: CrewMarketplaceItem[] = [
   {
@@ -296,4 +298,24 @@ export const filterAndSortCrews = (
   }
 
   return filtered;
+};
+
+// ============================================================================
+// Web3 Metadata Helpers
+// ============================================================================
+
+/**
+ * Get Web3 NFT metadata for all mock crews
+ * Use this when you need NFT-compatible metadata for marketplace display
+ */
+export const getMockCrewsAsNftMetadata = (): CrewNftMetadata[] => {
+  return batchCrewsToNftMetadata(MOCK_CREWS);
+};
+
+/**
+ * Get Web3 NFT metadata for a specific crew by ID
+ */
+export const getMockCrewNftMetadata = (crewId: string): CrewNftMetadata | null => {
+  const crew = MOCK_CREWS.find(c => c.id === crewId);
+  return crew ? crewToNftMetadata(crew) : null;
 };

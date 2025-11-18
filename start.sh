@@ -1,0 +1,302 @@
+#!/bin/bash
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$SCRIPT_DIR"
+BACKEND_DIR="$PROJECT_ROOT/backend"
+FRONTEND_DIR="$PROJECT_ROOT/frontend"
+DOCKER_DIR="$BACKEND_DIR/docker"
+MIGRATIONS_DIR="$BACKEND_DIR/migrations"
+
+echo -e "${CYAN}╔══════════════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║         ZYNIQ-CREW7 - Complete Startup Script          ║${NC}"
+echo -e "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+# Load environment variables
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    echo -e "${BLUE}[1/9]${NC} Loading environment variables from .env..."
+    source "$PROJECT_ROOT/.env"
+    echo -e "${GREEN}✓${NC} Environment loaded"
+else
+    echo -e "${RED}✗ Error: .env file not found${NC}"
+    exit 1
+fi
+
+# Verify required env vars
+echo -e "${BLUE}[2/9]${NC} Verifying required environment variables..."
+REQUIRED_VARS=("DEFAULT_USER_EMAIL" "DEFAULT_USER_PASSWORD" "DEFAULT_USER_CREDITS" "POSTGRES_USER" "POSTGRES_PASSWORD" "POSTGRES_DB")
+MISSING_VARS=()
+
+for var in "${REQUIRED_VARS[@]}"; do
+    if [ -z "${!var}" ]; then
+        MISSING_VARS+=("$var")
+    fi
+done
+
+if [ ${#MISSING_VARS[@]} -ne 0 ]; then
+    echo -e "${RED}✗ Missing required environment variables:${NC}"
+    for var in "${MISSING_VARS[@]}"; do
+        echo -e "${RED}  - $var${NC}"
+    done
+    exit 1
+fi
+echo -e "${GREEN}✓${NC} All required variables present"
+echo ""
+
+# Stop existing containers
+echo -e "${BLUE}[3/9]${NC} Stopping existing containers..."
+cd "$DOCKER_DIR"
+docker compose down 2>/dev/null || true
+echo -e "${GREEN}✓${NC} Containers stopped"
+echo ""
+
+# Build Docker containers
+echo -e "${BLUE}[4/9]${NC} Building Docker containers..."
+echo -e "${YELLOW}⏳ This may take a few minutes...${NC}"
+docker compose build --no-cache
+echo -e "${GREEN}✓${NC} Containers built successfully"
+echo ""
+
+# Start database and redis first
+echo -e "${BLUE}[5/9]${NC} Starting database and Redis..."
+docker compose up -d db redis
+echo -e "${YELLOW}⏳ Waiting for database to be ready...${NC}"
+sleep 5
+
+# Wait for database to be ready
+MAX_RETRIES=30
+RETRY_COUNT=0
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    if docker compose exec -T db pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} > /dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} Database is ready"
+        break
+    fi
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    echo -e "${YELLOW}⏳ Waiting for database... ($RETRY_COUNT/$MAX_RETRIES)${NC}"
+    sleep 2
+done
+
+if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+    echo -e "${RED}✗ Database failed to start${NC}"
+    exit 1
+fi
+echo ""
+
+# Run migrations in order
+echo -e "${BLUE}[6/9]${NC} Running database migrations..."
+MIGRATIONS=(
+    "20251109_add_auth_org.sql"
+    "20251114_add_crew_graphs.sql"
+    "20251115_add_crypto_tables.sql"
+    "20251115_add_run_tokens.sql"
+    "20251115_add_user_role.sql"
+    "20251116_add_agents.sql"
+)
+
+for migration in "${MIGRATIONS[@]}"; do
+    echo -e "${YELLOW}  → Running $migration${NC}"
+    docker compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} < "$MIGRATIONS_DIR/$migration"
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}  ✓ $migration applied${NC}"
+    else
+        echo -e "${RED}  ✗ $migration failed${NC}"
+        exit 1
+    fi
+done
+echo -e "${GREEN}✓${NC} All migrations applied successfully"
+echo ""
+
+# Create test user
+echo -e "${BLUE}[7/9]${NC} Creating test user..."
+cat << EOF | docker compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+-- Check if user exists
+DO \$\$
+BEGIN
+    -- Delete existing user if present
+    DELETE FROM users WHERE email = '${DEFAULT_USER_EMAIL}';
+    
+    -- Create new user
+    INSERT INTO users (id, email, password_hash, name, role, created_at, updated_at)
+    VALUES (
+        gen_random_uuid(),
+        '${DEFAULT_USER_EMAIL}',
+        '\$2b\$12\$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5lW3Pe8vYvH7G', -- hashed version of Admin@123
+        'Admin User',
+        'admin',
+        NOW(),
+        NOW()
+    );
+    
+    RAISE NOTICE 'User created: ${DEFAULT_USER_EMAIL}';
+END \$\$;
+EOF
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✓${NC} Test user created"
+    echo -e "${CYAN}  Email: ${DEFAULT_USER_EMAIL}${NC}"
+    echo -e "${CYAN}  Password: ${DEFAULT_USER_PASSWORD}${NC}"
+else
+    echo -e "${YELLOW}⚠ Warning: User creation had issues (may already exist)${NC}"
+fi
+echo ""
+
+# Create/update wallet with credits
+echo -e "${BLUE}[7.5/9]${NC} Setting up wallet credits..."
+docker exec -i docker-db-1 psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} <<EOF
+DO \$\$
+DECLARE
+    wallet_exists BOOLEAN;
+BEGIN
+    -- Check if wallet exists for 'default' org
+    SELECT EXISTS(SELECT 1 FROM wallets WHERE org_id = 'default') INTO wallet_exists;
+    
+    IF wallet_exists THEN
+        -- Update existing wallet
+        UPDATE wallets 
+        SET credits = ${DEFAULT_USER_CREDITS}
+        WHERE org_id = 'default';
+        RAISE NOTICE 'Wallet updated with % credits', ${DEFAULT_USER_CREDITS};
+    ELSE
+        -- Create new wallet
+        INSERT INTO wallets (id, org_id, credits)
+        VALUES (gen_random_uuid(), 'default', ${DEFAULT_USER_CREDITS});
+        RAISE NOTICE 'Wallet created with % credits', ${DEFAULT_USER_CREDITS};
+    END IF;
+END \$\$;
+EOF
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✓${NC} Wallet configured"
+    echo -e "${CYAN}  Credits: ${DEFAULT_USER_CREDITS}${NC}"
+else
+    echo -e "${YELLOW}⚠ Warning: Wallet setup had issues${NC}"
+fi
+echo ""
+
+# Start all other services
+echo -e "${BLUE}[8/9]${NC} Starting all services..."
+docker compose up -d
+echo -e "${YELLOW}⏳ Waiting for API to be ready...${NC}"
+sleep 10
+
+# Wait for API to be ready
+MAX_RETRIES=30
+RETRY_COUNT=0
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    if curl -s http://localhost:8080/live > /dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} API is ready"
+        break
+    fi
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    echo -e "${YELLOW}⏳ Waiting for API... ($RETRY_COUNT/$MAX_RETRIES)${NC}"
+    sleep 2
+done
+
+if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+    echo -e "${RED}✗ API failed to start. Checking logs...${NC}"
+    echo ""
+    echo -e "${YELLOW}Last 20 lines of API logs:${NC}"
+    docker compose logs --tail=20 api
+    exit 1
+fi
+
+# Create test user via API
+echo -e "${BLUE}[7.5/9]${NC} Registering test user via API..."
+sleep 2
+REGISTER_RESPONSE=$(curl -s -X POST http://localhost:8080/auth/register \
+    -H "Content-Type: application/json" \
+    -d "{\"email\":\"${DEFAULT_USER_EMAIL}\",\"password\":\"${DEFAULT_USER_PASSWORD}\"}")
+
+if echo "$REGISTER_RESPONSE" | grep -q "id"; then
+    echo -e "${GREEN}✓${NC} Test user registered successfully"
+    echo -e "${CYAN}  Email: ${DEFAULT_USER_EMAIL}${NC}"
+    echo -e "${CYAN}  Password: ${DEFAULT_USER_PASSWORD}${NC}"
+else
+    echo -e "${YELLOW}⚠ User may already exist or registration had issues${NC}"
+    echo -e "${YELLOW}  Response: $REGISTER_RESPONSE${NC}"
+fi
+echo ""
+
+# Start frontend
+echo -e "${BLUE}[9/9]${NC} Starting frontend development server..."
+cd "$FRONTEND_DIR"
+
+# Check if node_modules exists
+if [ ! -d "node_modules" ]; then
+    echo -e "${YELLOW}⏳ Installing frontend dependencies...${NC}"
+    npm install
+fi
+
+# Kill any existing process on port 3000
+if lsof -Pi :3000 -sTCP:LISTEN -t >/dev/null 2>&1 ; then
+    echo -e "${YELLOW}⏳ Killing existing process on port 3000...${NC}"
+    lsof -Pi :3000 -sTCP:LISTEN -t | xargs kill -9 2>/dev/null || true
+    sleep 2
+fi
+
+# Start frontend in background
+echo -e "${YELLOW}⏳ Starting Vite dev server...${NC}"
+nohup npm run dev > /tmp/crew7-frontend.log 2>&1 &
+FRONTEND_PID=$!
+echo $FRONTEND_PID > /tmp/crew7-frontend.pid
+
+# Wait for frontend to be ready (check multiple times)
+FRONTEND_RETRIES=15
+FRONTEND_COUNT=0
+while [ $FRONTEND_COUNT -lt $FRONTEND_RETRIES ]; do
+    if curl -s http://localhost:3000 > /dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} Frontend is ready"
+        break
+    fi
+    FRONTEND_COUNT=$((FRONTEND_COUNT + 1))
+    sleep 1
+done
+
+if [ $FRONTEND_COUNT -eq $FRONTEND_RETRIES ]; then
+    echo -e "${YELLOW}⚠ Frontend may still be starting... Check /tmp/crew7-frontend.log${NC}"
+else
+    echo -e "${GREEN}✓${NC} Frontend PID: $FRONTEND_PID"
+fi
+echo ""
+
+# Summary
+echo -e "${GREEN}╔══════════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║                 🎉 STARTUP COMPLETE! 🎉                  ║${NC}"
+echo -e "${GREEN}╚══════════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${CYAN}📊 Service Status:${NC}"
+echo -e "${GREEN}✓${NC} Database:   http://localhost:5432"
+echo -e "${GREEN}✓${NC} Redis:      http://localhost:6379"
+echo -e "${GREEN}✓${NC} API:        http://localhost:8000"
+echo -e "${GREEN}✓${NC} Frontend:   http://localhost:3000"
+echo -e "${GREEN}✓${NC} pgAdmin:    http://localhost:5050"
+echo ""
+echo -e "${CYAN}🔑 Test User Credentials:${NC}"
+echo -e "   Email:    ${MAGENTA}${DEFAULT_USER_EMAIL}${NC}"
+echo -e "   Password: ${MAGENTA}${DEFAULT_USER_PASSWORD}${NC}"
+echo -e "   Credits:  ${MAGENTA}${DEFAULT_USER_CREDITS}${NC}"
+echo ""
+echo -e "${CYAN}📝 Useful Commands:${NC}"
+echo -e "   View API logs:      ${YELLOW}docker compose -f backend/docker/compose.yml logs -f api${NC}"
+echo -e "   View frontend logs: ${YELLOW}tail -f /tmp/crew7-frontend.log${NC}"
+echo -e "   Stop all services:  ${YELLOW}docker compose -f backend/docker/compose.yml down${NC}"
+echo -e "   Restart API:        ${YELLOW}docker compose -f backend/docker/compose.yml restart api${NC}"
+echo ""
+echo -e "${CYAN}🧪 Testing:${NC}"
+echo -e "   1. Open browser: ${BLUE}http://localhost:3000${NC}"
+echo -e "   2. Login with credentials above"
+echo -e "   3. Test agent, rating, and pricing features"
+echo ""
+echo -e "${GREEN}Ready to test! 🚀${NC}"
+echo ""

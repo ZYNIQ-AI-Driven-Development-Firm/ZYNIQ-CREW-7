@@ -1,0 +1,21 @@
+{
+  "planning_goals": [
+    {
+      "id": "architecture_guardrails",
+      "title": "Architecture Guardrails",
+      "copilot_prompt": "Crew-7 Architecture Guardrails — Premium Edition\n\n1) Enforce a clean 3-layer architecture: React/Next.js on the frontend, FastAPI/Python on the backend, and Docker + Infra as a dedicated layer. No UI code leaks into backend; no backend logic leaks into UI.\n\n2) Every module must be modular, coherent, and purposeful. No God-files. The system should read like a well-orchestrated crew: crews, runs, traces, events, tools, marketplace, secrets, billing.\n\n3) Public API must remain stable. When upgrading or refactoring, always introduce new versions instead of breaking old ones. No unexpected breaking changes.\n\n4) Observability is a first-class citizen. Every agent action, event, tool call, lifecycle transition, and API request must leave a trace. Logs must have timestamps, IDs, and types.\n\n5) The agent communication architecture must follow the Hybrid Model: orchestrator-led decision-making with direct specialist-to-specialist exchanges where efficient. The backend event system must reflect this clearly.\n\n6) All execution must happen inside safe, resource-limited sandboxes. Timeouts, RAM caps, CPU limits, and restricted networking must be applied consistently.\n\nCopilot: All architectural changes must be incremental, reversible, and follow these guardrails strictly. Reject suggestions that introduce coupling, performance risks, or unsafe execution paths."
+    },
+
+    {
+      "id": "mvp_focus",
+      "title": "MVP Focus Reminder",
+      "copilot_prompt": "Crew-7 MVP Blueprint — Focus & Boundaries\n\nThe MVP must deliver a clean, unforgettable first loop:\n1) User selects or installs a crew → writes a mission → runs it → sees real-time output → views the Agent Graph → inspects traces.\n2) No feature may slow down or complicate this main loop.\n\nMVP Inclusions:\n- Marketplace (install crew templates)\n- Crew configuration\n- Chat mode with real-time streaming\n- Advanced Mode with Agent Graph\n- Trace viewer (minimal but functional)\n- Secure tool sandboxing\n\nMVP Exclusions (Phase 2):\n- Full Web3 integration\n- NFT crew ownership model\n- Tokenomics / payments / renting crews\n- Complex billing engine\n- Multi-run orchestration\n- Deep crew editing studio\n\nDesign Priorities:\n- Fast, intuitive interactions\n- Responsiveness over heavy animations\n- Stability over cosmetic features\n\nCopilot: If a feature risks impacting timeline, performance, or the core loop, downgrade it to a placeholder or separate ticket."
+    },
+
+    {
+      "id": "delivery_timeline_guardrails",
+      "title": "Delivery & Timeline Guardrails",
+      "copilot_prompt": "Crew-7 Delivery Timeline — Guardrails for Speed & Quality\n\n1) Every task must map to one of the Crew-7 pillars:\n   - Run Engine\n   - Agent Graph (Advanced Mode)\n   - Marketplace\n   - Dashboard\n   - Blueprint Landing Page\n\n2) Tasks must be small, atomic, and completable in 1–2 work sessions. Large tasks must be split.\n\n3) No developer should remain blocked for more than 4 hours. If blocked, escalate immediately.\n\n4) No new feature can enter a sprint unless it clearly supports:\n   - Crew execution reliability\n   - Graph accuracy\n   - Marketplace install flow\n   - User onboarding experience\n\n5) Advanced animations, blueprint effects, and deep polish should only be integrated after core UX works end-to-end.\n\n6) Copilot must always propose the simplest practical implementation. No over-engineering or speculative complexity.\n\nCopilot: When generating or modifying tasks, ensure they respect timeline expectations, map to a pillar, and avoid scope expansion."
+    }
+  ]
+}

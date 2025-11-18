@@ -24,6 +24,7 @@ import {
   type User,
   type Wallet,
 } from '@/src/lib/api';
+import { APIModeToggle } from './APIModeToggle';
 
 const CATEGORIES = [
   { id: 'account', label: 'Account' },
@@ -32,6 +33,7 @@ const CATEGORIES = [
   { id: 'security', label: 'Security' },
   { id: 'integrations', label: 'Integrations' },
   { id: 'notifications', label: 'Notifications' },
+  { id: 'developer', label: 'Developer' }, // New category
 ] as const;
 
 type CategoryId = (typeof CATEGORIES)[number]['id'];
@@ -730,6 +732,18 @@ const SettingsPanel: React.FC = () => {
         return renderIntegrations();
       case 'notifications':
         return renderNotifications();
+      case 'developer':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Developer Settings</h2>
+              <p className="mt-2 text-sm text-[#8e96ad]">
+                Configure API connections and development tools
+              </p>
+            </div>
+            <APIModeToggle />
+          </div>
+        );
       default:
         return null;
     }

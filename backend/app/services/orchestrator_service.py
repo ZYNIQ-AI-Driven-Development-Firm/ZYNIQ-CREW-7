@@ -11,14 +11,16 @@ from app.infra.db import SessionLocal
 from app.infra.ollama import get_ollama_client
 from app.models.crew import Crew
 from app.models.run import Run, RunStatus
-from app.services.memory_service import kv_set, vec_upsert
+from app.services.memory_service import kv_set, vec_upsert, add_crew_memory, add_mission_memory
+from app.services.embedding_service import generate_embedding
 from app.services.mission_bus import publish_alert, publish_signal
 from app.services.pubsub import bus
 from app.services.metrics import record_run_started, record_run_done
 from app.crewai.adapters import upsert_memory
 from app.crewai.factory import make_crew
+from app.crewai.fullstack_crew import make_fullstack_saas_crew
 from app.crewai.toolpacks import default_toolpacks
-from app.infra.redis_client import get_redis
+from app.infra.redis_client import get_redis, get_redis_client
 
 
 def orchestrate_run(run_id: str, crew_id: str, prompt: str, inputs: dict[str, Any]) -> None:
@@ -110,9 +112,36 @@ async def _orchestrate_run_async(run_id: UUID, crew_id: UUID, prompt: str, input
 
 
 def run_orchestration(crew_id: UUID, prompt: str, run_id: UUID) -> Generator[tuple[str, str], None, None]:
+    """
+    Run crew orchestration with specialized crew detection.
+    Detects Full-Stack SaaS Crew and uses appropriate factory.
+    """
     tools = default_toolpacks()
-    crew = make_crew(str(crew_id), prompt, tools)
-    yield ("log", "Crew planning…")
+    
+    # Get crew details to check type
+    with SessionLocal() as db:
+        crew_obj = db.get(Crew, crew_id)
+        crew_type = None
+        if crew_obj and crew_obj.recipe_json:
+            crew_type = crew_obj.recipe_json.get("crew_type")
+    
+    # Use specialized crew for Full-Stack SaaS
+    if crew_type == "fullstack_saas":
+        yield ("log", "🚀 Initializing Full-Stack SaaS Crew (7 specialized agents)...")
+        crew = make_fullstack_saas_crew(str(crew_id), prompt, tools)
+        agents = [
+            "orchestrator",
+            "backend_architect", 
+            "backend_implementer",
+            "frontend_architect",
+            "frontend_implementer",
+            "qa_engineer",
+            "devops_engineer"
+        ]
+    else:
+        yield ("log", "Crew planning…")
+        crew = make_crew(str(crew_id), prompt, tools)
+        agents = ["orchestrator", "backend_dev", "frontend_dev", "qa_engineer", "devops_engineer"]
     
     # Simulate agent lifecycle with graph events
     agents = ["orchestrator", "backend_dev", "frontend_dev", "qa_engineer", "devops_engineer"]
@@ -193,9 +222,15 @@ def _render_prompt(prompt: str, crew_snapshot: dict[str, Any], inputs: dict[str,
 
 
 async def _persist_memory(crew_snapshot: dict[str, Any], run_id: UUID, prompt: str, output_text: str) -> None:
+    """
+    Persist run memory to both Redis (KV) and Qdrant (vector).
+    Now uses enhanced memory service for better semantic search.
+    """
     kv_namespace = crew_snapshot["kv_namespace"]
     vec_collection = crew_snapshot["vector_collection"]
+    crew_id = str(crew_snapshot.get("crew_id", "unknown"))
 
+    # Store in Redis KV for fast lookup
     kv_set(
         kv_namespace,
         f"run:{run_id}:summary",
@@ -205,27 +240,61 @@ async def _persist_memory(crew_snapshot: dict[str, Any], run_id: UUID, prompt: s
     if not output_text:
         return
 
-    vector = [0.0] * 384
+    # Generate embedding for semantic search
     try:
-        vector = await get_ollama_client().embed(settings.MODEL_EMBED, output_text)
-    except Exception:  # noqa: BLE001 - fallback to zero vector if embeddings fail
-        pass
-
-    vec_upsert(
-        vec_collection,
-        [
-            (
-                str(uuid4()),
-                vector,
-                {
-                    "run_id": str(run_id),
-                    "prompt": prompt,
-                    "output": output_text,
-                    "type": "transcript",
-                },
-            )
-        ],
-    )
+        embedding = generate_embedding(output_text)
+        
+        # Add to crew's long-term memory
+        add_crew_memory(
+            crew_id=crew_id,
+            content=output_text,
+            embedding=embedding,
+            metadata={
+                "run_id": str(run_id),
+                "prompt": prompt,
+                "type": "run_output",
+                "success": True,
+            },
+            mission_id=str(run_id),
+            agent_role="orchestrator",
+        )
+        
+        # Also add to mission-specific memory
+        add_mission_memory(
+            mission_id=str(run_id),
+            content=f"User Request: {prompt}\n\nResult: {output_text}",
+            embedding=embedding,
+            metadata={
+                "type": "mission_transcript",
+                "crew_id": crew_id,
+            },
+            agent_role="orchestrator",
+        )
+        
+    except Exception as e:  # noqa: BLE001 - fallback to old method if new memory fails
+        print(f"Warning: Enhanced memory failed, falling back to legacy: {e}")
+        
+        # Fallback to old vector upsert
+        try:
+            vector = await get_ollama_client().embed(settings.MODEL_EMBED, output_text)
+        except Exception:
+            vector = [0.0] * 384
+        
+        vec_upsert(
+            vec_collection,
+            [
+                (
+                    str(uuid4()),
+                    vector,
+                    {
+                        "run_id": str(run_id),
+                        "prompt": prompt,
+                        "output": output_text,
+                        "type": "transcript",
+                    },
+                )
+            ],
+        )
 
 
 def _mark_running_and_snapshot(crew_id: UUID, run_id: UUID) -> dict[str, Any] | None:

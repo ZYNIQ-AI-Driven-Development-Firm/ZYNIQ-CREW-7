@@ -38,7 +38,7 @@
         ]
       },
       {
-        "id": 'featured_row',
+        "id": "featured_rows",
         "goal": "Highlight top-performing or sponsored crews.",
         "components": [
           "Horizontal scroll row of 'Featured' MarketplaceCards with stronger glow frame and 'Featured' label.",

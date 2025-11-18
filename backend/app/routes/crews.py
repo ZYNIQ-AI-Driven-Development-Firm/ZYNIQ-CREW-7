@@ -10,8 +10,10 @@ from app.deps import UserCtx, auth, get_db, optional_auth
 from app.models.crew import Crew
 from app.models.run import Run
 from app.schemas.crew import CrewCreate, CrewOut, CrewPatch
-from app.services.crew_service import create_crew, fork_crew, list_crews
+from app.schemas.run import RunCreate, RunOut
+from app.services.crew_service import create_crew, fork_crew, list_crews, start_run
 from app.services.limits import add_quota, enforce_rate, get_quota
+from app.services.cache_service import get_cache_service
 
 router = APIRouter(prefix="/crews", tags=["crews"])
 
@@ -71,6 +73,12 @@ def patch(
         setattr(obj, field, value)
     db.commit()
     db.refresh(obj)
+    
+    # Invalidate cached metadata and pricing when crew is updated
+    cache = get_cache_service()
+    cache.invalidate_all_crew_metadata(obj.id)
+    cache.invalidate_crew_pricing(obj.id)
+    
     return _to_out(obj)
 
 
@@ -134,3 +142,74 @@ def rotate_api_key(
     db.commit()
     db.refresh(crew)
     return {"api_key": token}
+
+
+@router.post("/fullstack/run", response_model=RunOut)
+def run_fullstack_crew(
+    payload: RunCreate,
+    user: UserCtx = Depends(auth),
+    db: Session = Depends(get_db),
+) -> RunOut:
+    """
+    Start a Full-Stack SaaS Crew mission.
+    
+    This endpoint creates and runs a specialized 7-agent crew for building
+    complete full-stack applications:
+    - 1 Orchestrator (Gemini) - Strategic planning & coordination
+    - 2 Backend specialists (aimalapi) - Architecture & implementation
+    - 2 Frontend specialists (aimalapi) - Architecture & implementation
+    - 1 QA Engineer (aimalapi) - Testing
+    - 1 DevOps Engineer (aimalapi) - Infrastructure
+    
+    The crew uses Qdrant for persistent memory and generates production-ready
+    code including FastAPI backend, React frontend, tests, and Docker configs.
+    """
+    enforce_rate(user.user_id, "runs.create", rpm=20, cap=50)
+    add_quota(user.org_id, "runs", delta=1, limit=1000)
+    
+    # Get or create the Full-Stack SaaS Crew
+    crew = db.query(Crew).filter(
+        Crew.org_id == user.org_id,
+        Crew.name == "Full-Stack SaaS Crew"
+    ).first()
+    
+    if not crew:
+        # Create the Full-Stack crew if it doesn't exist
+        crew_payload = CrewCreate(
+            name="Full-Stack SaaS Crew",
+            role="Full-Stack Development Team",
+            recipe_json={
+                "mission": "Build complete full-stack applications with 7 specialized AI agents",
+                "instructions": [
+                    "Orchestrator plans and coordinates all tasks",
+                    "Backend Architect designs API and database",
+                    "Backend Implementer writes FastAPI code",
+                    "Frontend Architect designs UI/UX structure",
+                    "Frontend Implementer builds React components",
+                    "QA Engineer creates comprehensive tests",
+                    "DevOps Engineer sets up Docker and CI/CD"
+                ],
+                "crew_type": "fullstack_saas"
+            },
+            is_public=False,
+            models_json={
+                "orchestrator": "gemini-1.5-flash",
+                "specialists": "gpt-4o-mini"
+            },
+            tools_json={},
+            env_json={}
+        )
+        crew = create_crew(db, crew_payload, owner_id=user.user_id, org_id=user.org_id)
+    
+    # Start the run
+    run = start_run(db, crew.id, payload, org_id=user.org_id, charge=True)
+    
+    return RunOut(
+        id=run.id,
+        crew_id=run.crew_id,
+        status=run.status,
+        prompt=run.prompt,
+        started_at=run.started_at,
+        finished_at=run.finished_at,
+    )
+

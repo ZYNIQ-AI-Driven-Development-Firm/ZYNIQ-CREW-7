@@ -1,3 +1,4 @@
+from app.models.agent import Agent  # noqa: F401
 from app.models.audit import Audit  # noqa: F401
 from app.models.billing import Wallet  # noqa: F401
 from app.models.crew import Crew  # noqa: F401

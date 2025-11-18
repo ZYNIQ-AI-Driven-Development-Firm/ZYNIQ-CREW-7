@@ -7,6 +7,7 @@ services:
     env_file:
       - ../../.env
     environment:
+      - PYTHONWARNINGS=ignore::UserWarning
       - DB_URL=${DB_URL:-postgresql+psycopg://crew7:crew7@db:5432/crew7}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - QDRANT_URL=${QDRANT_URL:-http://qdrant:6333}
@@ -46,6 +47,7 @@ services:
     env_file:
       - ../../.env
     environment:
+      - PYTHONWARNINGS=ignore::UserWarning
       - DB_URL=${DB_URL:-postgresql+psycopg://crew7:crew7@db:5432/crew7}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - QDRANT_URL=${QDRANT_URL:-http://qdrant:6333}

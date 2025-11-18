@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { animate, stagger, utils } from 'animejs';
 import { Crew7Logo } from '../components/Crew7Logo';
 import {
   OrchestratorFace,
@@ -18,10 +19,15 @@ import { useAnime, useScrollAnimation } from '../src/lib/useAnime';
  * accessibility, SEO optimization, and conversion-focused UX
  */
 
-export const LandingPageV3: React.FC = () => {
+interface LandingPageV3Props {
+  onNavigate?: (view: 'auth' | 'shell') => void;
+}
+
+export const LandingPageV3: React.FC<LandingPageV3Props> = ({ onNavigate }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const geometricLinesRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,19 +36,65 @@ export const LandingPageV3: React.FC = () => {
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = scrollTop / docHeight;
       setScrollProgress(progress);
+
+      // Animate geometric lines based on scroll
+      if (geometricLinesRef.current) {
+        const lines = geometricLinesRef.current.querySelectorAll('line, path, circle');
+        animate(lines, {
+          opacity: 0.3 + progress * 0.3,
+          translateY: scrollTop * 0.2,
+          easing: 'linear',
+          duration: 100,
+        });
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial call
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Animate geometric lines on mount
+  useEffect(() => {
+    if (geometricLinesRef.current) {
+      const lines = geometricLinesRef.current.querySelectorAll('line, path, circle');
+      animate(lines, {
+        opacity: [0, 0.4],
+        scale: [0.8, 1],
+        easing: 'easeInOutQuad',
+        duration: 2000,
+        delay: stagger(150),
+      });
+    }
+  }, []);
+
+  const handleSignIn = () => {
+    if (onNavigate) {
+      onNavigate('auth');
+    }
+  };
+
+  const handleGetStarted = () => {
+    if (onNavigate) {
+      onNavigate('auth');
+    }
+  };
+
   return (
-    <div ref={containerRef} className="relative bg-[#050505] text-white overflow-x-hidden">
-      {/* Enhanced Background System */}
+    <div ref={containerRef} className="relative bg-gradient-to-br from-[#0f1419] via-[#1a1f2e] to-[#0a0e1a] text-white overflow-x-hidden">
+      {/* Enhanced Background System with Lighter Colors */}
       <EnhancedBackground scrollProgress={scrollProgress} />
       
+      {/* Animated Geometric Lines */}
+      <GeometricLines ref={geometricLinesRef} scrollProgress={scrollProgress} />
+      
       {/* Professional Navigation */}
-      <Navigation isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+      <Navigation 
+        isMenuOpen={isMenuOpen} 
+        setIsMenuOpen={setIsMenuOpen}
+        onSignIn={handleSignIn}
+        onGetStarted={handleGetStarted}
+      />
 
       {/* Hero Section */}
       <HeroSection scrollProgress={scrollProgress} />
@@ -87,46 +139,88 @@ export const LandingPageV3: React.FC = () => {
 const EnhancedBackground: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
   return (
     <div className="fixed inset-0 pointer-events-none z-0">
-      {/* Base gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0a0a0a] to-[#0f0f0f]" />
+      {/* Lighter base gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1a1f2e] via-[#242936] to-[#1a2332]" />
       
-      {/* Animated red orb */}
+      {/* Animated red orb - more visible */}
       <div
-        className="absolute top-[20%] right-[10%] w-[600px] h-[600px] rounded-full opacity-20 blur-[120px]"
+        className="absolute top-[20%] right-[10%] w-[600px] h-[600px] rounded-full opacity-30 blur-[120px]"
         style={{
           background: 'radial-gradient(circle, #ea2323, transparent 70%)',
           animation: 'float 20s ease-in-out infinite',
         }}
       />
       
-      {/* Secondary orb */}
+      {/* Cyan accent orb */}
       <div
-        className="absolute bottom-[20%] left-[10%] w-[500px] h-[500px] rounded-full opacity-15 blur-[100px]"
+        className="absolute bottom-[10%] left-[15%] w-[500px] h-[500px] rounded-full opacity-25 blur-[100px]"
         style={{
-          background: 'radial-gradient(circle, #ffffff, transparent 70%)',
+          background: 'radial-gradient(circle, #06b6d4, transparent 70%)',
           animation: 'float 25s ease-in-out infinite reverse',
         }}
       />
-
+      
       {/* Subtle grid overlay */}
       <div 
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-10"
         style={{
-          backgroundImage: `
-            linear-gradient(to right, #ffffff 1px, transparent 1px),
-            linear-gradient(to bottom, #ffffff 1px, transparent 1px)
-          `,
-          backgroundSize: '100px 100px',
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)`,
+          backgroundSize: '50px 50px',
         }}
       />
-
-      {/* Radial gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-[#050505]" />
     </div>
   );
 };
 
-const Navigation: React.FC<{ isMenuOpen: boolean; setIsMenuOpen: (open: boolean) => void }> = ({ isMenuOpen, setIsMenuOpen }) => {
+// Animated Geometric Lines Component
+const GeometricLines = React.forwardRef<SVGSVGElement, { scrollProgress: number }>((props, ref) => {
+  return (
+    <svg
+      ref={ref}
+      className="fixed inset-0 w-full h-full pointer-events-none z-[1]"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Diagonal lines */}
+      <line x1="0" y1="0" x2="100%" y2="30%" stroke="rgba(234, 35, 35, 0.4)" strokeWidth="2" strokeDasharray="10 5" />
+      <line x1="100%" y1="0" x2="0" y2="40%" stroke="rgba(6, 182, 212, 0.4)" strokeWidth="2" strokeDasharray="10 5" />
+      
+      {/* Horizontal lines */}
+      <line x1="0" y1="20%" x2="100%" y2="20%" stroke="rgba(234, 35, 35, 0.3)" strokeWidth="1" strokeDasharray="20 10" />
+      <line x1="0" y1="50%" x2="100%" y2="50%" stroke="rgba(6, 182, 212, 0.3)" strokeWidth="1" strokeDasharray="20 10" />
+      <line x1="0" y1="80%" x2="100%" y2="80%" stroke="rgba(234, 35, 35, 0.3)" strokeWidth="1" strokeDasharray="20 10" />
+      
+      {/* Vertical lines */}
+      <line x1="20%" y1="0" x2="20%" y2="100%" stroke="rgba(255, 255, 255, 0.1)" strokeWidth="1" strokeDasharray="15 15" />
+      <line x1="50%" y1="0" x2="50%" y2="100%" stroke="rgba(255, 255, 255, 0.1)" strokeWidth="1" strokeDasharray="15 15" />
+      <line x1="80%" y1="0" x2="80%" y2="100%" stroke="rgba(255, 255, 255, 0.1)" strokeWidth="1" strokeDasharray="15 15" />
+      
+      {/* Angled connectors */}
+      <path d="M 10 10 L 30 30 L 40 20" stroke="rgba(234, 35, 35, 0.4)" strokeWidth="2" fill="none" strokeDasharray="5 5" />
+      <path d="M 90 15 L 70 35 L 60 25" stroke="rgba(6, 182, 212, 0.4)" strokeWidth="2" fill="none" strokeDasharray="5 5" />
+      <path d="M 15 60 L 35 80 L 25 90" stroke="rgba(168, 85, 247, 0.3)" strokeWidth="2" fill="none" strokeDasharray="5 5" />
+      <path d="M 85 70 L 65 85 L 75 95" stroke="rgba(234, 179, 8, 0.3)" strokeWidth="2" fill="none" strokeDasharray="5 5" />
+      
+      {/* Circles at intersections */}
+      <circle cx="20%" cy="20%" r="4" fill="rgba(234, 35, 35, 0.6)" />
+      <circle cx="50%" cy="50%" r="5" fill="rgba(6, 182, 212, 0.6)" />
+      <circle cx="80%" cy="80%" r="4" fill="rgba(168, 85, 247, 0.5)" />
+      <circle cx="30%" cy="70%" r="3" fill="rgba(234, 179, 8, 0.5)" />
+      <circle cx="70%" cy="30%" r="4" fill="rgba(255, 255, 255, 0.4)" />
+      
+      {/* Complex geometric shapes */}
+      <path d="M 10 40 L 20 45 L 15 55 Z" stroke="rgba(234, 35, 35, 0.4)" strokeWidth="1.5" fill="rgba(234, 35, 35, 0.05)" strokeDasharray="3 3" />
+      <path d="M 85 60 L 95 65 L 90 75 Z" stroke="rgba(6, 182, 212, 0.4)" strokeWidth="1.5" fill="rgba(6, 182, 212, 0.05)" strokeDasharray="3 3" />
+    </svg>
+  );
+});
+
+const Navigation: React.FC<{ 
+  isMenuOpen: boolean; 
+  setIsMenuOpen: (open: boolean) => void;
+  onSignIn: () => void;
+  onGetStarted: () => void;
+}> = ({ isMenuOpen, setIsMenuOpen, onSignIn, onGetStarted }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -170,10 +264,16 @@ const Navigation: React.FC<{ isMenuOpen: boolean; setIsMenuOpen: (open: boolean)
 
         {/* CTA Buttons */}
         <div className="hidden md:flex items-center gap-4">
-          <button className="px-5 py-2.5 text-sm font-semibold text-white/90 hover:text-white transition-colors">
+          <button 
+            onClick={onSignIn}
+            className="px-5 py-2.5 text-sm font-semibold text-white/90 hover:text-white transition-colors"
+          >
             Sign In
           </button>
-          <button className="px-6 py-2.5 rounded-xl bg-[#ea2323] text-sm font-semibold text-white shadow-lg shadow-[#ea2323]/30 hover:bg-[#ff2e2e] hover:shadow-[#ea2323]/50 transition-all">
+          <button 
+            onClick={onGetStarted}
+            className="px-6 py-2.5 rounded-xl bg-[#ea2323] text-sm font-semibold text-white shadow-lg shadow-[#ea2323]/30 hover:bg-[#ff2e2e] hover:shadow-[#ea2323]/50 transition-all"
+          >
             Get Started
           </button>
         </div>
@@ -204,10 +304,16 @@ const Navigation: React.FC<{ isMenuOpen: boolean; setIsMenuOpen: (open: boolean)
             <a href="#pricing" className="block text-white/80 hover:text-white transition-colors">Pricing</a>
             <a href="#faq" className="block text-white/80 hover:text-white transition-colors">FAQ</a>
             <div className="pt-4 border-t border-white/10 space-y-3">
-              <button className="w-full px-5 py-2.5 text-sm font-semibold text-white/90 border border-white/20 rounded-xl hover:bg-white/5 transition-colors">
+              <button 
+                onClick={onSignIn}
+                className="w-full px-5 py-2.5 text-sm font-semibold text-white/90 border border-white/20 rounded-xl hover:bg-white/5 transition-colors"
+              >
                 Sign In
               </button>
-              <button className="w-full px-6 py-2.5 rounded-xl bg-[#ea2323] text-sm font-semibold text-white">
+              <button 
+                onClick={onGetStarted}
+                className="w-full px-6 py-2.5 rounded-xl bg-[#ea2323] text-sm font-semibold text-white"
+              >
                 Get Started
               </button>
             </div>
@@ -245,30 +351,30 @@ const HeroSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) =
         <div ref={textRef}>
           <h1 className="fade-in-element text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white/95 to-white/90">
-              Build Anything
+              Multi-Agent
             </span>
             <br />
             <span className="text-[#ea2323]">
-              With AI Teams
+              Orchestration Platform
             </span>
           </h1>
 
           <p className="fade-in-element text-xl md:text-2xl text-white/70 mb-4 max-w-3xl mx-auto leading-relaxed">
-            Deploy specialized AI agent crews that work 24/7. From engineering to marketing, finance to operations.
+            CrewAI-powered agent coordination with real-time visualization and advanced workflow management.
           </p>
 
           <p className="fade-in-element text-lg text-white/50 mb-12 max-w-2xl mx-auto">
-            No hiring. No training. No downtime. Just results.
+            Build specialized AI crews, visualize workflows, and manage missions with enterprise-grade orchestration.
           </p>
 
           {/* CTA Buttons */}
           <div className="fade-in-element flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <button className="group px-8 py-4 rounded-xl bg-[#ea2323] font-semibold text-lg shadow-2xl shadow-[#ea2323]/40 hover:shadow-[#ea2323]/60 hover:bg-[#ff2e2e] transition-all transform hover:scale-105">
-              Start Building Now
+              Deploy Your First Crew
               <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">→</span>
             </button>
             <button className="px-8 py-4 rounded-xl bg-white/5 backdrop-blur-xl border border-white/20 font-semibold text-lg hover:bg-white/10 hover:border-white/30 transition-all">
-              Watch Demo
+              View Live Demo
             </button>
           </div>
 
@@ -331,24 +437,24 @@ const TrustSection: React.FC = () => {
 const ValueProposition: React.FC = () => {
   const benefits = [
     {
-      icon: '⚡',
-      title: '10x Faster',
-      description: 'Deploy in minutes, not months. AI agents work 24/7 without breaks.',
-    },
-    {
-      icon: '💰',
-      title: '90% Cost Savings',
-      description: 'Replace expensive hires with specialized AI crews at a fraction of the cost.',
-    },
-    {
       icon: '🎯',
-      title: 'Expert-Level',
-      description: 'Every agent is trained on thousands of real-world projects and best practices.',
+      title: 'Real-Time Visualization',
+      description: 'XYFlow graph canvas with live agent status updates and workflow visualization.',
+    },
+    {
+      icon: '⚡',
+      title: 'Advanced Analytics',
+      description: 'Dashboard with success rates, latency metrics, token usage, and performance insights.',
     },
     {
       icon: '🔄',
-      title: 'Always Learning',
-      description: 'Agents improve with every task, building institutional knowledge over time.',
+      title: 'WebSocket Streaming',
+      description: 'Real-time event streaming and mission control with instant feedback loops.',
+    },
+    {
+      icon: '�',
+      title: 'Graph Persistence',
+      description: 'JSONB-based layout storage with automatic saving and workflow history.',
     },
   ];
 
@@ -357,10 +463,10 @@ const ValueProposition: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-6xl font-black mb-6">
-            Why Crew-7?
+            Why ZYNIQ-CREW7?
           </h2>
           <p className="text-xl text-white/70 max-w-3xl mx-auto">
-            The smartest way to scale your operations without scaling your headcount
+            Enterprise-grade orchestration platform with real-time insights and advanced workflow management
           </p>
         </div>
 
@@ -408,7 +514,7 @@ const CrewShowcase: React.FC = () => {
             Meet Your AI Crew
           </h2>
           <p className="text-xl text-white/70 max-w-3xl mx-auto">
-            Seven specialized agents, each an expert in their domain. Deploy them together or individually.
+            CrewAI-powered specialized agents working together as an orchestrated team.
           </p>
         </div>
 

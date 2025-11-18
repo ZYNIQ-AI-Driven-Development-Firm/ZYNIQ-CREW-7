@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Optional
 import logging
 
-from app.deps import get_current_user, get_db
+from app.deps import auth, get_db
 from app.models.user import User
 from app.models.crypto import UserWallet, ChainType
 from app.core.crypto_config import get_web3_client, get_crypto_config
@@ -42,7 +42,7 @@ class WalletResponse(BaseModel):
 @router.post("/link", response_model=WalletResponse)
 async def link_wallet(
     request: WalletLinkRequest,
-    current_user: User = Depends(get_current_user),
+    user: UserCtx = Depends(auth),
     db: Session = Depends(get_db),
 ):
     """
@@ -119,7 +119,7 @@ async def link_wallet(
 
 @router.get("", response_model=WalletResponse)
 async def get_wallet(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(auth),
     db: Session = Depends(get_db),
 ):
     """Get the linked wallet for the current user."""
@@ -148,7 +148,7 @@ async def get_wallet(
 
 @router.delete("")
 async def unlink_wallet(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(auth),
     db: Session = Depends(get_db),
 ):
     """Unlink the wallet from the current user."""
@@ -173,7 +173,7 @@ class TestTokensRequest(BaseModel):
 @router.post("/request-test-tokens")
 async def request_test_tokens(
     request: TestTokensRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(auth),
     db: Session = Depends(get_db),
 ):
     """

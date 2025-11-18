@@ -13,3 +13,7 @@ def get_redis() -> Redis:
         url = settings.REDIS_URL
         _redis = Redis.from_url(url, decode_responses=True)
     return _redis
+
+
+# Alias for backwards compatibility
+get_redis_client = get_redis

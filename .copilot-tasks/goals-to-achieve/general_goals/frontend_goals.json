@@ -1,0 +1,59 @@
+{
+  "frontend_goals": [
+    {
+      "id": "frontend_core_scope",
+      "title": "Crew-7 Frontend — Core Responsibilities",
+      "copilot_prompt": "Frontend scope for Crew-7.\n\nThe frontend must:\n1) Provide a clean, fast, dark-themed interface (near-black backgrounds, neon red/blue accents) across app and landing page.\n2) Support Chat Mode (default) and Advanced Mode (with live Agent Graph) without blocking each other.\n3) Display live run output (token-level or chunk streams) with clear agent role indicators and robot avatars.\n4) Provide interfaces for Crew settings, Marketplace installation, LLM connections, Env vars, Traces, and Crew Portfolios (XP/levels/cards).\n5) Maintain consistency in styling: Hybrid-C data-mesh robots, rounded dark cards, glowing borders, minimalist typography.\n6) Integrate seamlessly with backend WebSockets (/ws/graph, /ws/mission) and SSE for streaming events.\n7) Use React composition and hooks; keep components small and focused.\n\nThe frontend must NOT:\n- Implement backend logic or business calculations that belong to the server (XP formulas, security decisions, etc.).\n- Hardcode LLM keys, secrets, or environment-specific URLs.\n- Mangle run events or ignore agent status transitions.\n\nCopilot — process for any frontend change:\n1) First scan existing components, hooks, and context providers related to the feature.\n2) Reuse and extend existing patterns (layout, theming, state) instead of inventing new ones.\n3) Ensure the change keeps the UI consistent with the dark Hybrid-C design.\n4) If a requested change conflicts with these constraints, leave a comment explaining the trade-off and suggest a safer alternative."
+    },
+    {
+      "id": "frontend_chat_and_runs",
+      "title": "Chat Mode & Run Interaction",
+      "copilot_prompt": "Chat/Run UI goals:\n1) Chat view is the primary default experience for running a crew.\n2) It must show streaming tokens/messages in real time using SSE or WebSockets.\n3) Each message must be tagged with the responding agent (name + small Hybrid-C avatar + colored glow per role).\n4) Controls: Start/Restart Run, Advanced Mode toggle, and optional Stop/Cancel.\n5) Chat must remain responsive even when Advanced Mode is open or the graph is animating.\n6) Error states (failed run, disconnect, timeout) must be clearly visible with retry actions.\n\nCopilot: Keep the chat layout clean, legible, and aligned with run events; avoid blocking UI while waiting for streams. Before editing, search for existing chat components and reuse their state management patterns."
+    },
+    {
+      "id": "frontend_advanced_mode_graph",
+      "title": "Advanced Mode & Agent Graph",
+      "copilot_prompt": "Advanced Mode graph rules:\n1) When Advanced Mode is enabled, show the XYFlow based agent graph alongside the chat (split layout) on desktop; on mobile/tablet, allow toggling between Chat and Graph tabs.\n2) Each node represents an agent (Orchestrator + 6 Specialists) with Hybrid-C avatar/icon and role label.\n3) Nodes should glow or animate when the corresponding agent is active, using lightweight animations (e.g. anime.js) that do not impact performance.\n4) Edges should visually pulse or highlight when messages or tool calls flow between agents; display the last message snippet on hover.\n5) Graph layout must be persisted per crew (e.g. in backend or local storage) and reloaded on open.\n6) Provide Pause/Resume/Cancel controls in the graph toolbar that map directly to backend run controls.\n\nCopilot: The graph should feel alive and informative but must never break the chat layout. Use existing XYFlow wrappers/hooks if present; do not duplicate graph logic. Always wire graph state from WebSocket events, not from ad-hoc timers."
+    },
+    {
+      "id": "frontend_marketplace",
+      "title": "Marketplace UI Rules",
+      "copilot_prompt": "Marketplace UI goals:\n1) Main view: a responsive grid of crew templates (cards) grouped by category (Engineering, Marketing, Business, Finance, Ops, Research, etc.).\n2) Each card must display: crew name, short description, category, difficulty/level, key deliverables, and an Install/Rent/Buy CTA.\n3) Card visual style: dark card, Hybrid-C robot thumbnail, XP/level badge, subtle neon border on hover.\n4) Template detail page: show the Orchestrator + 6 Specialists lineup, their roles, XP, success rate, and example missions.\n5) Installing a template should call the install API and then redirect to the crew details page; never perform destructive actions from the marketplace.\n6) Marketplace must support search, filters (category, level), and pagination/infinite scroll as provided by backend.\n\nCopilot: Keep the marketplace minimal, premium-looking, and visually consistent with the rest of the app. Before adding new marketplace components, scan for existing card and grid primitives and reuse them."
+    },
+    {
+      "id": "frontend_settings_missionlab",
+      "title": "Settings, Traces & Mission Lab",
+      "copilot_prompt": "Mission Lab / Settings UI goals:\n1) Traces page: table view with filters (status, crew, date range) and the ability to drill into a run’s trace timeline.\n2) LLM Connections: provider selector, key/endpoint inputs, environment name, and a compact list of existing connections; show masked keys with a copy/test action.\n3) Environment Variables: list existing variables, add/edit/delete entries; values must be masked by default with an option to briefly reveal locally (never send full value to logs).\n4) A dedicated 'X-Lab' or 'Mission Lab' section groups Traces, LLM Connections, Env Vars, and possibly feature flags.\n5) All settings pages follow the dark-neon theme with clear section headers and simple forms.\n\nCopilot: Forms must be lightweight, with inline validation and clear success/error states. Do not block the main run/chat workflow when saving settings; prefer non-blocking toasts and optimistic UI when safe."
+    },
+    {
+      "id": "frontend_portfolios_xp_cards",
+      "title": "Crew Portfolios, XP & Detail Views",
+      "copilot_prompt": "Crew Portfolio UI (dashboard + marketplace detail):\n1) For each crew, show a premium 'Portfolio Card' similar to the reference design: left side portrait (Hybrid-C robot), right side metrics and XP.\n2) Metrics to display: missions_completed, success_rate, client_rating, hours_worked_estimate, artifacts_count, current_level, rarity_tier.\n3) Include an XP progress bar (current XP / next level threshold) with holographic gradient and subtle glow.\n4) Below metrics, show an evolution timeline: Missions -> XP -> Level -> Value appreciation; this can be a simple horizontal visual with icons.\n5) This component must be reusable in two contexts: a) Dashboard crew details, b) Marketplace crew details.\n6) Data should be read-only from backend APIs; do not recalculate XP/levels on the client.\n\nCopilot: Implement this as a reusable React component (e.g., CrewPortfolioCard) styled to match the reference screenshot but adapted to our design tokens. Before building, scan for existing card/metric components to avoid duplication."
+    },
+    {
+      "id": "frontend_landing_page",
+      "title": "Landing Page & Storytelling",
+      "copilot_prompt": "Landing page goals:\n1) Hero section: big headline about AI workforce / Crew-7, CTA buttons (Deploy Your First Crew, Explore Marketplace), and an animated Hybrid-C Orchestrator face (using SVG/canvas/3D render if available).\n2) Sections to include: 'How Crew-7 Works', 'Real Missions' (examples for different industries), 'Dual Token / Web3-ready Economy' (if we expose it), 'Living Portfolio' (crew cards), and 'Why 7 Agents'.\n3) Use scroll-based transitions and light animations (with anime.js where appropriate) to highlight cards, metrics, and robot faces.\n4) The page must be static-react-friendly (Next.js/CRA) and responsive down to mobile.\n5) Reuse the same color palette, typography, and robots as the app dashboard.\n\nCopilot: When implementing or refactoring the landing page, keep all text and CTA labels configurable via a single config object so marketing copy can be updated without touching layout logic."
+    },
+    {
+      "id": "frontend_robots_and_assets",
+      "title": "Hybrid-C Robots & Asset Usage",
+      "copilot_prompt": "Hybrid-C robot asset rules:\n1) Orchestrator and 6 Specialists must have consistent visual style (data-mesh, holographic) and be provided as SVG or high-res PNG with transparent background.\n2) Use Orchestrator portrait in hero, dashboard header, and key marketplace highlights.\n3) Use specialist icons as small avatars in chat, graph nodes, cards, and settings where their role matters.\n4) Always load images via the app's asset pipeline; do not hardcode absolute URLs.\n5) Ensure alt text is present for accessibility and graceful fallbacks when images are missing.\n\nCopilot: Before adding new usage of robot images, search for existing components (Avatar, RobotIcon, etc.) and route everything through those primitives for consistency."
+    },
+    {
+      "id": "frontend_animations",
+      "title": "Animations & Anime.js Integration",
+      "copilot_prompt": "Animation goals:\n1) Use anime.js (or a similar lightweight lib) for small, focused animations: button hover pulses, avatar glows, graph edge pulses, XP bar fills.\n2) Avoid heavy, continuous animations that hurt performance or distract from content.\n3) Prefer 'state-based' animations: start on events (agent active, mission start, card hover) and stop when not needed.\n4) Keep animation configuration in small helper hooks/components (e.g., useGlowAnimation) rather than scattered inline code.\n\nCopilot: When adding animations, verify they are optional and degrade gracefully; ensure they don't conflict with React's rendering (no direct DOM manipulation outside refs)."
+    },
+    {
+      "id": "frontend_design_system",
+      "title": "Design System, Theming & Layout",
+      "copilot_prompt": "Design system goals:\n1) Centralize colors, typography, spacing, and radii in a theme object or CSS variables (tokens) using the dark Hybrid-C look (black backgrounds, neon red/blue accents, soft gradients).\n2) Use reusable layout components for panels, cards, modals, and toolbars.\n3) Maintain a consistent grid and spacing scale across landing page, dashboard, marketplace, and settings.\n4) Ensure components work in light performance budgets (no unnecessary heavy libraries).\n\nCopilot: When creating new UI components, always reference the shared theme or design tokens and reuse primitives instead of re-defining colors and spacing."
+    },
+    {
+      "id": "frontend_responsiveness_accessibility",
+      "title": "Responsiveness & Accessibility",
+      "copilot_prompt": "Responsiveness & accessibility goals:\n1) All views must be usable on desktop, tablet, and mobile: responsive grids, stacked layouts when needed.\n2) Text must remain legible on dark backgrounds with appropriate contrast.\n3) Keyboard navigation should work for main actions (tabs, buttons, dialog close, etc.).\n4) Use ARIA labels and roles where appropriate, especially for complex components like graphs and carousels.\n5) Animations and flashes should avoid rapid flicker and respect reduced-motion preferences if possible.\n\nCopilot: When editing layouts, check existing breakpoints and reuse them. Make sure new components do not introduce inaccessible patterns (e.g., click-only controls without focus states)."
+    }
+  ]
+}

@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crew-7 | AI Agent Teams</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #02030a;
+        --panel: #050712;
+        --accent: #ea2323;
+        --accent-soft: rgba(234, 35, 35, 0.6);
+        --blueprint: #f5f5f5;
+        --muted: #a5abb5;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: "VT323", monospace;
+        background: radial-gradient(circle at top, #161c2c 0, var(--bg) 55%);
+        color: #ffffff;
+        overflow-x: hidden;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+      }
+
+      main {
+        min-height: 100vh;
+      }
+
+      section {
+        position: relative;
+        height: 100vh;
+        scroll-snap-align: start;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 6vw;
+        overflow: hidden;
+      }
+
+      .page-frame {
+        position: fixed;
+        inset: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      /* TIMELINE */
+      .section-timeline {
+        position: fixed;
+        top: 16px;
+        bottom: 16px;
+        left: 4vw;
+        width: 2px;
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.1),
+          rgba(234, 35, 35, 0.6),
+          rgba(255, 255, 255, 0.1)
+        );
+        opacity: 0.55;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .timeline-node {
+        position: absolute;
+        left: 4vw;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        background: radial-gradient(circle, #0b0f1b 0, #02030a 70%);
+        box-shadow: 0 0 0 0 rgba(234, 35, 35, 0);
+        transition: border-color 0.25s ease, box-shadow 0.25s ease,
+          transform 0.25s ease;
+      }
+
+      .timeline-node.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 10px rgba(234, 35, 35, 0.8);
+        transform: translate(-50%, -50%) scale(1.25);
+      }
+
+      /* NAVBAR */
+      .nav-bar {
+        position: fixed;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        padding: 0.4rem 2.5rem;
+        max-width: 70%;
+        background: radial-gradient(
+          circle at top left,
+          #20263a 0,
+          #050712 45%,
+          #02030a 100%
+        );
+        background-clip: padding-box;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(22px) saturate(150%);
+      }
+
+      .nav-logo {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-size: 1.8rem;
+        cursor: pointer;
+        z-index: 101;
+      }
+
+      .nav-logo-mark {
+        width: 55px;
+        height: 55px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: -15px;
+        margin-bottom: -15px;
+        filter: drop-shadow(0 0 15px rgba(234, 35, 35, 0.6));
+      }
+
+      .nav-logo-mark img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+        font-size: 1.35rem;
+        margin-left: auto;
+      }
+
+      .nav-link {
+        position: relative;
+        color: var(--muted);
+        text-decoration: none;
+        cursor: pointer;
+        transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+        opacity: 0.7;
+      }
+
+      .nav-link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -4px;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--accent),
+          transparent
+        );
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.2s ease;
+      }
+
+      .nav-link:hover {
+        color: #ffffff;
+        opacity: 1;
+        transform: translateY(-1px);
+      }
+
+      .nav-link.active {
+        color: #ffffff;
+        opacity: 1;
+      }
+
+      .nav-link.active::after {
+        transform: scaleX(1);
+      }
+
+      .nav-icon-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: transparent;
+        border: 1px solid rgba(234, 35, 35, 0.5);
+        border-radius: 8px;
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-icon-link:hover {
+        background: rgba(234, 35, 35, 0.1);
+        border-color: var(--accent);
+        transform: translateY(-1px);
+        box-shadow: 0 0 15px rgba(234, 35, 35, 0.3);
+      }
+
+      .nav-icon-link svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+      }
+
+      .nav-connect-btn {
+        padding: 0.5rem 1.5rem;
+        background: var(--accent);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-connect-btn:hover {
+        background: transparent;
+        transform: translateY(-1px);
+        box-shadow: 0 0 15px rgba(234, 35, 35, 0.5);
+      }
+
+      .section-label {
+        position: absolute;
+        top: 2.4rem;
+        left: 6vw;
+        font-size: 1.1rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .section-label span {
+        color: var(--accent);
+      }
+
+      .bg-grid {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.6;
+      }
+
+      .blueprint-stroke {
+        fill: none;
+        stroke: rgba(160, 165, 175, 0.35);
+        stroke-width: 0.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .blueprint-highlight {
+        stroke: var(--accent);
+        stroke-width: 1.2;
+        opacity: 0.6;
+      }
+
+      .blueprint-glow {
+        stroke: rgba(234, 35, 35, 0.4);
+        stroke-width: 2;
+        filter: blur(3px);
+      }
+
+      /* Content Sections */
+      .content-wrapper {
+        position: relative;
+        z-index: 10;
+        max-width: 1100px;
+        width: 100%;
+        text-align: center;
+      }
+
+      /* Hero Sci-Fi Effects */
+      .hero-container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding-top: 100px;
+      }
+
+      .hero-logo {
+        width: 200px;
+        height: auto;
+        margin: 0 auto;
+        display: block;
+        filter: drop-shadow(0 0 30px rgba(234, 35, 35, 0.6));
+        animation: pulse-glow 3s ease-in-out infinite;
+        position: relative;
+        z-index: 15;
+      }
+
+      @keyframes pulse-glow {
+        0%, 100% {
+          filter: drop-shadow(0 0 30px rgba(234, 35, 35, 0.6));
+        }
+        50% {
+          filter: drop-shadow(0 0 50px rgba(234, 35, 35, 0.9));
+        }
+      }
+
+      /* Sci-Fi Lines emanating from logo */
+      .hero-line {
+        position: absolute;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        height: 2px;
+        opacity: 0;
+        animation: line-appear 2s ease-out forwards;
+      }
+
+      .hero-line.line-top {
+        top: 50%;
+        left: 50%;
+        width: 400px;
+        transform: translate(-50%, -200px) rotate(-45deg);
+        animation-delay: 0.5s;
+      }
+
+      .hero-line.line-bottom {
+        top: 50%;
+        left: 50%;
+        width: 400px;
+        transform: translate(-50%, 200px) rotate(45deg);
+        animation-delay: 1s;
+      }
+
+      .hero-line.line-left {
+        top: 50%;
+        left: 50%;
+        width: 300px;
+        transform: translate(-100%, -50%) rotate(0deg);
+        animation-delay: 0.7s;
+      }
+
+      .hero-line.line-right {
+        top: 50%;
+        left: 50%;
+        width: 300px;
+        transform: translate(0%, -50%) rotate(0deg);
+        animation-delay: 0.9s;
+      }
+
+      @keyframes line-appear {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -200px) rotate(-45deg) scale(0.3);
+        }
+        100% {
+          opacity: 0.8;
+          transform: translate(-50%, -200px) rotate(-45deg) scale(1);
+        }
+      }
+
+      .hero-title {
+        font-size: 3.2rem;
+        line-height: 1.2;
+        margin-top: 3rem;
+        margin-bottom: 2rem;
+        letter-spacing: 0.02em;
+        opacity: 0;
+        animation: fade-in-up 1s ease-out 1.2s forwards;
+        max-width: 800px;
+      }
+
+      .hero-subtitle {
+        font-size: 1.5rem;
+        color: var(--muted);
+        margin-bottom: 2.5rem;
+        line-height: 1.6;
+        opacity: 0;
+        animation: fade-in-up 1s ease-out 1.5s forwards;
+        max-width: 700px;
+      }
+
+      @keyframes fade-in-up {
+        0% {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .cta-button {
+        display: inline-block;
+        padding: 1rem 2.5rem;
+        background: var(--accent);
+        color: white;
+        text-decoration: none;
+        font-size: 1.4rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        border: 1px solid var(--accent);
+        cursor: pointer;
+        opacity: 0;
+        animation: fade-in-up 1s ease-out 1.8s forwards;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+
+      .cta-button:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      .cta-button:hover {
+        background: transparent;
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(234, 35, 35, 0.5);
+      }
+
+      .stats-row {
+        display: none;
+      }
+        color: var(--muted);
+        margin-bottom: 3rem;
+        line-height: 1.5;
+      }
+
+      .section-title {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .section-text {
+        font-size: 1.5rem;
+        color: var(--muted);
+        line-height: 1.7;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .cta-button {
+        display: inline-block;
+        padding: 1rem 2.5rem;
+        background: var(--accent);
+        color: white;
+        text-decoration: none;
+        font-size: 1.4rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        border: 1px solid var(--accent);
+        cursor: pointer;
+      }
+
+      .cta-button:hover {
+        background: transparent;
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(234, 35, 35, 0.5);
+      }
+
+      .stats-row {
+        display: flex;
+        gap: 4rem;
+        justify-content: center;
+        margin-top: 3rem;
+      }
+
+      .stat-box {
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 4rem;
+        color: var(--accent);
+      }
+
+      .stat-label {
+        font-size: 1.2rem;
+        color: var(--muted);
+        margin-top: 0.5rem;
+      }
+
+      footer.page-footer {
+        position: fixed;
+        bottom: 18px;
+        right: 32px;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.5);
+        z-index: 20;
+      }
+
+      footer.page-footer span {
+        color: var(--accent);
+      }
+
+      @media (max-width: 900px) {
+        section {
+          padding: 4.5rem 1.6rem 3rem;
+        }
+
+        .page-frame {
+          display: none;
+        }
+
+        .nav-bar {
+          left: 16px;
+          right: 16px;
+          transform: none;
+          justify-content: space-between;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .section-timeline {
+          display: none;
+        }
+
+        .timeline-node {
+          display: none;
+        }
+
+        .hero-title {
+          font-size: 3rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1.3rem;
+        }
+
+        .section-title {
+          font-size: 2.5rem;
+        }
+
+        .stats-row {
+          flex-direction: column;
+          gap: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-frame"></div>
+    <div class="section-timeline"></div>
+
+    <!-- NAVBAR -->
+    <header class="nav-bar">
+      <div class="nav-logo" onclick="scrollToSection('hero')">
+        <div class="nav-logo-mark">
+          <img src="../public/new-logo-sign-only.png" alt="Crew-7 Logo" />
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a class="nav-link" data-target="hero">Home</a>
+        <a class="nav-link" data-target="sec-1">Problem</a>
+        <a class="nav-link" data-target="sec-2">Insight</a>
+        <a class="nav-link" data-target="sec-3">Solution</a>
+        <a class="nav-link" data-target="sec-4">Marketplace</a>
+        <a class="nav-link" data-target="sec-5">Team</a>
+        <a class="nav-link" data-target="sec-6">Pricing</a>
+        <a class="nav-link" data-target="sec-7">Vision</a>
+        <a
+          href="./Crew-7_presentation.html"
+          class="nav-icon-link"
+          title="View Presentation"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M0 0h24v24H0V0z" fill="none" />
+            <path
+              d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7h9v6h-9z"
+            />
+          </svg>
+        </a>
+        <a href="../index.html" class="nav-connect-btn">Connect</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section id="hero">
+        <svg class="bg-grid" viewBox="0 0 800 600" aria-hidden="true">
+          <defs>
+            <pattern
+              id="grid-hero"
+              x="0"
+              y="0"
+              width="32"
+              height="32"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 32 0 L 0 0 0 32"
+                fill="none"
+                stroke="rgba(255,255,255,0.06)"
+                stroke-width="0.5"
+              />
+            </pattern>
+          </defs>
+          <rect width="800" height="600" fill="url(#grid-hero)" />
+
+          <g class="blueprint-stroke">
+            <path class="bg-line" d="M520 0 L 520 600" />
+            <circle class="bg-line" cx="360" cy="260" r="120" />
+            <circle class="bg-line" cx="360" cy="260" r="80" />
+            <circle class="bg-line" cx="360" cy="260" r="40" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="360"
+              cy="260"
+              r="8"
+            />
+            <path class="bg-line" d="M360 260 L 520 260" />
+            <path class="bg-line" d="M520 260 L 520 560" />
+            <path class="bg-line" d="M495 260 A 25 25 0 0 1 520 235" />
+            <path class="bg-line" d="M240 260 L 160 180" />
+            <path class="bg-line" d="M240 260 L 160 340" />
+            <path class="bg-line" d="M360 140 L 360 0" />
+            <path class="bg-line" d="M480 260 L 600 140" />
+            <path class="bg-line" d="M480 260 L 600 380" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="160"
+              cy="180"
+              r="4"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="160"
+              cy="340"
+              r="4"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="600"
+              cy="140"
+              r="4"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="600"
+              cy="380"
+              r="4"
+            />
+          </g>
+        </svg>
+
+        <div class="hero-container">
+          <!-- Sci-Fi Lines -->
+          <div class="hero-line line-top"></div>
+          <div class="hero-line line-bottom"></div>
+          <div class="hero-line line-left"></div>
+          <div class="hero-line line-right"></div>
+          
+          <img
+            src="../public/new-complete-logo.png"
+            alt="Crew-7 Complete Logo"
+            class="hero-logo"
+          />
+          <h1 class="hero-title">Build AI Teams, Not Single Agents</h1>
+          <p class="hero-subtitle">
+            The first marketplace where structured AI crews tackle complex
+            missions. 7 specialized agents. Infinite possibilities.
+          </p>
+          <a href="./Crew-7_presentation.html" class="cta-button"
+            >View Presentation</a
+          >
+        </div>
+      </section>
+
+      <!-- SECTION 1: PROBLEM -->
+      <section id="sec-1" style="background: var(--bg)">
+        <div class="timeline-node"></div>
+        <div class="section-label"><span>01</span> / The Problem</div>
+
+        <svg class="bg-grid" viewBox="0 0 800 600" aria-hidden="true">
+          <rect width="800" height="600" fill="none" class="blueprint-stroke" />
+          <g class="blueprint-stroke">
+            <path class="bg-line" d="M520 0 L 520 600" />
+            <path
+              class="bg-line blueprint-highlight"
+              d="M0 300 C 160 260 320 340 480 300 C 640 260 720 280 800 260"
+            />
+            <path
+              class="bg-line"
+              d="M0 300 C 160 240 320 360 480 300 C 640 240 720 300 800 280"
+              opacity="0.5"
+            />
+            <path class="bg-line" d="M0 120 C 200 80 420 160 640 120" />
+            <path class="bg-line" d="M0 480 C 200 520 420 440 640 480" />
+            <path class="bg-line" d="M80 560 L 720 40" opacity="0.3" />
+            <path class="bg-line" d="M40 80 L 760 520" opacity="0.3" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="400"
+              cy="300"
+              r="6"
+            />
+            <circle class="bg-line" cx="200" cy="120" r="8" />
+            <circle class="bg-line" cx="600" cy="120" r="8" />
+          </g>
+        </svg>
+
+        <div class="content-wrapper">
+          <h2 class="section-title">Traditional Teams Are Slow</h2>
+          <p class="section-text">
+            Hiring takes months. Coordination is expensive. Every new idea
+            requires a new team. Every hand-off is a risk. Building AI tools
+            isn't enough—we need structured AI teams.
+          </p>
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-number">3-6mo</div>
+              <div class="stat-label">Hiring Time</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">$200k+</div>
+              <div class="stat-label">Annual Cost Per Engineer</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">40%</div>
+              <div class="stat-label">Time Lost in Coordination</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: INSIGHT -->
+      <section id="sec-2" style="background: var(--bg)">
+        <div class="timeline-node"></div>
+        <div class="section-label"><span>02</span> / The Insight</div>
+
+        <svg class="bg-grid" viewBox="0 0 800 600" aria-hidden="true">
+          <defs>
+            <radialGradient id="rad-3" cx="0.5" cy="0.4" r="0.8">
+              <stop offset="0" stop-color="rgba(234,35,35,0.5)" />
+              <stop offset="1" stop-color="rgba(234,35,35,0)" />
+            </radialGradient>
+          </defs>
+          <rect width="800" height="600" fill="none" />
+          <circle
+            cx="400"
+            cy="280"
+            r="220"
+            fill="none"
+            class="blueprint-stroke"
+          />
+          <circle
+            cx="400"
+            cy="280"
+            r="140"
+            fill="none"
+            class="blueprint-highlight bg-line"
+          />
+          <g class="blueprint-stroke">
+            <path class="bg-line" d="M520 0 L 520 600" />
+            <line
+              class="bg-line blueprint-highlight"
+              x1="400"
+              y1="60"
+              x2="400"
+              y2="500"
+            />
+            <line
+              class="bg-line blueprint-highlight"
+              x1="180"
+              y1="280"
+              x2="620"
+              y2="280"
+            />
+            <path class="bg-line" d="M280 200 L 520 360" opacity="0.4" />
+            <path class="bg-line" d="M520 200 L 280 360" opacity="0.4" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="400"
+              cy="140"
+              r="5"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="400"
+              cy="420"
+              r="5"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="260"
+              cy="280"
+              r="5"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="540"
+              cy="280"
+              r="5"
+            />
+          </g>
+          <circle cx="400" cy="280" r="60" fill="url(#rad-3)" />
+          <circle
+            class="bg-line blueprint-highlight"
+            cx="400"
+            cy="280"
+            r="55"
+          />
+        </svg>
+
+        <div class="content-wrapper">
+          <h2 class="section-title">The Power of Seven</h2>
+          <p class="section-text">
+            Miller's Law: 7±2 items in working memory. Nature's pattern in
+            swarms and colonies.<br />
+            <strong style="color: var(--accent)"
+              >1 Orchestrator + 6 Specialists = Perfect Balance</strong
+            >
+          </p>
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-number">1</div>
+              <div class="stat-label">Orchestrator</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">+</div>
+              <div class="stat-label"></div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">6</div>
+              <div class="stat-label">Specialists</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">=</div>
+              <div class="stat-label"></div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">7</div>
+              <div class="stat-label">Perfect Crew</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: SOLUTION -->
+      <section id="sec-3" style="background: var(--bg)">
+        <div class="timeline-node"></div>
+        <div class="section-label"><span>03</span> / The Solution</div>
+
+        <svg class="bg-grid" viewBox="0 0 800 600" aria-hidden="true">
+          <defs>
+            <pattern
+              id="grid-4"
+              x="0"
+              y="0"
+              width="28"
+              height="28"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 28 0 L 0 0 0 28"
+                fill="none"
+                stroke="rgba(255,255,255,0.04)"
+                stroke-width="0.4"
+              />
+            </pattern>
+          </defs>
+          <rect width="800" height="600" fill="url(#grid-4)" />
+          <g class="blueprint-stroke">
+            <path class="bg-line" d="M520 0 L 520 600" />
+            <path
+              class="bg-line blueprint-highlight"
+              d="M40 80 L 220 220 L 60 420 Z"
+            />
+            <path
+              class="bg-line blueprint-highlight"
+              d="M760 520 L 580 380 L 740 180 Z"
+            />
+            <circle class="bg-line" cx="400" cy="300" r="110" />
+            <circle class="bg-line" cx="400" cy="300" r="70" opacity="0.5" />
+            <path
+              class="bg-line"
+              d="M140 150 L 220 220 L 140 290"
+              opacity="0.6"
+            />
+            <path
+              class="bg-line"
+              d="M660 310 L 580 380 L 660 450"
+              opacity="0.6"
+            />
+            <circle class="bg-line blueprint-highlight" cx="40" cy="80" r="5" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="60"
+              cy="420"
+              r="5"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="760"
+              cy="520"
+              r="5"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="740"
+              cy="180"
+              r="5"
+            />
+          </g>
+        </svg>
+
+        <div class="content-wrapper">
+          <h2 class="section-title">Crew-7 Marketplace</h2>
+          <p class="section-text">
+            The first platform where AI teams have portfolios, XP, and price
+            tags.<br />
+            Choose a crew. Describe your mission. Watch them collaborate. Deploy
+            results.
+          </p>
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-label">Choose Crew</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">→</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Define Mission</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">→</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Watch Live</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">→</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Deploy</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: MARKETPLACE -->
+      <section id="sec-4" style="background: var(--bg)">
+        <div class="timeline-node"></div>
+        <div class="section-label"><span>04</span> / Marketplace</div>
+
+        <svg class="bg-grid" viewBox="0 0 800 600" aria-hidden="true">
+          <g class="blueprint-stroke">
+            <path class="bg-line" d="M520 0 L 520 600" />
+            <path
+              class="bg-line blueprint-highlight"
+              d="M0 540 Q 260 460 400 520 T 800 500"
+            />
+            <path
+              class="bg-line"
+              d="M0 560 Q 260 480 400 540 T 800 520"
+              opacity="0.4"
+            />
+            <path
+              class="bg-line blueprint-highlight"
+              d="M0 80 Q 160 140 260 110 T 520 80 T 800 120"
+            />
+            <path
+              class="bg-line"
+              d="M0 60 Q 160 120 260 90 T 520 60 T 800 100"
+              opacity="0.4"
+            />
+            <circle class="bg-line" cx="140" cy="420" r="60" />
+            <circle class="bg-line" cx="140" cy="420" r="40" opacity="0.5" />
+            <circle class="bg-line" cx="640" cy="180" r="70" />
+            <circle class="bg-line" cx="640" cy="180" r="50" opacity="0.5" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="400"
+              cy="520"
+              r="6"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="260"
+              cy="110"
+              r="6"
+            />
+          </g>
+        </svg>
+
+        <div class="content-wrapper">
+          <h2 class="section-title">Browse Specialized Crews</h2>
+          <p class="section-text">
+            Engineering crews for SaaS and infrastructure.<br />
+            Marketing crews for campaigns and analytics.<br />
+            Business crews for pitch decks and strategy.<br />
+            Research crews for data analysis and insights.
+          </p>
+        </div>
+      </section>
+
+      <!-- SECTION 5: TEAM -->
+      <section id="sec-5" style="background: var(--bg)">
+        <div class="timeline-node"></div>
+        <div class="section-label"><span>05</span> / The Team</div>
+
+        <svg class="bg-grid" viewBox="0 0 800 600" aria-hidden="true">
+          <rect width="800" height="600" fill="none" class="blueprint-stroke" />
+          <g class="blueprint-stroke">
+            <path class="bg-line" d="M520 0 L 520 600" />
+            <path
+              class="bg-line blueprint-highlight"
+              d="M120 520 L 260 380 L 420 420 L 560 260 L 720 320"
+            />
+            <path
+              class="bg-line"
+              d="M120 540 L 260 400 L 420 440 L 560 280 L 720 340"
+              opacity="0.3"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="120"
+              cy="520"
+              r="8"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="260"
+              cy="380"
+              r="10"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="420"
+              cy="420"
+              r="10"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="560"
+              cy="260"
+              r="10"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="720"
+              cy="320"
+              r="8"
+            />
+            <path
+              class="bg-line"
+              d="M260 380 L 260 320 L 300 320"
+              opacity="0.5"
+            />
+            <path
+              class="bg-line"
+              d="M420 420 L 420 360 L 380 360"
+              opacity="0.5"
+            />
+            <path
+              class="bg-line"
+              d="M560 260 L 560 200 L 600 200"
+              opacity="0.5"
+            />
+          </g>
+        </svg>
+
+        <div class="content-wrapper">
+          <h2 class="section-title">Meet Your Crew</h2>
+          <p class="section-text">
+            Orchestrator: The conductor who breaks down missions<br />
+            Engineer: Builds systems and writes code<br />
+            Analyst: Processes data and generates insights<br />
+            Architect: Designs scalable systems<br />
+            Creative: Generates content and designs<br />
+            Operations: Manages deployment and monitoring
+          </p>
+        </div>
+      </section>
+
+      <!-- SECTION 6: PRICING -->
+      <section id="sec-6" style="background: var(--bg)">
+        <div class="timeline-node"></div>
+        <div class="section-label"><span>06</span> / Pricing</div>
+
+        <svg class="bg-grid" viewBox="0 0 800 600" aria-hidden="true">
+          <defs>
+            <pattern
+              id="grid-7"
+              x="0"
+              y="0"
+              width="36"
+              height="36"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 36 0 L 0 0 0 36"
+                fill="none"
+                stroke="rgba(255,255,255,0.05)"
+                stroke-width="0.5"
+              />
+            </pattern>
+          </defs>
+          <rect width="800" height="600" fill="url(#grid-7)" />
+          <g class="blueprint-stroke">
+            <path class="bg-line" d="M520 0 L 520 600" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="200"
+              cy="180"
+              r="70"
+            />
+            <circle class="bg-line" cx="200" cy="180" r="50" opacity="0.5" />
+            <circle class="bg-line" cx="200" cy="180" r="30" opacity="0.5" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="600"
+              cy="420"
+              r="90"
+            />
+            <circle class="bg-line" cx="600" cy="420" r="70" opacity="0.5" />
+            <circle class="bg-line" cx="600" cy="420" r="50" opacity="0.5" />
+            <path class="bg-line blueprint-highlight" d="M200 180 L 600 420" />
+            <path class="bg-line" d="M80 520 L 720 120" opacity="0.4" />
+            <path class="bg-line" d="M100 100 L 700 500" opacity="0.4" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="400"
+              cy="300"
+              r="8"
+            />
+          </g>
+        </svg>
+
+        <div class="content-wrapper">
+          <h2 class="section-title">Transparent Pricing</h2>
+          <p class="section-text">
+            Pay per mission. No subscriptions. No hidden fees.<br />
+            Rent or buy crews with C7T tokens.
+          </p>
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-number">$0.10</div>
+              <div class="stat-label">Per 1K Tokens</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">$5</div>
+              <div class="stat-label">Minimum Mission</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">∞</div>
+              <div class="stat-label">Scale</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 7: VISION -->
+      <section id="sec-7" style="background: var(--bg)">
+        <div class="timeline-node"></div>
+        <div class="section-label"><span>07</span> / Vision</div>
+
+        <svg class="bg-grid" viewBox="0 0 800 600" aria-hidden="true">
+          <g class="blueprint-stroke">
+            <path class="bg-line" d="M520 0 L 520 600" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="400"
+              cy="300"
+              r="210"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="400"
+              cy="300"
+              r="150"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="400"
+              cy="300"
+              r="90"
+            />
+            <circle class="bg-line" cx="400" cy="300" r="180" opacity="0.3" />
+            <circle class="bg-line" cx="400" cy="300" r="120" opacity="0.3" />
+            <circle class="bg-line" cx="400" cy="300" r="60" opacity="0.3" />
+            <path class="bg-line blueprint-highlight" d="M400 90 L 400 510" />
+            <path class="bg-line blueprint-highlight" d="M190 300 L 610 300" />
+            <path class="bg-line" d="M250 170 L 550 430" opacity="0.4" />
+            <path class="bg-line" d="M250 430 L 550 170" opacity="0.4" />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="400"
+              cy="90"
+              r="6"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="400"
+              cy="510"
+              r="6"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="190"
+              cy="300"
+              r="6"
+            />
+            <circle
+              class="bg-line blueprint-highlight"
+              cx="610"
+              cy="300"
+              r="6"
+            />
+          </g>
+        </svg>
+
+        <div class="content-wrapper">
+          <h2 class="section-title">The Future of Work</h2>
+          <p class="section-text">
+            C7T Token: Rent and buy crews<br />
+            R7 Reputation: On-chain mission XP<br />
+            Smart Contracts: Automated revenue splits<br />
+            Web3 Layer: Own crews as digital assets
+          </p>
+          <a
+            href="./Crew-7_presentation.html"
+            class="cta-button"
+            style="margin-top: 2rem"
+            >Start Your First Mission</a
+          >
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer"><span>Crew-7</span> by ZYNIQ • 2025</footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script>
+      function scrollToSection(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+
+      function animateLines() {
+        const lines = document.querySelectorAll(".bg-line");
+        lines.forEach((el) => {
+          const len =
+            typeof el.getTotalLength === "function" ? el.getTotalLength() : 600;
+          el.style.strokeDasharray = len;
+          el.style.strokeDashoffset = len;
+        });
+
+        anime({
+          targets: ".bg-line",
+          strokeDashoffset: [anime.setDashoffset, 0],
+          easing: "easeInOutQuad",
+          duration: 3200,
+          delay: anime.stagger(120, { from: "center" }),
+          direction: "alternate",
+          loop: true,
+        });
+
+        anime({
+          targets: ".blueprint-highlight",
+          opacity: [0.3, 0.9],
+          easing: "easeInOutSine",
+          duration: 2000,
+          direction: "alternate",
+          loop: true,
+        });
+      }
+
+      function setupNavScroll() {
+        const navLinks = document.querySelectorAll(".nav-link");
+        navLinks.forEach((link) => {
+          link.addEventListener("click", (e) => {
+            const target = link.getAttribute("data-target");
+            if (target) {
+              e.preventDefault();
+              scrollToSection(target);
+            }
+          });
+        });
+
+        const sections = document.querySelectorAll("main section");
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const id = entry.target.id;
+
+                navLinks.forEach((link) => {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("data-target") === id
+                  );
+                });
+
+                const node = entry.target.querySelector(".timeline-node");
+                document
+                  .querySelectorAll(".timeline-node")
+                  .forEach((n) => n.classList.remove("active"));
+                if (node) {
+                  node.classList.add("active");
+                }
+              }
+            });
+          },
+          {
+            root: null,
+            threshold: 0.5,
+          }
+        );
+
+        sections.forEach((section) => observer.observe(section));
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        animateLines();
+        setupNavScroll();
+      });
+    </script>
+  </body>
+</html>

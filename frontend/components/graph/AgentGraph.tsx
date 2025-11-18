@@ -14,6 +14,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { AgentNodeData, nodeTypes, NodeStatus } from './nodes';
 import { AgentKey } from '../AgentIcon';
+import { GraphWebSocket, type GraphEvent as WSGraphEvent } from '@/src/lib/websocket';
 
 type AgentGraphProps = {
   crewId: string;
@@ -25,7 +26,10 @@ type GraphEvent =
   | { type: 'agent_start'; agent: string }
   | { type: 'agent_token'; agent: string; text: string }
   | { type: 'edge'; from: string; to: string; message: string }
-  | { type: 'agent_end'; agent: string; status: 'done' | 'error'; tokens: number };
+  | { type: 'agent_end'; agent: string; status: 'done' | 'error'; tokens: number }
+  | { type: 'tool_start'; tool: string; agent_id?: string; crew_id: string; params: any }
+  | { type: 'tool_end'; tool: string; agent_id?: string; crew_id: string; duration_s: number; exit_code?: number; status: string }
+  | { type: 'tool_progress'; tool: string; agent_id?: string; crew_id: string; message: string; progress?: number };
 
 const AGENT_POSITIONS: Record<string, { x: number; y: number }> = {
   orchestrator: { x: 400, y: 50 },
@@ -140,83 +144,57 @@ export const AgentGraph: React.FC<AgentGraphProps> = ({ crewId, runId, visible =
     if (visible) saveLayout();
   }, [nodes, edges, visible, saveLayout]);
 
-  // WebSocket connection for live updates
+  // WebSocket connection for live updates using centralized service
   useEffect(() => {
     if (!visible) return;
 
     const token = window.localStorage.getItem('crew7_access_token');
     if (!token) return;
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws/graph?crew_id=${crewId}`, ['Bearer', token]);
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      console.log(`Graph WebSocket: connected for crew ${crewId}`);
-    };
-
-    ws.onerror = (error) => {
-      console.error('Graph WebSocket error:', error);
-    };
-
-    ws.onclose = () => {
-      console.log(`Graph WebSocket: disconnected for crew ${crewId}`);
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const msg: GraphEvent = JSON.parse(event.data);
-
-        if (msg.type === 'agent_start') {
+    const graphWs = new GraphWebSocket(crewId, token);
+    
+    const unsubscribe = graphWs.subscribe((msg: WSGraphEvent) => {
+      // Handle tool events from new WebSocket infrastructure
+      if (msg.type === 'tool_start') {
+        setToast(`🔧 ${msg.tool} started${msg.agent_id ? ` (${msg.agent_id})` : ''}`);
+        setTimeout(() => setToast(null), 3000);
+        
+        if (msg.agent_id) {
           setNodes((nds) =>
             nds.map((node) =>
-              node.id === msg.agent ? { ...node, data: { ...node.data, status: 'typing' as NodeStatus } } : node
+              node.id === msg.agent_id ? { ...node, data: { ...node.data, status: 'typing' as NodeStatus } } : node
             )
           );
-        } else if (msg.type === 'agent_token') {
-          // Keep agent in typing state while tokens are streaming
+        }
+      } else if (msg.type === 'tool_progress') {
+        setToast(`⏳ ${msg.tool}: ${msg.message}`);
+        setTimeout(() => setToast(null), 2000);
+      } else if (msg.type === 'tool_end') {
+        const icon = msg.status === 'success' ? '✅' : msg.status === 'error' ? '❌' : '⚠️';
+        setToast(`${icon} ${msg.tool} ${msg.status} (${msg.duration_s?.toFixed(2)}s)`);
+        setTimeout(() => setToast(null), 3000);
+        
+        if (msg.agent_id) {
           setNodes((nds) =>
             nds.map((node) =>
-              node.id === msg.agent ? { ...node, data: { ...node.data, status: 'typing' as NodeStatus } } : node
-            )
-          );
-        } else if (msg.type === 'agent_end') {
-          setNodes((nds) =>
-            nds.map((node) =>
-              node.id === msg.agent
-                ? { ...node, data: { ...node.data, status: msg.status, tokens: msg.tokens } }
+              node.id === msg.agent_id
+                ? { ...node, data: { ...node.data, status: msg.status === 'success' ? 'done' : 'error' } }
                 : node
             )
           );
-        } else if (msg.type === 'edge') {
-          setEdges((eds) => {
-            const existingEdge = eds.find((e) => e.source === msg.from && e.target === msg.to);
-            if (existingEdge) {
-              return eds.map((e) =>
-                e.id === existingEdge.id ? { ...e, label: msg.message } : e
-              );
-            }
-            return addEdge(
-              {
-                id: `${msg.from}-${msg.to}`,
-                source: msg.from,
-                target: msg.to,
-                label: msg.message,
-                animated: true,
-              },
-              eds
-            );
-          });
         }
-      } catch (err) {
-        console.error('Graph WebSocket message error:', err);
       }
-    };
+    });
+
+    graphWs.connect();
+    console.log(`[AgentGraph] Connected to GraphWebSocket for crew ${crewId}`);
 
     return () => {
-      ws.close();
+      unsubscribe();
+      graphWs.disconnect();
+      console.log(`[AgentGraph] Disconnected GraphWebSocket for crew ${crewId}`);
     };
-  }, [crewId, visible, setNodes, setEdges]);
+  }, [crewId, visible, setNodes]);
 
   const onConnect = useCallback(
     (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),

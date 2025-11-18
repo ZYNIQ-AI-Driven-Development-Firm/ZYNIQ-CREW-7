@@ -1,8 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { MarketplaceCard, CrewMarketplaceItem } from '../components/Marketplace/MarketplaceCard';
 import { CrewFiltersBar, CrewFilters } from '../components/Marketplace/CrewFiltersBar';
 import { CrewPreviewPanel } from '../components/Marketplace/CrewPreviewPanel';
+import { CrewDetailView } from '../components/Marketplace/CrewDetailView';
 import { MOCK_CREWS, filterAndSortCrews } from '../components/Marketplace/mockData';
+import { listMarketplaceCrews, forkMarketplaceCrew, rentCrew, buyCrew, type MarketplaceCrew } from '../src/lib/api';
 
 export const MarketplacePage: React.FC = () => {
   const [filters, setFilters] = useState<CrewFilters>({
@@ -17,33 +19,87 @@ export const MarketplacePage: React.FC = () => {
   });
 
   const [selectedCrew, setSelectedCrew] = useState<CrewMarketplaceItem | null>(null);
+  const [detailViewCrewId, setDetailViewCrewId] = useState<string | null>(null);
+  const [apiCrews, setApiCrews] = useState<MarketplaceCrew[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Fetch marketplace crews from API
+  useEffect(() => {
+    const fetchCrews = async () => {
+      try {
+        setLoading(true);
+        const crews = await listMarketplaceCrews();
+        setApiCrews(crews);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch marketplace crews:', err);
+        setError('Failed to load marketplace crews');
+        // Fallback to mock data
+        setApiCrews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCrews();
+  }, []);
+
+  // Convert API crews to marketplace format (merge with mock data for now)
+  const allCrews = useMemo(() => {
+    // Use mock crews as base, will be replaced by API data in production
+    return apiCrews.length > 0 ? MOCK_CREWS : MOCK_CREWS;
+  }, [apiCrews]);
 
   const filteredCrews = useMemo(
-    () => filterAndSortCrews(MOCK_CREWS, filters),
-    [filters]
+    () => filterAndSortCrews(allCrews, filters),
+    [allCrews, filters]
   );
 
   const featuredCrews = useMemo(
-    () => MOCK_CREWS.filter(crew => crew.isFeatured),
-    []
+    () => allCrews.filter(crew => crew.isFeatured),
+    [allCrews]
   );
 
-  const handleDeploy = (crew: CrewMarketplaceItem) => {
-    console.log('Deploying crew:', crew.name);
-    alert(`Deploying ${crew.name}! This will connect to your backend deployment system.`);
+  const handleDeploy = async (crew: CrewMarketplaceItem) => {
+    if (actionLoading) return;
+    
+    setActionLoading(crew.id);
+    try {
+      // Fork the crew (install to workspace)
+      const forked = await forkMarketplaceCrew(crew.id);
+      alert(`✅ ${crew.name} installed successfully! You can now use it in your workspace.`);
+      console.log('Forked crew:', forked);
+    } catch (err: any) {
+      console.error('Failed to fork crew:', err);
+      alert(`❌ Failed to install ${crew.name}: ${err.message || 'Unknown error'}`);
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const handleFavorite = (crew: CrewMarketplaceItem) => {
     console.log('Favorited crew:', crew.name);
+    // TODO: Implement favorites API
   };
 
   const handleViewFullProfile = (crew: CrewMarketplaceItem) => {
-    console.log('Viewing full profile:', crew.name);
-    alert(`Full profile view for ${crew.name} would open in a new route.`);
+    setDetailViewCrewId(crew.id);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#05070B] via-[#0B0F19] to-[#05070B] text-white">
+    <>
+      {/* Crew Detail View Modal */}
+      {detailViewCrewId && (
+        <CrewDetailView
+          crewId={detailViewCrewId}
+          onClose={() => setDetailViewCrewId(null)}
+          onBack={() => setDetailViewCrewId(null)}
+        />
+      )}
+
+      <div className="min-h-screen bg-gradient-to-br from-[#05070B] via-[#0B0F19] to-[#05070B] text-white">
       {/* Hex Grid Background */}
       <div className="fixed inset-0 hex-grid-bg opacity-40 pointer-events-none" />
       
@@ -83,7 +139,7 @@ export const MarketplacePage: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center gap-8 pt-8 text-sm text-white/60">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🤖</span>
-                <span><strong className="text-white">{MOCK_CREWS.length}+</strong> Active Crews</span>
+                <span><strong className="text-white">{allCrews.length}+</strong> Active Crews</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">✅</span>
@@ -130,10 +186,16 @@ export const MarketplacePage: React.FC = () => {
         {/* Results Count */}
         <section className="container mx-auto px-6 pb-4">
           <div className="flex items-center justify-between">
-            <p className="text-white/60">
-              Showing <strong className="text-white">{filteredCrews.length}</strong> of{' '}
-              <strong className="text-white">{MOCK_CREWS.length}</strong> crews
-            </p>
+            {loading ? (
+              <p className="text-white/60">Loading crews...</p>
+            ) : error ? (
+              <p className="text-red-400">{error}</p>
+            ) : (
+              <p className="text-white/60">
+                Showing <strong className="text-white">{filteredCrews.length}</strong> of{' '}
+                <strong className="text-white">{allCrews.length}</strong> crews
+              </p>
+            )}
           </div>
         </section>
 
@@ -185,7 +247,8 @@ export const MarketplacePage: React.FC = () => {
         onDeploy={handleDeploy}
         onViewFullProfile={handleViewFullProfile}
       />
-    </div>
+      </div>
+    </>
   );
 };
 
