@@ -42,7 +42,6 @@
 ### Option 2: PowerShell Script (Windows)
 
 ```powershell
-.\start.ps1
 ```
 
 ### What Happens Automatically:

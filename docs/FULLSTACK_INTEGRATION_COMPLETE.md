@@ -359,7 +359,6 @@ cd frontend && npm run dev
 
 # Full stack
 ./start.sh  # Linux/Mac
-./start.ps1  # Windows
 ```
 
 **Troubleshooting:**

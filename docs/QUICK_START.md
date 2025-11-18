@@ -10,7 +10,6 @@ chmod +x start.sh
 
 ### For Windows (PowerShell):
 ```powershell
-.\start.ps1
 ```
 
 ---
