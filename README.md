@@ -30,10 +30,11 @@ Multi-agent orchestration platform powered by CrewAI, with real-time visualizati
 - **State**: React hooks with WebSocket integration
 
 #### Infrastructure
-- **Containerization**: Docker Compose
+- **Containerization**: Docker Compose (all services)
 - **Reverse Proxy**: Nginx
 - **Database Admin**: pgAdmin 8.12
 - **Process Manager**: Gunicorn with Uvicorn workers
+- **Frontend**: Dockerized Vite dev server with hot-reload
 
 ## 📦 Project Structure
 
@@ -107,40 +108,79 @@ OPENAI_API_KEY=sk-your-openai-key (optional)
 
 ### Quick Start
 
+#### Option 1: Automated Setup (Recommended)
+
+```bash
+# Clone repository
+git clone https://github.com/your-org/ZYNIQ-CREW7.git
+cd ZYNIQ-CREW7
+
+# Create .env file (see Environment Variables section above)
+cp .env.example .env
+
+# Run automated setup script
+./start.sh    # For bash
+# or
+./start.fish  # For fish shell
+```
+
+The script will:
+- Build all Docker containers (backend + frontend)
+- Start all services
+- Apply database migrations
+- Create test user
+- Configure wallet with initial credits
+
+#### Option 2: Manual Setup
+
 1. **Clone repository**
 ```bash
 git clone https://github.com/your-org/ZYNIQ-CREW7.git
 cd ZYNIQ-CREW7
 ```
 
-2. **Start services**
+2. **Start all services (including frontend)**
 ```bash
 cd backend/docker
-docker compose up -d
+docker-compose up -d
 ```
 
-3. **Apply migrations**
+3. **Check service status**
 ```bash
-docker compose exec db psql -U crew7 -d crew7 < ../migrations/20251109_add_auth_org.sql
-docker compose exec db psql -U crew7 -d crew7 < ../migrations/20251114_add_crew_graphs.sql
+docker-compose ps
 ```
 
-4. **Install frontend dependencies**
+4. **Access services**
+- **Frontend**: http://localhost:3000 (Dockerized with hot-reload)
+- **API**: http://localhost:8080/api
+- **Direct API**: http://localhost:8000
+- **pgAdmin**: http://localhost:5050
+- **MinIO Console**: http://localhost:9001
+
+### Service Management
+
 ```bash
-cd ../../frontend
-npm install
-```
+# View logs
+docker-compose logs -f api        # Backend API logs
+docker-compose logs -f frontend   # Frontend logs
+docker-compose logs -f db         # Database logs
 
-5. **Start frontend dev server**
-```bash
-npm run dev
-```
+# Restart services
+docker-compose restart api
+docker-compose restart frontend
 
-6. **Access services**
-- Frontend: http://localhost:5173
-- API: http://localhost:8080/api
-- pgAdmin: http://localhost:5050
-- MinIO Console: http://localhost:9001
+# Rebuild frontend after changes
+docker-compose up -d --build frontend
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (clean slate)
+./cleanup.sh --volumes
+
+# Remove everything including images
+./cleanup.sh --all
+```
 
 ## 🔧 Development
 

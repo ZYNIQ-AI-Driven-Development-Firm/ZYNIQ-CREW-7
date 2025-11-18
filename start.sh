@@ -57,20 +57,20 @@ echo ""
 # Stop existing containers
 echo -e "${BLUE}[3/9]${NC} Stopping existing containers..."
 cd "$DOCKER_DIR"
-docker compose down 2>/dev/null || true
+docker-compose down 2>/dev/null || true
 echo -e "${GREEN}✓${NC} Containers stopped"
 echo ""
 
 # Build Docker containers
 echo -e "${BLUE}[4/9]${NC} Building Docker containers..."
 echo -e "${YELLOW}⏳ This may take a few minutes...${NC}"
-docker compose build --no-cache
+docker-compose build
 echo -e "${GREEN}✓${NC} Containers built successfully"
 echo ""
 
 # Start database and redis first
 echo -e "${BLUE}[5/9]${NC} Starting database and Redis..."
-docker compose up -d db redis
+docker-compose up -d db redis
 echo -e "${YELLOW}⏳ Waiting for database to be ready...${NC}"
 sleep 5
 
@@ -78,7 +78,7 @@ sleep 5
 MAX_RETRIES=30
 RETRY_COUNT=0
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-    if docker compose exec -T db pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} > /dev/null 2>&1; then
+    if docker-compose exec -T db pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} > /dev/null 2>&1; then
         echo -e "${GREEN}✓${NC} Database is ready"
         break
     fi
@@ -106,7 +106,7 @@ MIGRATIONS=(
 
 for migration in "${MIGRATIONS[@]}"; do
     echo -e "${YELLOW}  → Running $migration${NC}"
-    docker compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} < "$MIGRATIONS_DIR/$migration"
+    docker-compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} < "$MIGRATIONS_DIR/$migration"
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}  ✓ $migration applied${NC}"
     else
@@ -119,7 +119,7 @@ echo ""
 
 # Create test user
 echo -e "${BLUE}[7/9]${NC} Creating test user..."
-cat << EOF | docker compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+cat << EOF | docker-compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 -- Check if user exists
 DO \$\$
 BEGIN
@@ -184,10 +184,10 @@ else
 fi
 echo ""
 
-# Start all other services
-echo -e "${BLUE}[8/9]${NC} Starting all services..."
-docker compose up -d
-echo -e "${YELLOW}⏳ Waiting for API to be ready...${NC}"
+# Start all other services (including frontend)
+echo -e "${BLUE}[8/9]${NC} Starting all services (backend + frontend)..."
+docker-compose up -d
+echo -e "${YELLOW}⏳ Waiting for services to be ready...${NC}"
 sleep 10
 
 # Wait for API to be ready
@@ -207,12 +207,30 @@ if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
     echo -e "${RED}✗ API failed to start. Checking logs...${NC}"
     echo ""
     echo -e "${YELLOW}Last 20 lines of API logs:${NC}"
-    docker compose logs --tail=20 api
+    docker-compose logs --tail=20 api
     exit 1
 fi
 
+# Wait for Frontend to be ready
+echo -e "${YELLOW}⏳ Waiting for frontend to be ready...${NC}"
+FRONTEND_RETRIES=30
+FRONTEND_COUNT=0
+while [ $FRONTEND_COUNT -lt $FRONTEND_RETRIES ]; do
+    if curl -s http://localhost:3000 > /dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} Frontend is ready"
+        break
+    fi
+    FRONTEND_COUNT=$((FRONTEND_COUNT + 1))
+    echo -e "${YELLOW}⏳ Waiting for frontend... ($FRONTEND_COUNT/$FRONTEND_RETRIES)${NC}"
+    sleep 2
+done
+
+if [ $FRONTEND_COUNT -eq $FRONTEND_RETRIES ]; then
+    echo -e "${YELLOW}⚠ Frontend may still be starting... Check logs with: docker-compose logs -f frontend${NC}"
+fi
+
 # Create test user via API
-echo -e "${BLUE}[7.5/9]${NC} Registering test user via API..."
+echo -e "${BLUE}[9/9]${NC} Registering test user via API..."
 sleep 2
 REGISTER_RESPONSE=$(curl -s -X POST http://localhost:8080/auth/register \
     -H "Content-Type: application/json" \
@@ -225,48 +243,6 @@ if echo "$REGISTER_RESPONSE" | grep -q "id"; then
 else
     echo -e "${YELLOW}⚠ User may already exist or registration had issues${NC}"
     echo -e "${YELLOW}  Response: $REGISTER_RESPONSE${NC}"
-fi
-echo ""
-
-# Start frontend
-echo -e "${BLUE}[9/9]${NC} Starting frontend development server..."
-cd "$FRONTEND_DIR"
-
-# Check if node_modules exists
-if [ ! -d "node_modules" ]; then
-    echo -e "${YELLOW}⏳ Installing frontend dependencies...${NC}"
-    npm install
-fi
-
-# Kill any existing process on port 3000
-if lsof -Pi :3000 -sTCP:LISTEN -t >/dev/null 2>&1 ; then
-    echo -e "${YELLOW}⏳ Killing existing process on port 3000...${NC}"
-    lsof -Pi :3000 -sTCP:LISTEN -t | xargs kill -9 2>/dev/null || true
-    sleep 2
-fi
-
-# Start frontend in background
-echo -e "${YELLOW}⏳ Starting Vite dev server...${NC}"
-nohup npm run dev > /tmp/crew7-frontend.log 2>&1 &
-FRONTEND_PID=$!
-echo $FRONTEND_PID > /tmp/crew7-frontend.pid
-
-# Wait for frontend to be ready (check multiple times)
-FRONTEND_RETRIES=15
-FRONTEND_COUNT=0
-while [ $FRONTEND_COUNT -lt $FRONTEND_RETRIES ]; do
-    if curl -s http://localhost:3000 > /dev/null 2>&1; then
-        echo -e "${GREEN}✓${NC} Frontend is ready"
-        break
-    fi
-    FRONTEND_COUNT=$((FRONTEND_COUNT + 1))
-    sleep 1
-done
-
-if [ $FRONTEND_COUNT -eq $FRONTEND_RETRIES ]; then
-    echo -e "${YELLOW}⚠ Frontend may still be starting... Check /tmp/crew7-frontend.log${NC}"
-else
-    echo -e "${GREEN}✓${NC} Frontend PID: $FRONTEND_PID"
 fi
 echo ""
 
@@ -288,10 +264,12 @@ echo -e "   Password: ${MAGENTA}${DEFAULT_USER_PASSWORD}${NC}"
 echo -e "   Credits:  ${MAGENTA}${DEFAULT_USER_CREDITS}${NC}"
 echo ""
 echo -e "${CYAN}📝 Useful Commands:${NC}"
-echo -e "   View API logs:      ${YELLOW}docker compose -f backend/docker/compose.yml logs -f api${NC}"
-echo -e "   View frontend logs: ${YELLOW}tail -f /tmp/crew7-frontend.log${NC}"
-echo -e "   Stop all services:  ${YELLOW}docker compose -f backend/docker/compose.yml down${NC}"
-echo -e "   Restart API:        ${YELLOW}docker compose -f backend/docker/compose.yml restart api${NC}"
+echo -e "   View API logs:      ${YELLOW}docker-compose -f backend/docker/compose.yml logs -f api${NC}"
+echo -e "   View frontend logs: ${YELLOW}docker-compose -f backend/docker/compose.yml logs -f frontend${NC}"
+echo -e "   Stop all services:  ${YELLOW}docker-compose -f backend/docker/compose.yml down${NC}"
+echo -e "   Restart API:        ${YELLOW}docker-compose -f backend/docker/compose.yml restart api${NC}"
+echo -e "   Restart frontend:   ${YELLOW}docker-compose -f backend/docker/compose.yml restart frontend${NC}"
+echo -e "   Rebuild frontend:   ${YELLOW}docker-compose -f backend/docker/compose.yml up -d --build frontend${NC}"
 echo ""
 echo -e "${CYAN}🧪 Testing:${NC}"
 echo -e "   1. Open browser: ${BLUE}http://localhost:3000${NC}"
