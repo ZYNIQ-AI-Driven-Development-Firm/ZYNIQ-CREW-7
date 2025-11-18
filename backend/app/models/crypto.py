@@ -26,7 +26,7 @@ class UserWallet(Base):
     __tablename__ = "user_wallets"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, unique=True)
     address = Column(String(42), nullable=False, index=True)  # Ethereum address
     chain = Column(SQLEnum(ChainType), nullable=False, default=ChainType.TEST)
     verified_at = Column(DateTime, nullable=True)
@@ -46,7 +46,7 @@ class TokenBalance(Base):
     __tablename__ = "token_balances"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     token_symbol = Column(String(10), nullable=False, default="C7T")
     balance = Column(Float, nullable=False, default=0.0)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -71,7 +71,7 @@ class TokenTransaction(Base):
     __tablename__ = "token_transactions"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     token_symbol = Column(String(10), nullable=False, default="C7T")
     amount = Column(Float, nullable=False)
     direction = Column(SQLEnum(TransactionDirection), nullable=False)
@@ -95,9 +95,9 @@ class CrewRental(Base):
     __tablename__ = "crew_rentals"
     
     id = Column(Integer, primary_key=True, index=True)
-    crew_id = Column(Integer, ForeignKey("crews.id"), nullable=False)
-    renter_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    owner_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    crew_id = Column(UUID(as_uuid=True), ForeignKey("crews.id"), nullable=False)
+    renter_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    owner_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     price_c7t = Column(Float, nullable=False)
     start_time = Column(DateTime, nullable=False, default=datetime.utcnow)
     end_time = Column(DateTime, nullable=True)
@@ -123,7 +123,7 @@ class CrewPortfolio(Base):
     __tablename__ = "crew_portfolios"
     
     id = Column(Integer, primary_key=True, index=True)
-    crew_id = Column(Integer, ForeignKey("crews.id"), nullable=False, unique=True)
+    crew_id = Column(UUID(as_uuid=True), ForeignKey("crews.id"), nullable=False, unique=True)
     missions_completed = Column(Integer, nullable=False, default=0)
     hours_worked = Column(Float, nullable=False, default=0.0)
     rating_avg = Column(Float, nullable=True)  # 1-5 stars
@@ -148,7 +148,7 @@ class CrewXP(Base):
     __tablename__ = "crew_xp"
     
     id = Column(Integer, primary_key=True, index=True)
-    crew_id = Column(Integer, ForeignKey("crews.id"), nullable=False, unique=True)
+    crew_id = Column(UUID(as_uuid=True), ForeignKey("crews.id"), nullable=False, unique=True)
     xp = Column(Integer, nullable=False, default=0)
     level = Column(Integer, nullable=False, default=1)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

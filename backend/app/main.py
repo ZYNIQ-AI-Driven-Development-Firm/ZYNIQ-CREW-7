@@ -55,7 +55,12 @@ class SecurityHeaders(BaseHTTPMiddleware):
 setup_logging()
 setup_tracing()
 
-# Base.metadata.create_all(bind=engine)  # Skip - database already initialized
+# Create all database tables (with checkfirst to avoid duplicate creation)
+try:
+    Base.metadata.create_all(bind=engine, checkfirst=True)
+except Exception as e:
+    # Log but don't fail if tables already exist
+    print(f"Warning during table creation (may be safe to ignore): {e}")
 
 with SessionLocal() as session:
     ensure_seed_crews(session)

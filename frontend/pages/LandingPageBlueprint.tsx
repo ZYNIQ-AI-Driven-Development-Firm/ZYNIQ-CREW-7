@@ -34,8 +34,7 @@ export const LandingPageBlueprint: React.FC<LandingPageBlueprintProps> = ({ onNa
   useEffect(() => {
     if (geometricLinesRef.current) {
       const lines = geometricLinesRef.current.querySelectorAll('line, path, circle');
-      animate({
-        targets: lines,
+      animate(lines, {
         strokeDashoffset: [1000, 0],
         easing: 'easeInOutQuad',
         duration: 3200,

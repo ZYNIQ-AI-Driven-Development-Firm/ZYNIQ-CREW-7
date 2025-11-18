@@ -1,0 +1,13 @@
+# Docker Compose override for local development
+# This file is automatically merged with compose.yml
+version: '3.8'
+
+services:
+  frontend:
+    # Enable stdin and tty for interactive debugging
+    stdin_open: true
+    tty: true
+    # Additional environment variables for local dev
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true

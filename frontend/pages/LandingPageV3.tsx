@@ -14,7 +14,6 @@ import {
   FinancialFace,
 } from '../components/HybridCAgents';
 import { AnimatedCounter } from '../components/AnimatedCounter';
-import { useAnime, useScrollAnimation } from '../src/lib/useAnime';
 
 /**
  * ZYNIQ CREW-7 — PROFESSIONAL LANDING PAGE
@@ -66,8 +65,7 @@ export const LandingPageV3: React.FC<LandingPageV3Props> = ({ onNavigate }) => {
       // Animate geometric lines based on scroll
       if (geometricLinesRef.current) {
         const lines = geometricLinesRef.current.querySelectorAll('line, path, circle');
-        animate({
-          targets: lines,
+        animate(lines, {
           opacity: 0.3 + progress * 0.3,
           translateY: scrollTop * 0.2,
           easing: 'linear',
@@ -85,8 +83,7 @@ export const LandingPageV3: React.FC<LandingPageV3Props> = ({ onNavigate }) => {
   useEffect(() => {
     if (geometricLinesRef.current) {
       const lines = geometricLinesRef.current.querySelectorAll('line, path, circle');
-      animate({
-        targets: lines,
+      animate(lines, {
         opacity: [0, 0.4],
         scale: [0.8, 1],
         easing: 'easeInOutQuad',

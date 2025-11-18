@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { animate, remove, stagger } from 'animejs';
+import * as anime from 'animejs';
 
 import ChatInput from './components/ChatInput';
 import Dashboard, { type RunLogEvent } from './components/Dashboard';
+import { APIConfigProvider } from './src/lib/apiConfig';
 import SettingsPanel from './components/SettingsPanel';
 import { AgentIcon, AgentKey } from './components/AgentIcon';
 import { AgentLottie } from './components/AgentLottie';
@@ -298,12 +299,14 @@ const App: React.FC = () => {
 
   // Return with Router wrapper
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/presentation" element={<Presentation />} />
-        <Route path="*" element={<AppContent />} />
-      </Routes>
-    </BrowserRouter>
+    <APIConfigProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/presentation" element={<Presentation />} />
+          <Route path="*" element={<AppContent />} />
+        </Routes>
+      </BrowserRouter>
+    </APIConfigProvider>
   );
 };
 
@@ -336,13 +339,13 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
     try {
       if (isSignUp) {
         // Register new user
-        await register({ email: formData.email, password: formData.password });
+        await register(formData.email, formData.password);
         // After registration, log in
-        const loginResponse = await login({ email: formData.email, password: formData.password });
+        const loginResponse = await login(formData.email, formData.password);
         localStorage.setItem('crew7_token', loginResponse.access);
       } else {
         // Sign in existing user
-        const loginResponse = await login({ email: formData.email, password: formData.password });
+        const loginResponse = await login(formData.email, formData.password);
         localStorage.setItem('crew7_token', loginResponse.access);
       }
       onAuthenticated();
@@ -580,8 +583,8 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         if (!cancelled) {
           setUser({
             id: 'default-user',
-            name: 'Commander',
             email: 'commander@crew7.ai',
+            org_id: 'default-org',
             role: 'Member',
           } as User);
         }
@@ -661,7 +664,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
   }, [activeCrewId]);
 
   useEffect(() => {
-    const disconnect = missionSocket((message: MissionMessage) => {
+    const ws = missionSocket((message: MissionMessage) => {
       if (message.type === 'signal') {
         const payload = (message.payload ?? {}) as Record<string, unknown>;
         const status = coerceMissionStatus(payload.status);
@@ -718,7 +721,9 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
       }
     });
 
-    return () => disconnect();
+    return () => {
+      if (ws) ws.close();
+    };
   }, [activeCrewId]);
 
   useEffect(() => {
@@ -788,7 +793,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         const result = await runFullStackCrew(content);
         runId = result.id;
       } else {
-        const result = await createRun({ crew_id: activeCrewId, prompt: content, mode: 'chat' });
+        const result = await createRun(activeCrewId, content, { mode: 'chat' });
         runId = result.id;
       }
       
@@ -1092,8 +1097,8 @@ const ShellSidebar: React.FC<ShellSidebarProps> = ({ activeSection, onNavigate, 
   useEffect(() => {
     if (!sidebarRef.current) return;
 
-    remove(sidebarRef.current);
-    animate({
+    anime.remove(sidebarRef.current);
+    (anime as any)({
       targets: sidebarRef.current,
       width: isExpanded ? 240 : 64,
       duration: 200,
@@ -1102,13 +1107,13 @@ const ShellSidebar: React.FC<ShellSidebarProps> = ({ activeSection, onNavigate, 
 
     if (navRef.current) {
       const navItems = navRef.current.querySelectorAll('button');
-      remove(navItems);
-      animate({
+      anime.remove(navItems);
+      (anime as any)({
         targets: navItems,
         opacity: [0.7, 1],
         scale: [0.98, 1],
         duration: 150,
-        delay: stagger(20),
+        delay: anime.stagger(20),
         easing: 'easeOutQuad',
       });
     }
