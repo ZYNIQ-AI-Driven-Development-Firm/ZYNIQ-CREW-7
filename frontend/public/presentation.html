@@ -349,7 +349,6 @@
         max-width: 1400px;
         width: 95%;
         font-size: 1.5rem;
-        overflow-y: auto;
         height: 85%;
         padding: 1rem;
         background: transparent;
@@ -360,12 +359,50 @@
 
       /* Special styling for non-philosophy script slides */
       .script-slide:not(.tab-content) {
-        background: rgba(10, 38, 71, 0.6);
+        background: rgba(5, 15, 30, 0.85);
         border: 2px solid rgba(234, 35, 35, 0.4);
         border-radius: 8px;
         box-shadow: 0 0 20px rgba(234, 35, 35, 0.2),
           inset 0 0 40px rgba(234, 35, 35, 0.05);
-        max-width: 900px;
+        max-width: 1200px;
+      }
+
+      /* Enhanced styling specifically for Business view */
+      #business-view .script-slide {
+        max-width: 1400px;
+        width: 98%;
+        height: 88%;
+        background: rgba(3, 10, 20, 0.98); /* Darker background */
+        padding: 2rem 3rem;
+        border: 2px solid rgba(234, 35, 35, 0.5);
+        box-shadow: 0 0 30px rgba(234, 35, 35, 0.3),
+          inset 0 0 60px rgba(234, 35, 35, 0.08);
+        overflow-y: auto; /* Enable scrolling */
+        overflow-x: hidden;
+      }
+
+      /* Scrollbar styling for business view */
+      #business-view .script-slide::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      #business-view .script-slide::-webkit-scrollbar-track {
+        background: rgba(234, 35, 35, 0.1);
+        border-radius: 5px;
+      }
+
+      #business-view .script-slide::-webkit-scrollbar-thumb {
+        background: #ea2323;
+        border-radius: 5px;
+      }
+
+      #business-view .script-slide::-webkit-scrollbar-thumb:hover {
+        background: #ff2e2e;
+      }
+
+      /* Remove neon effect from red headers in Business view */
+      #business-view h3 {
+        text-shadow: none;
       }
 
       .script-slide p {
@@ -957,6 +994,77 @@
         color: #ea2323;
       }
 
+      /* Diagram Zoom Modal */
+      .diagram-zoom-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 3000;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(5px);
+      }
+
+      .diagram-zoom-modal.active {
+        display: flex;
+      }
+
+      .diagram-zoom-content {
+        position: relative;
+        width: 90%;
+        height: 90%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .diagram-zoom-content svg {
+        max-width: 100%;
+        max-height: 100%;
+        filter: drop-shadow(0 0 30px rgba(234, 35, 35, 0.5));
+      }
+
+      .diagram-close-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(13, 13, 13, 0.9);
+        border: 2px solid #ea2323;
+        color: #ea2323;
+        font-family: "VT323", monospace;
+        font-size: 1.5rem;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 20px rgba(234, 35, 35, 0.4);
+        z-index: 3001;
+      }
+
+      .diagram-close-btn:hover {
+        background-color: rgba(234, 35, 35, 0.3);
+        transform: rotate(90deg) scale(1.1);
+        box-shadow: 0 0 30px rgba(234, 35, 35, 0.7);
+      }
+
+      .diagram-zoomable {
+        cursor: pointer;
+        transition: transform 0.3s ease, filter 0.3s ease;
+      }
+
+      .diagram-zoomable:hover {
+        transform: scale(1.02);
+        filter: drop-shadow(0 0 15px rgba(234, 35, 35, 0.5));
+      }
+
       .slider-controls {
         position: fixed;
         right: 30px;
@@ -1070,6 +1178,29 @@
       .split-content {
         flex: 0 1 45%;
         text-align: left;
+        max-height: 70vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 1rem;
+      }
+
+      /* Custom scrollbar for split-content */
+      .split-content::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .split-content::-webkit-scrollbar-track {
+        background: rgba(234, 35, 35, 0.1);
+        border-radius: 4px;
+      }
+
+      .split-content::-webkit-scrollbar-thumb {
+        background: #ea2323;
+        border-radius: 4px;
+      }
+
+      .split-content::-webkit-scrollbar-thumb:hover {
+        background: #ff2e2e;
       }
 
       .split-illustration {
@@ -1322,22 +1453,58 @@
             <div class="slide-content split-layout">
               <!-- Left: Content -->
               <div class="split-content">
-                <h2>Building teams is slow. Shipping value is slower.</h2>
-                <p>
-                  Hiring, onboarding, coordinating and paying human teams across
-                  engineering, marketing, and business is expensive, complex,
-                  and fragile.
+                <h2>
+                  Product delivery is slow because teams are slow to assemble
+                </h2>
+                <!--
+                <p style="font-size: 1.6rem; margin-bottom: 1.5rem;">
+                  Everyone talks about AI agents. Few are building them into <span class="bold-red">actual teams</span> that deliver real work.
                 </p>
+                -->
+                <ul style="font-size: 1.5rem">
+                  <li>Hiring takes months</li>
+                  <li>Onboarding takes weeks</li>
+                  <li>Handoffs cause delays and misalignment</li>
+                  <li>
+                    Every new idea requires a new team — which most can't afford
+                    or scale
+                  </li>
+                </ul>
+                <!--
+                <p style="margin-top: 1.5rem; font-size: 1.6rem;">
+                  <strong>The Paradox:</strong> AI models can reason, code, write, plan, and test — but they work in isolation. A single agent can't replicate a real team.
+                </p>
+                -->
               </div>
 
-              <!-- Right: Geometric Illustration -->
+              <!-- Right: Enhanced Geometric Illustration -->
               <div class="split-illustration">
                 <svg
                   class="blueprint-svg"
                   viewBox="0 0 600 600"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <!-- Title Block (Architectural Standard) -->
+                  <!-- Background grid -->
+                  <defs>
+                    <pattern
+                      id="problemGrid"
+                      x="0"
+                      y="0"
+                      width="40"
+                      height="40"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <path
+                        d="M 40 0 L 0 0 0 40"
+                        fill="none"
+                        stroke="rgba(234,35,35,0.1)"
+                        stroke-width="0.5"
+                      />
+                    </pattern>
+                  </defs>
+                  <rect width="600" height="600" fill="url(#problemGrid)" />
+
+                  <!-- Title Block -->
                   <rect
                     x="20"
                     y="20"
@@ -1346,604 +1513,359 @@
                     class="blueprint-line-thin"
                     fill="none"
                   />
-                  <line
-                    x1="20"
-                    y1="560"
-                    x2="580"
-                    y2="560"
-                    class="blueprint-line"
-                  />
-                  <text x="30" y="575" class="blueprint-text-small">
-                    DRAWING NO: PROB-001
-                  </text>
-                  <text
-                    x="300"
-                    y="575"
-                    class="blueprint-text"
-                    text-anchor="middle"
-                    style="font-size: 12px"
-                  >
-                    TRADITIONAL TEAM FORMATION ANALYSIS
-                  </text>
-                  <text
-                    x="550"
-                    y="575"
-                    class="blueprint-text-small"
-                    text-anchor="end"
-                  >
-                    REV: A
-                  </text>
 
-                  <!-- Grid System (Blueprint Standard) -->
-                  <defs>
-                    <pattern
-                      id="smallGrid"
-                      width="20"
-                      height="20"
-                      patternUnits="userSpaceOnUse"
-                    >
-                      <path
-                        d="M 20 0 L 0 0 0 20"
-                        fill="none"
-                        stroke="rgba(234, 35, 35, 0.1)"
-                        stroke-width="0.5"
-                      />
-                    </pattern>
-                    <pattern
-                      id="grid"
-                      width="100"
-                      height="100"
-                      patternUnits="userSpaceOnUse"
-                    >
-                      <rect width="100" height="100" fill="url(#smallGrid)" />
-                      <path
-                        d="M 100 0 L 0 0 0 100"
-                        fill="none"
-                        stroke="rgba(234, 35, 35, 0.2)"
-                        stroke-width="1"
-                      />
-                    </pattern>
-                  </defs>
-                  <rect
-                    x="20"
-                    y="20"
-                    width="560"
-                    height="540"
-                    fill="url(#grid)"
-                  />
-
-                  <!-- Main Process Flow Diagram -->
-
-                  <!-- Phase 1: HIRING (Left Section) -->
-                  <rect
-                    x="80"
-                    y="100"
-                    width="120"
-                    height="80"
-                    class="blueprint-shape"
-                  />
-                  <text
-                    x="140"
-                    y="135"
-                    class="blueprint-text"
-                    text-anchor="middle"
-                  >
-                    HIRING
-                  </text>
-                  <text
-                    x="140"
-                    y="150"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                  >
-                    PHASE
-                  </text>
-                  <text
-                    x="140"
-                    y="165"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                    style="fill: #ea2323"
-                  >
-                    3-6 MONTHS
-                  </text>
-
-                  <!-- Phase 2: ONBOARDING (Top Center) -->
-                  <rect
-                    x="240"
-                    y="100"
-                    width="120"
-                    height="80"
-                    class="blueprint-shape"
-                  />
-                  <text
-                    x="300"
-                    y="135"
-                    class="blueprint-text"
-                    text-anchor="middle"
-                  >
-                    ONBOARDING
-                  </text>
-                  <text
-                    x="300"
-                    y="150"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                  >
-                    PHASE
-                  </text>
-                  <text
-                    x="300"
-                    y="165"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                    style="fill: #ea2323"
-                  >
-                    2-4 WEEKS
-                  </text>
-
-                  <!-- Phase 3: COORDINATION (Right Section) -->
-                  <rect
-                    x="400"
-                    y="100"
-                    width="120"
-                    height="80"
-                    class="blueprint-shape"
-                  />
-                  <text
-                    x="460"
-                    y="135"
-                    class="blueprint-text"
-                    text-anchor="middle"
-                  >
-                    COORDINATION
-                  </text>
-                  <text
-                    x="460"
-                    y="150"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                  >
-                    PHASE
-                  </text>
-                  <text
-                    x="460"
-                    y="165"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                    style="fill: #ea2323"
-                  >
-                    ONGOING
-                  </text>
-
-                  <!-- Connecting Arrows with Annotations -->
-                  <line
-                    x1="200"
-                    y1="140"
-                    x2="240"
-                    y2="140"
-                    class="blueprint-line"
-                    marker-end="url(#arrowhead)"
-                  />
-                  <text
-                    x="220"
-                    y="130"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                    style="fill: #ea2323"
-                  >
-                    DELAY
-                  </text>
-
-                  <line
-                    x1="360"
-                    y1="140"
-                    x2="400"
-                    y2="140"
-                    class="blueprint-line"
-                    marker-end="url(#arrowhead)"
-                  />
-                  <text
-                    x="380"
-                    y="130"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                    style="fill: #ea2323"
-                  >
-                    DELAY
-                  </text>
-
-                  <!-- Arrow marker definition -->
-                  <defs>
-                    <marker
-                      id="arrowhead"
-                      markerWidth="10"
-                      markerHeight="10"
-                      refX="9"
-                      refY="3"
-                      orient="auto"
-                    >
-                      <polygon points="0 0, 10 3, 0 6" fill="#ea2323" />
-                    </marker>
-                  </defs>
-
-                  <!-- Failure Points Network (Bottom Section) -->
-                  <circle cx="140" cy="280" r="25" class="blueprint-shape" />
-                  <text
-                    x="140"
-                    y="283"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                  >
-                    ENG
-                  </text>
-
-                  <circle cx="300" cy="280" r="25" class="blueprint-shape" />
-                  <text
-                    x="300"
-                    y="283"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                  >
-                    MKTG
-                  </text>
-
-                  <circle cx="460" cy="280" r="25" class="blueprint-shape" />
-                  <text
-                    x="460"
-                    y="283"
-                    class="blueprint-text-small"
-                    text-anchor="middle"
-                  >
-                    BIZ
-                  </text>
-
-                  <!-- Interconnection Lines (Complex Network) -->
-                  <line
-                    x1="165"
-                    y1="280"
-                    x2="275"
-                    y2="280"
-                    class="blueprint-line"
-                    stroke-dasharray="5,5"
-                  />
-                  <line
-                    x1="325"
-                    y1="280"
-                    x2="435"
-                    y2="280"
-                    class="blueprint-line"
-                    stroke-dasharray="5,5"
-                  />
-                  <line
-                    x1="140"
-                    y1="180"
-                    x2="140"
-                    y2="255"
-                    class="blueprint-line"
-                  />
-                  <line
-                    x1="300"
-                    y1="180"
-                    x2="300"
-                    y2="255"
-                    class="blueprint-line"
-                  />
-                  <line
-                    x1="460"
-                    y1="180"
-                    x2="460"
-                    y2="255"
-                    class="blueprint-line"
-                  />
-
-                  <!-- Hand-off Failure Points (X marks) -->
-                  <g transform="translate(220, 280)">
-                    <line
-                      x1="-8"
-                      y1="-8"
-                      x2="8"
-                      y2="8"
-                      class="blueprint-line"
+                  <!-- Enhanced Central hourglass with dramatic effect -->
+                  <g transform="translate(300, 240)">
+                    <!-- Hourglass outline with glow -->
+                    <path
+                      d="M -60,-80 L -60,-100 L 60,-100 L 60,-80 L 20,-40 L 20,40 L 60,80 L 60,100 L -60,100 L -60,80 L -20,40 L -20,-40 Z"
+                      class="blueprint-shape"
+                      fill="rgba(234,35,35,0.05)"
                       stroke-width="3"
-                      style="stroke: #ea2323"
                     />
-                    <line
-                      x1="8"
-                      y1="-8"
-                      x2="-8"
-                      y2="8"
-                      class="blueprint-line"
-                      stroke-width="3"
-                      style="stroke: #ea2323"
+
+                    <!-- Animated sand particles (showing time loss) -->
+                    <circle
+                      cx="-35"
+                      cy="-70"
+                      r="4"
+                      fill="#ea2323"
+                      opacity="0.8"
                     />
+                    <circle
+                      cx="-10"
+                      cy="-65"
+                      r="4"
+                      fill="#ea2323"
+                      opacity="0.8"
+                    />
+                    <circle
+                      cx="20"
+                      cy="-75"
+                      r="4"
+                      fill="#ea2323"
+                      opacity="0.8"
+                    />
+                    <circle
+                      cx="35"
+                      cy="-60"
+                      r="4"
+                      fill="#ea2323"
+                      opacity="0.8"
+                    />
+
+                    <!-- Middle narrow section (bottleneck) -->
+                    <circle cx="-8" cy="0" r="3" fill="#ea2323" opacity="0.9" />
+                    <circle cx="5" cy="-5" r="3" fill="#ea2323" opacity="0.9" />
+
+                    <!-- Bottom accumulation (wasted time) -->
+                    <circle cx="-25" cy="70" r="4" fill="#ea2323" />
+                    <circle cx="0" cy="75" r="4" fill="#ea2323" />
+                    <circle cx="25" cy="72" r="4" fill="#ea2323" />
+                    <circle cx="-12" cy="60" r="4" fill="#ea2323" />
+                    <circle cx="15" cy="65" r="4" fill="#ea2323" />
+
+                    <!-- Time waste indicators with arrows -->
+                    <g transform="translate(-120, -80)">
+                      <line
+                        x1="0"
+                        y1="0"
+                        x2="40"
+                        y2="-10"
+                        stroke="#ea2323"
+                        stroke-width="2"
+                        marker-end="url(#arrowhead2)"
+                      />
+                      <text
+                        x="-10"
+                        y="0"
+                        class="blueprint-text-small"
+                        text-anchor="end"
+                        style="fill: #ea2323"
+                      >
+                        3-6 MONTHS
+                      </text>
+                      <text
+                        x="-10"
+                        y="15"
+                        class="blueprint-text-small"
+                        text-anchor="end"
+                        opacity="0.7"
+                      >
+                        HIRING
+                      </text>
+                    </g>
+
+                    <g transform="translate(-120, -40)">
+                      <line
+                        x1="0"
+                        y1="0"
+                        x2="40"
+                        y2="0"
+                        stroke="#ea2323"
+                        stroke-width="2"
+                        marker-end="url(#arrowhead2)"
+                      />
+                      <text
+                        x="-10"
+                        y="0"
+                        class="blueprint-text-small"
+                        text-anchor="end"
+                        style="fill: #ea2323"
+                      >
+                        2-4 WEEKS
+                      </text>
+                      <text
+                        x="-10"
+                        y="15"
+                        class="blueprint-text-small"
+                        text-anchor="end"
+                        opacity="0.7"
+                      >
+                        ONBOARDING
+                      </text>
+                    </g>
+
+                    <g transform="translate(120, -70)">
+                      <line
+                        x1="0"
+                        y1="0"
+                        x2="-40"
+                        y2="-10"
+                        stroke="#ea2323"
+                        stroke-width="2"
+                        marker-start="url(#arrowhead2)"
+                      />
+                      <text
+                        x="10"
+                        y="0"
+                        class="blueprint-text-small"
+                        text-anchor="start"
+                        style="fill: #ea2323"
+                      >
+                        CONSTANT
+                      </text>
+                      <text
+                        x="10"
+                        y="15"
+                        class="blueprint-text-small"
+                        text-anchor="start"
+                        opacity="0.7"
+                      >
+                        DELAYS
+                      </text>
+                    </g>
+
+                    <!-- Bottleneck warning -->
                     <text
                       x="0"
-                      y="25"
-                      class="blueprint-text-small"
+                      y="-120"
+                      class="blueprint-text"
                       text-anchor="middle"
-                      style="fill: #ea2323"
+                      style="font-size: 13px; fill: #ea2323; font-weight: bold"
                     >
-                      HAND-OFF
-                    </text>
-                    <text
-                      x="0"
-                      y="38"
-                      class="blueprint-text-small"
-                      text-anchor="middle"
-                      style="fill: #ea2323"
-                    >
-                      FAILURE
+                      ⚠ BOTTLENECK ⚠
                     </text>
                   </g>
 
-                  <g transform="translate(380, 280)">
-                    <line
-                      x1="-8"
-                      y1="-8"
-                      x2="8"
-                      y2="8"
-                      class="blueprint-line"
-                      stroke-width="3"
-                      style="stroke: #ea2323"
-                    />
-                    <line
-                      x1="8"
-                      y1="-8"
-                      x2="-8"
-                      y2="8"
-                      class="blueprint-line"
-                      stroke-width="3"
-                      style="stroke: #ea2323"
+                  <!-- Enhanced broken chain network showing isolation -->
+                  <g transform="translate(120, 480)">
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="30"
+                      class="blueprint-shape"
+                      fill="rgba(255,255,255,0.03)"
+                      stroke-width="2.5"
                     />
                     <text
                       x="0"
-                      y="25"
+                      y="5"
                       class="blueprint-text-small"
                       text-anchor="middle"
-                      style="fill: #ea2323"
+                      font-size="11"
                     >
-                      HAND-OFF
+                      AI
                     </text>
                     <text
                       x="0"
-                      y="38"
+                      y="55"
                       class="blueprint-text-small"
                       text-anchor="middle"
                       style="fill: #ea2323"
                     >
-                      FAILURE
+                      ISOLATED
                     </text>
                   </g>
 
-                  <!-- Cost & Time Analysis Box -->
-                  <rect
-                    x="80"
-                    y="380"
-                    width="440"
-                    height="120"
-                    class="blueprint-shape"
-                    style="fill: rgba(234, 35, 35, 0.05)"
-                  />
-                  <text
-                    x="90"
-                    y="400"
-                    class="blueprint-text"
-                    style="font-size: 14px"
-                  >
-                    COST ANALYSIS:
-                  </text>
+                  <g transform="translate(240, 480)">
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="30"
+                      class="blueprint-shape"
+                      fill="rgba(255,255,255,0.03)"
+                      stroke-width="2.5"
+                    />
+                    <text
+                      x="0"
+                      y="5"
+                      class="blueprint-text-small"
+                      text-anchor="middle"
+                      font-size="11"
+                    >
+                      AI
+                    </text>
+                  </g>
 
-                  <!-- Bar Chart Representation -->
-                  <rect
-                    x="100"
-                    y="410"
-                    width="100"
-                    height="20"
-                    class="blueprint-shape"
-                    style="fill: rgba(234, 35, 35, 0.3)"
-                  />
-                  <text
-                    x="95"
-                    y="424"
-                    class="blueprint-text-small"
-                    text-anchor="end"
-                  >
-                    HIRING:
-                  </text>
-                  <text x="205" y="424" class="blueprint-text-small">
-                    $$$$$
-                  </text>
+                  <g transform="translate(360, 480)">
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="30"
+                      class="blueprint-shape"
+                      fill="rgba(255,255,255,0.03)"
+                      stroke-width="2.5"
+                    />
+                    <text
+                      x="0"
+                      y="5"
+                      class="blueprint-text-small"
+                      text-anchor="middle"
+                      font-size="11"
+                    >
+                      AI
+                    </text>
+                  </g>
 
-                  <rect
-                    x="100"
-                    y="440"
-                    width="80"
-                    height="20"
-                    class="blueprint-shape"
-                    style="fill: rgba(234, 35, 35, 0.3)"
-                  />
-                  <text
-                    x="95"
-                    y="454"
-                    class="blueprint-text-small"
-                    text-anchor="end"
-                  >
-                    ONBOARD:
-                  </text>
-                  <text x="185" y="454" class="blueprint-text-small">$$$$</text>
+                  <g transform="translate(480, 480)">
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="30"
+                      class="blueprint-shape"
+                      fill="rgba(255,255,255,0.03)"
+                      stroke-width="2.5"
+                    />
+                    <text
+                      x="0"
+                      y="5"
+                      class="blueprint-text-small"
+                      text-anchor="middle"
+                      font-size="11"
+                    >
+                      AI
+                    </text>
+                    <text
+                      x="0"
+                      y="55"
+                      class="blueprint-text-small"
+                      text-anchor="middle"
+                      style="fill: #ea2323"
+                    >
+                      FRAGMENTED
+                    </text>
+                  </g>
 
-                  <rect
-                    x="100"
-                    y="470"
-                    width="150"
-                    height="20"
-                    class="blueprint-shape"
-                    style="fill: rgba(234, 35, 35, 0.3)"
-                  />
-                  <text
-                    x="95"
-                    y="484"
-                    class="blueprint-text-small"
-                    text-anchor="end"
-                  >
-                    COORD:
-                  </text>
-                  <text x="255" y="484" class="blueprint-text-small">
-                    $$$$$$
-                  </text>
-
-                  <!-- Key Metrics -->
-                  <text x="320" y="420" class="blueprint-text-small">
-                    FRAGILITY INDEX:
-                  </text>
-                  <text
-                    x="450"
-                    y="420"
-                    class="blueprint-text"
-                    style="fill: #ea2323"
-                  >
-                    HIGH
-                  </text>
-
-                  <text x="320" y="445" class="blueprint-text-small">
-                    COMPLEXITY RATING:
-                  </text>
-                  <text
-                    x="450"
-                    y="445"
-                    class="blueprint-text"
-                    style="fill: #ea2323"
-                  >
-                    9.2/10
-                  </text>
-
-                  <text x="320" y="470" class="blueprint-text-small">
-                    TIME TO VALUE:
-                  </text>
-                  <text
-                    x="450"
-                    y="470"
-                    class="blueprint-text"
-                    style="fill: #ea2323"
-                  >
-                    6+ MO
-                  </text>
-
-                  <!-- Dimension Lines (Top) -->
+                  <!-- Broken connection lines with X marks -->
                   <line
-                    x1="80"
-                    y1="60"
-                    x2="520"
-                    y2="60"
-                    class="blueprint-dimension"
+                    x1="150"
+                    y1="480"
+                    x2="210"
+                    y2="480"
+                    stroke="#ea2323"
+                    stroke-width="2"
+                    stroke-dasharray="8,8"
+                    opacity="0.5"
                   />
+                  <text
+                    x="180"
+                    y="465"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="fill: #ea2323; font-size: 20px"
+                  >
+                    ✕
+                  </text>
+
                   <line
-                    x1="80"
-                    y1="55"
-                    x2="80"
-                    y2="65"
-                    class="blueprint-dimension"
-                  />
-                  <line
-                    x1="520"
-                    y1="55"
-                    x2="520"
-                    y2="65"
-                    class="blueprint-dimension"
+                    x1="270"
+                    y1="480"
+                    x2="330"
+                    y2="480"
+                    stroke="#ea2323"
+                    stroke-width="2"
+                    stroke-dasharray="8,8"
+                    opacity="0.5"
                   />
                   <text
                     x="300"
+                    y="465"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="fill: #ea2323; font-size: 20px"
+                  >
+                    ✕
+                  </text>
+
+                  <line
+                    x1="390"
+                    y1="480"
+                    x2="450"
+                    y2="480"
+                    stroke="#ea2323"
+                    stroke-width="2"
+                    stroke-dasharray="8,8"
+                    opacity="0.5"
+                  />
+                  <text
+                    x="420"
+                    y="465"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="fill: #ea2323; font-size: 20px"
+                  >
+                    ✕
+                  </text>
+
+                  <!-- Bottom status annotation with alert -->
+                  <rect
+                    x="150"
+                    y="540"
+                    width="300"
+                    height="35"
+                    fill="rgba(234,35,35,0.1)"
+                    stroke="#ea2323"
+                    stroke-width="2"
+                  />
+                  <text
+                    x="300"
+                    y="562"
+                    class="blueprint-text"
+                    text-anchor="middle"
+                    style="font-size: 14px; fill: #ea2323; font-weight: bold"
+                  >
+                    STATUS: FRAGMENTED &amp; INEFFICIENT
+                  </text>
+
+                  <!-- Corner warning markers -->
+                  <text
+                    x="30"
                     y="50"
                     class="blueprint-text-small"
-                    text-anchor="middle"
+                    style="fill: #ea2323; opacity: 0.6"
                   >
-                    FULL CYCLE: 4-8 MONTHS
-                  </text>
-
-                  <!-- Section Markers -->
-                  <text
-                    x="30"
-                    y="140"
-                    class="blueprint-text-small"
-                    transform="rotate(-90 30 140)"
-                  >
-                    PROCESS FLOW
+                    WARNING
                   </text>
                   <text
-                    x="30"
-                    y="320"
+                    x="540"
+                    y="50"
                     class="blueprint-text-small"
-                    transform="rotate(-90 30 320)"
+                    text-anchor="end"
+                    style="fill: #ea2323; opacity: 0.6"
                   >
-                    TEAM STRUCTURE
+                    HIGH COST
                   </text>
-                  <text
-                    x="30"
-                    y="450"
-                    class="blueprint-text-small"
-                    transform="rotate(-90 30 450)"
-                  >
-                    METRICS
-                  </text>
-
-                  <!-- Corner Registration Marks -->
-                  <line
-                    x1="20"
-                    y1="20"
-                    x2="40"
-                    y2="20"
-                    class="blueprint-line"
-                  />
-                  <line
-                    x1="20"
-                    y1="20"
-                    x2="20"
-                    y2="40"
-                    class="blueprint-line"
-                  />
-                  <line
-                    x1="580"
-                    y1="20"
-                    x2="560"
-                    y2="20"
-                    class="blueprint-line"
-                  />
-                  <line
-                    x1="580"
-                    y1="20"
-                    x2="580"
-                    y2="40"
-                    class="blueprint-line"
-                  />
-                  <line
-                    x1="20"
-                    y1="560"
-                    x2="40"
-                    y2="560"
-                    class="blueprint-line"
-                  />
-                  <line
-                    x1="20"
-                    y1="560"
-                    x2="20"
-                    y2="540"
-                    class="blueprint-line"
-                  />
-                  <line
-                    x1="580"
-                    y1="560"
-                    x2="560"
-                    y2="560"
-                    class="blueprint-line"
-                  />
-                  <line
-                    x1="580"
-                    y1="560"
-                    x2="580"
-                    y2="540"
-                    class="blueprint-line"
-                  />
                 </svg>
               </div>
             </div>
@@ -3035,10 +2957,12 @@
 
               <!-- Right: Content -->
               <div class="split-content">
-                <h3>The old way...</h3>
-                <p>
-                  Months to recruit. Weeks to align. Constant hand-offs.<br />Every
-                  new idea needs a new team.
+                <h2>
+                  The old way: months to hire, weeks to onboard, constant delays
+                </h2>
+                <p style="font-size: 1.6rem; margin-top: 1.5rem">
+                  Every new idea requires a new team — which most people cannot
+                  afford or scale.
                 </p>
               </div>
             </div>
@@ -4669,12 +4593,39 @@
 
               <!-- Right: Content -->
               <div class="split-content">
-                <h2>Introducing Crew-7.</h2>
-                <p>
-                  A marketplace and runtime for 7-agent AI teams — 1
-                  Orchestrator + 6 Specialists — that can be created, rented,
-                  bought, and deployed on demand.
+                <h2>Introducing Crew-7</h2>
+                <!--
+                <p style="font-size: 1.7rem; margin-bottom: 1rem; color: #ea2323; font-weight: bold;">
+                  A fully structured AI workforce: 1 Orchestrator + 6 Specialists
                 </p>
+                
+                <p style="font-size: 1.5rem; line-height: 1.6;">
+                  This formation isn't random — cognitive science shows humans effectively manage about <strong>7</strong> interacting roles before chaos hits. We turned that pattern into an agent architecture.
+                </p>
+                -->
+                <ul style="font-size: 1.4rem; margin-top: 1.5rem">
+                  <li>
+                    <strong>Orchestrator (Gemini):</strong> Plans missions,
+                    breaks into tasks, maintains memory
+                  </li>
+                  <li>
+                    <strong>6 Specialists (aimalapi):</strong> Backend,
+                    Frontend, Research, Copywriting, QA, DevOps
+                  </li>
+                  <li>
+                    <strong>Real-time Agent Graph:</strong> See every decision
+                    and tool call live
+                  </li>
+                  <li>
+                    <strong>CrewAI Framework:</strong> Sandbox execution with
+                    safe tools and event bus
+                  </li>
+                </ul>
+                <!--
+                <p style="margin-top: 1.5rem; font-size: 1.5rem; font-weight: bold;">
+                  This isn't a chatbot. It's a working team.
+                </p>
+                -->
               </div>
             </div>
             <footer class="slide-footer">
@@ -4713,18 +4664,13 @@
             <div class="slide-content split-layout content-heavy">
               <!-- Left: Content -->
               <div class="split-content">
-                <h3>How It Works</h3>
-                <p class="flow-text">
-                  Choose a Crew &rarr; Describe the Mission &rarr; Agents
-                  Collaborate &rarr; You Review & Deploy
+                <h2>
+                  How it works: Choose Crew → Describe Mission → Agents Deliver
+                </h2>
+                <p style="font-size: 1.6rem; margin-top: 1.5rem">
+                  1 Orchestrator coordinates 6 specialists. You see everything
+                  live in the Agent Graph.
                 </p>
-                <ul>
-                  <li>1 orchestrator coordinates 6 specialist AI agents.</li>
-                  <li>
-                    They plan, write, test, analyze, and deliver — as a team.
-                  </li>
-                  <li>You see everything in a live Agent Graph.</li>
-                </ul>
               </div>
 
               <!-- Right: Illustration -->
@@ -5365,18 +5311,13 @@
 
               <!-- Right: Content -->
               <div class="split-content">
-                <h3>Not just dev. A team for every mission.</h3>
-                <ul>
-                  <li>Engineering crews — build SaaS, APIs, infra.</li>
-                  <li>
-                    Marketing crews — funnels, campaigns, content, analytics.
-                  </li>
-                  <li>Business crews — pitch decks, valuations, forecasts.</li>
-                  <li>Finance crews.</li>
-                  <li>Ops — planning, logistics, budgets.</li>
-                  <li>Events crews.</li>
-                  <li>Research crews — data analysis, reports, insights.</li>
-                </ul>
+                <h2>
+                  Beyond dev: Marketing Crews, Business Crews, Research Crews
+                </h2>
+                <p style="font-size: 1.6rem; margin-top: 1.5rem">
+                  Every vertical gets its own specialized AI team — funnels,
+                  pitch decks, data analysis, logistics, and more.
+                </p>
               </div>
             </div>
             <footer class="slide-footer">
@@ -5395,18 +5336,14 @@
             <div class="slide-content split-layout content-heavy">
               <!-- Left: Content -->
               <div class="split-content">
-                <h3>The Crew-7 Marketplace</h3>
-                <p>
-                  The first market where AI teams have portfolios, XP, and price
-                  tags.
+                <h2>
+                  The Crew Marketplace: Buy, rent, or share AI teams with
+                  portfolios
+                </h2>
+                <p style="font-size: 1.6rem; margin-top: 1.5rem">
+                  Browse ranked Crews with XP, ratings, and price tags. The
+                  first market where AI teams have resumes.
                 </p>
-                <ul>
-                  <li>Browse ranked crews with ratings, XP and industries.</li>
-                  <li>Rent a crew for a mission — or buy it outright.</li>
-                  <li>
-                    Creators can sell and rent their best-performing crews.
-                  </li>
-                </ul>
               </div>
 
               <!-- Right: Illustration -->
@@ -6036,21 +5973,12 @@
 
               <!-- Right: Content -->
               <div class="split-content">
-                <h3>Web3 & Tokenized Ownership (Optional, but Powerful)</h3>
-                <p>Crews become ownable digital assets.</p>
-                <ul>
-                  <li>C7T utility token to rent and buy crews.</li>
-                  <li>
-                    R7 reputation token earned by performance: crews earn
-                    on-chain cred for missions.
-                  </li>
-                  <li>
-                    Smart contracts can secure rentals and revenue splits.
-                  </li>
-                </ul>
-                <p style="margin-top: 1rem; font-size: 1.5rem; color: #aaaaaa">
-                  No chain? No problem. We run a safe mock economy off-chain
-                  until you're ready.
+                <h2>
+                  Web3 Layer: Crews become ownable, tradable digital assets
+                </h2>
+                <p style="font-size: 1.6rem; margin-top: 1.5rem">
+                  C7T utility token to rent/buy. R7 reputation token earned by
+                  performance. Smart contracts secure revenue splits.
                 </p>
               </div>
             </div>
@@ -6070,25 +5998,10 @@
             <div class="slide-content split-layout">
               <!-- Left: Content -->
               <div class="split-content">
-                <h3>Why Now?</h3>
-                <ul>
-                  <li>
-                    LLMs are powerful — but unstructured and under-orchestrated.
-                  </li>
-                  <li>
-                    Teams, not single prompts, win real-world projects and
-                    markets.
-                  </li>
-                  <li>
-                    There's no trusted marketplace for autonomous AI teams —
-                    yet.
-                  </li>
-                </ul>
-                <p style="margin-top: 1.5rem">
-                  Our vision:
-                  <span class="bold-red"
-                    >the universal market for autonomous AI crews.</span
-                  >
+                <h2>Why now? The moment when AI becomes truly collaborative</h2>
+                <p style="font-size: 1.6rem; margin-top: 1.5rem">
+                  LLMs have the power but lack structure. Solo agents fail at
+                  complex work. Teams are the future.
                 </p>
               </div>
 
@@ -6127,148 +6040,323 @@
                   </defs>
                   <rect width="500" height="400" fill="url(#grid10)" />
 
-                  <!-- Timeline showing momentum/opportunity -->
-                  <!-- Past: Unstructured -->
-                  <g transform="translate(100, 150)">
-                    <rect
-                      x="-40"
-                      y="-40"
-                      width="80"
-                      height="80"
+                  <!-- Enhanced Timeline: Past → Present → Future -->
+
+                  <!-- PAST: Isolated Agents (Left) -->
+                  <g transform="translate(80, 200)">
+                    <!-- Single agent icon -->
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="25"
+                      class="blueprint-shape"
+                      fill="rgba(255,255,255,0.05)"
+                      stroke-width="2"
+                      opacity="0.6"
+                    />
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="15"
                       class="blueprint-shape"
                       fill="none"
-                      stroke-width="2"
-                      opacity="0.5"
+                      stroke-width="1.5"
+                      opacity="0.6"
                     />
                     <text
                       x="0"
-                      y="-55"
+                      y="5"
                       class="blueprint-text-small"
                       text-anchor="middle"
-                      font-size="9"
+                      font-size="10"
+                      opacity="0.6"
                     >
-                      PAST
+                      AI
+                    </text>
+
+                    <!-- Label -->
+                    <text
+                      x="0"
+                      y="-45"
+                      class="blueprint-text-small"
+                      text-anchor="middle"
+                      font-size="11"
+                      opacity="0.5"
+                    >
+                      2020-2023
                     </text>
                     <text
                       x="0"
-                      y="-5"
+                      y="55"
                       class="blueprint-text-small"
                       text-anchor="middle"
-                      font-size="9"
+                      font-size="10"
+                      fill="#888"
                     >
-                      SINGLE
+                      ISOLATED
                     </text>
                     <text
                       x="0"
-                      y="10"
+                      y="70"
                       class="blueprint-text-small"
                       text-anchor="middle"
-                      font-size="9"
+                      font-size="10"
+                      fill="#888"
                     >
                       PROMPTS
                     </text>
                   </g>
 
-                  <!-- Present: Gap/Opportunity -->
-                  <g transform="translate(250, 150)">
+                  <!-- NOW: The Breakthrough (Center) -->
+                  <g transform="translate(250, 200)">
+                    <!-- Convergence symbol - multiple circles merging -->
+                    <circle
+                      cx="-15"
+                      cy="-15"
+                      r="18"
+                      class="blueprint-shape"
+                      fill="rgba(234,35,35,0.1)"
+                      stroke-width="2"
+                    />
+                    <circle
+                      cx="15"
+                      cy="-15"
+                      r="18"
+                      class="blueprint-shape"
+                      fill="rgba(234,35,35,0.1)"
+                      stroke-width="2"
+                    />
+                    <circle
+                      cx="-15"
+                      cy="15"
+                      r="18"
+                      class="blueprint-shape"
+                      fill="rgba(234,35,35,0.1)"
+                      stroke-width="2"
+                    />
+                    <circle
+                      cx="15"
+                      cy="15"
+                      r="18"
+                      class="blueprint-shape"
+                      fill="rgba(234,35,35,0.1)"
+                      stroke-width="2"
+                    />
                     <circle
                       cx="0"
                       cy="0"
-                      r="50"
+                      r="28"
                       class="blueprint-shape"
-                      fill="rgba(234,35,35,0.2)"
+                      fill="rgba(234,35,35,0.25)"
                       stroke-width="3"
                     />
+
+                    <!-- Orchestrator symbol in center -->
+                    <circle cx="0" cy="0" r="12" fill="#ea2323" opacity="0.8" />
                     <text
                       x="0"
-                      y="-65"
+                      y="4"
                       class="blueprint-text-small"
                       text-anchor="middle"
-                      font-size="10"
+                      font-size="9"
+                      fill="#fff"
+                    >
+                      7
+                    </text>
+
+                    <!-- Pulsing glow effect -->
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r="35"
+                      class="blueprint-shape"
+                      fill="none"
+                      stroke-width="2"
+                      opacity="0.3"
+                      stroke-dasharray="5,5"
+                    />
+
+                    <!-- Label -->
+                    <text
+                      x="0"
+                      y="-60"
+                      class="blueprint-text"
+                      text-anchor="middle"
+                      font-size="13"
                       fill="#ea2323"
+                      font-weight="bold"
                     >
                       NOW
                     </text>
                     <text
                       x="0"
-                      y="-10"
+                      y="65"
                       class="blueprint-text-small"
                       text-anchor="middle"
-                      font-size="10"
+                      font-size="11"
+                      fill="#ea2323"
                     >
-                      GAP
+                      CREW-7
                     </text>
                     <text
                       x="0"
-                      y="8"
+                      y="80"
                       class="blueprint-text-small"
                       text-anchor="middle"
-                      font-size="9"
+                      font-size="10"
+                      fill="#ea2323"
                     >
-                      OPPORTUNITY
+                      EMERGES
                     </text>
                   </g>
 
-                  <!-- Future: Orchestrated Teams -->
-                  <g transform="translate(400, 150)">
-                    <rect
-                      x="-40"
-                      y="-40"
-                      width="80"
-                      height="80"
+                  <!-- FUTURE: Thriving Ecosystem (Right) -->
+                  <g transform="translate(420, 200)">
+                    <!-- Network of interconnected crews -->
+                    <circle
+                      cx="0"
+                      cy="-20"
+                      r="15"
                       class="blueprint-shape"
-                      fill="rgba(234,35,35,0.15)"
-                      stroke-width="3"
+                      fill="rgba(234,35,35,0.2)"
+                      stroke-width="2.5"
                     />
+                    <circle
+                      cx="-25"
+                      cy="10"
+                      r="15"
+                      class="blueprint-shape"
+                      fill="rgba(234,35,35,0.2)"
+                      stroke-width="2.5"
+                    />
+                    <circle
+                      cx="25"
+                      cy="10"
+                      r="15"
+                      class="blueprint-shape"
+                      fill="rgba(234,35,35,0.2)"
+                      stroke-width="2.5"
+                    />
+
+                    <!-- Connection lines -->
+                    <line
+                      x1="0"
+                      y1="-5"
+                      x2="-15"
+                      y2="0"
+                      class="blueprint-line"
+                      stroke-width="2"
+                      opacity="0.6"
+                    />
+                    <line
+                      x1="0"
+                      y1="-5"
+                      x2="15"
+                      y2="0"
+                      class="blueprint-line"
+                      stroke-width="2"
+                      opacity="0.6"
+                    />
+                    <line
+                      x1="-10"
+                      y1="15"
+                      x2="10"
+                      y2="15"
+                      class="blueprint-line"
+                      stroke-width="2"
+                      opacity="0.6"
+                    />
+
+                    <!-- Label -->
                     <text
                       x="0"
                       y="-55"
                       class="blueprint-text-small"
                       text-anchor="middle"
-                      font-size="9"
+                      font-size="11"
                     >
-                      FUTURE
+                      2025+
                     </text>
                     <text
                       x="0"
-                      y="-5"
+                      y="60"
                       class="blueprint-text-small"
                       text-anchor="middle"
-                      font-size="9"
+                      font-size="10"
                     >
-                      AI CREW
+                      CREW
                     </text>
                     <text
                       x="0"
-                      y="10"
+                      y="75"
                       class="blueprint-text-small"
                       text-anchor="middle"
-                      font-size="9"
+                      font-size="10"
                     >
-                      MARKET
+                      ECONOMY
                     </text>
                   </g>
 
-                  <!-- Arrows showing progression -->
+                  <!-- Progression Arrows with Momentum -->
                   <line
-                    x1="140"
-                    y1="150"
-                    x2="200"
-                    y2="150"
+                    x1="110"
+                    y1="200"
+                    x2="190"
+                    y2="200"
                     class="blueprint-line"
-                    stroke-width="2"
+                    stroke-width="2.5"
                     marker-end="url(#arrow10)"
+                    stroke-dasharray="5,5"
                   />
                   <line
-                    x1="300"
-                    y1="150"
-                    x2="360"
-                    y2="150"
+                    x1="310"
+                    y1="200"
+                    x2="380"
+                    y2="200"
                     class="blueprint-line"
-                    stroke-width="3"
+                    stroke-width="3.5"
                     marker-end="url(#arrow10)"
-                    opacity="0.9"
+                    stroke="#ea2323"
                   />
+
+                  <!-- "YOU ARE HERE" indicator -->
+                  <g transform="translate(250, 120)">
+                    <path d="M -10 0 L 10 0 L 0 15 Z" fill="#ea2323" />
+                    <text
+                      x="0"
+                      y="-8"
+                      class="blueprint-text-small"
+                      text-anchor="middle"
+                      font-size="9"
+                      fill="#ea2323"
+                    >
+                      YOU ARE HERE
+                    </text>
+                  </g>
+
+                  <!-- Bottom momentum indicators -->
+                  <g transform="translate(250, 320)">
+                    <text
+                      x="0"
+                      y="0"
+                      class="blueprint-text-small"
+                      text-anchor="middle"
+                      font-size="12"
+                      fill="#ea2323"
+                    >
+                      THE WINDOW IS OPEN
+                    </text>
+                    <line
+                      x1="-80"
+                      y1="15"
+                      x2="80"
+                      y2="15"
+                      class="blueprint-line"
+                      stroke="#ea2323"
+                      stroke-width="2"
+                    />
+                  </g>
+                  opacity="0.9" />
 
                   <!-- Growth curve -->
                   <path
@@ -6677,14 +6765,11 @@
 
               <!-- Right: Content -->
               <div class="split-content">
-                <h2>Let's build the AI labor economy.</h2>
-                <p>We're assembling partners, pilots, and capital.</p>
-                <h3 style="margin-top: 2rem">
-                  <span class="bold-red"
-                    >Join us in launching the first generation of Crew-7 AI
-                    teams into the real world.</span
-                  >
-                </h3>
+                <h2>Let's build the AI labor economy together</h2>
+                <p style="font-size: 1.6rem; margin-top: 1.5rem">
+                  We're assembling partners, pilots, and capital. Join us in
+                  launching the first generation of Crew-7 teams.
+                </p>
               </div>
             </div>
             <footer class="slide-footer">
@@ -6758,33 +6843,50 @@
             <!-- Card Slider Container -->
             <div class="card-slider-container">
               <div class="card-slider-wrapper" id="philosophySlider">
-                <!-- Card 1: PROBLEM -->
+                <!-- Card 1: THE PROBLEM (40 seconds) -->
                 <div class="philosophy-card">
                   <div class="card-header">
-                    <h3 class="card-title">The Problem</h3>
+                    <h3 class="card-title">1. The Problem</h3>
                     <div class="card-mnemonic">
-                      "SLOW" - Slow Hires, Slower Ships
+                      "Product delivery is slow because teams are slow to
+                      assemble"
                     </div>
                   </div>
                   <div class="card-content">
                     <p>
-                      <strong>The Truth:</strong> We don't need smarter tools.
-                      We need
-                      <strong style="color: #ea2323">smarter teams</strong>.
+                      <strong
+                        >Everyone is talking about AI agents. Very few are
+                        building them into
+                        <span style="color: #ea2323">actual teams</span> that
+                        can deliver real work.</strong
+                      >
                     </p>
 
                     <div class="card-keypoint">
-                      <strong>Traditional Team Costs:</strong><br />
-                      • Hiring: Months of searching<br />
-                      • Coordination: Expensive & fragile<br />
-                      • Scalability: Every idea needs new people<br />
-                      • Risk: Every hand-off is a potential failure
+                      <strong>The Reality:</strong><br />
+                      • Hiring takes months<br />
+                      • Onboarding takes weeks<br />
+                      • Handoffs cause delays and misalignment<br />
+                      • Every new idea requires a new team — which most people
+                      cannot afford or scale
                     </div>
 
                     <p>
-                      <strong>The Pattern:</strong> Building teams is slow.
-                      Shipping value is slower. This isn't sustainable in the AI
-                      age.
+                      <strong>The Paradox:</strong> We now have AI models that
+                      can reason, code, write, plan, and test — but they work in
+                      isolation. A single agent can't replicate a real team.
+                    </p>
+
+                    <p
+                      style="
+                        color: #ea2323;
+                        font-size: 1.3rem;
+                        text-align: center;
+                        margin-top: 1rem;
+                      "
+                    >
+                      "What if we could spin up a complete AI team instantly —
+                      and make it behave like a real engineering org?"
                     </p>
                   </div>
                   <div class="card-footer">
@@ -6794,43 +6896,53 @@
                   </div>
                 </div>
 
-                <!-- Card 2: INSIGHT -->
+                <!-- Card 2: THE SHIFT → CREW-7 (40 seconds) -->
                 <div class="philosophy-card">
                   <div class="card-header">
-                    <h3 class="card-title">The Insight</h3>
+                    <h3 class="card-title">2. The Shift → Crew-7</h3>
                     <div class="card-mnemonic">
-                      "SEVEN" - Structure Enables Victory
+                      "A fully structured AI workforce: 1 Orchestrator + 6
+                      Specialists"
                     </div>
                   </div>
                   <div class="card-content">
                     <p>
-                      <strong>AI = Workforce:</strong> Not a tool anymore. It's
-                      a
                       <strong style="color: #ea2323"
-                        >structured workforce</strong
+                        >Introducing Crew-7:</strong
                       >
-                      you can coordinate and trust.
+                      A fully structured AI workforce made of
+                      <strong>1 Orchestrator and 6 Specialists</strong>.
                     </p>
 
                     <div class="card-keypoint">
-                      <strong>Why Seven?</strong><br />
-                      • <strong>Miller's Law:</strong> 7±2 items in working
-                      memory<br />
-                      • <strong>Nature:</strong> Swarms, colonies,
-                      high-performing teams<br />
-                      • <strong>Balance:</strong> Enough specialists, not
-                      overwhelming<br />
-                      • <strong>Formula:</strong> 1 Orchestrator + 6 Specialists
+                      <strong>The Architecture:</strong><br />
+                      • <strong>Orchestrator (Gemini):</strong> Plans the
+                      mission, breaks into tasks, sequences workflow, maintains
+                      memory in Qdrant<br />
+                      • <strong>6 Specialists (aimalapi LLMs):</strong> Backend,
+                      Frontend, Research, Copywriting, QA, DevOps<br />
+                      • <strong>Real-time Agent Graph:</strong> See every
+                      message, decision, and tool call as it happens<br />
+                      • <strong>CrewAI Framework:</strong> Runs in sandbox with
+                      safe tools, code execution, live event bus
                     </div>
+
+                    <p>
+                      <strong>Why 7?</strong> Cognitive science and systems
+                      theory show humans effectively manage about
+                      <strong>7</strong> interacting roles before chaos hits. We
+                      turned that pattern into an agent architecture.
+                    </p>
 
                     <p
                       style="
-                        color: #00ff9d;
+                        color: #ea2323;
+                        font-size: 1.3rem;
                         text-align: center;
-                        font-size: 1.4rem;
+                        margin-top: 1rem;
                       "
                     >
-                      Seven roles. Seven relationships. Zero chaos.
+                      "This isn't a chatbot. It's a working team."
                     </p>
                   </div>
                   <div class="card-footer">
@@ -6840,34 +6952,52 @@
                   </div>
                 </div>
 
-                <!-- Card 3: SOLUTION -->
+                <!-- Card 3: HOW IT WORKS — TECHNICAL BREAKDOWN (45 seconds) -->
                 <div class="philosophy-card">
                   <div class="card-header">
-                    <h3 class="card-title">The Solution</h3>
+                    <h3 class="card-title">3. How It Works</h3>
                     <div class="card-mnemonic">
-                      "3M" - Marketplace, Multi-agent, Missions
+                      "Technical breakdown of the stack powering Crew-7"
                     </div>
                   </div>
                   <div class="card-content">
                     <p>
-                      <strong>Crew-7 Marketplace:</strong> The first platform
-                      where
-                      <strong style="color: #ea2323">AI teams</strong> have
-                      portfolios, XP, and price tags.
+                      <strong style="color: #ea2323"
+                        >The Stack Powering This:</strong
+                      >
                     </p>
 
                     <div class="card-keypoint">
-                      <strong>4-Step Flow:</strong><br />
-                      1. <strong>Choose:</strong> Browse ranked crews<br />
-                      2. <strong>Describe:</strong> Define your mission<br />
-                      3. <strong>Watch:</strong> Live Agent Graph shows
-                      collaboration<br />
-                      4. <strong>Deploy:</strong> Review results and ship
+                      <strong>Architecture Flow:</strong><br />
+                      • <strong>Mission Intake:</strong> User describes a goal
+                      in our AI-Studio-built UI<br />
+                      • <strong>Planning:</strong> Gemini Orchestrator → plan,
+                      subtasks, dependencies<br />
+                      • <strong>Memory:</strong> Qdrant stores architecture,
+                      constraints, API decisions — so the Crew remembers<br />
+                      • <strong>Execution:</strong> Specialists collaborate
+                      using hybrid model (hierarchical + peer-to-peer)<br />
+                      • <strong>Live Visualization:</strong> WebSockets stream
+                      agent_start, tool_call, and reasoning events to Agent
+                      Graph<br />
+                      • <strong>Artifacts:</strong> Code appears in unified Code
+                      Canvas (backend files, frontend pages, tests, live
+                      preview)<br />
+                      • <strong>Marketplace & Web3:</strong> Crews can be
+                      bought, rented, shared, or published with on-chain
+                      verification
                     </div>
 
-                    <p>
-                      <strong>Verticals:</strong> Engineering, Marketing,
-                      Business, Research crews — all available on-demand.
+                    <p
+                      style="
+                        color: #ea2323;
+                        font-size: 1.3rem;
+                        text-align: center;
+                        margin-top: 1rem;
+                      "
+                    >
+                      "Crew-7 gives you a full digital company — on demand —
+                      with complete transparency and control."
                     </p>
                   </div>
                   <div class="card-footer">
@@ -6877,49 +7007,158 @@
                   </div>
                 </div>
 
-                <!-- Card 4: VISION -->
+                <!-- Card 4: DEMO CASE STUDY (60-75 seconds) -->
                 <div class="philosophy-card">
                   <div class="card-header">
-                    <h3 class="card-title">The Vision</h3>
+                    <h3 class="card-title">4. Demo Case Study</h3>
                     <div class="card-mnemonic">
-                      "NOW" - No marketplace, Orchestration needed, We're
-                      building it
+                      "Build a SaaS landing page with authentication API"
                     </div>
                   </div>
                   <div class="card-content">
                     <p>
-                      <strong>Mission:</strong> Build the
-                      <strong style="color: #ea2323">universal market</strong>
-                      for autonomous AI crews.
+                      <strong>Mission:</strong> "Build a SaaS landing page with
+                      an authentication API."
                     </p>
 
                     <div class="card-keypoint">
-                      <strong>The Stack:</strong><br />
-                      • <strong>C7T Token:</strong> Rent & buy crews<br />
-                      • <strong>R7 Reputation:</strong> On-chain mission XP<br />
-                      • <strong>Smart Contracts:</strong> Automated revenue
-                      splits<br />
-                      • <strong>Web3 Layer:</strong> Own crews as digital assets
+                      <strong>The 5-Step Process:</strong><br />
+                      <strong>Step 1:</strong> Choose Full-Stack SaaS Crew →
+                      press Run<br />
+                      <strong>Step 2:</strong> Orchestrator drafts plan
+                      (Backend, Frontend, Auth flow, Tests, Deployment)<br />
+                      <strong>Step 3:</strong> Specialists activate (Backend
+                      builds API, Frontend creates React components, QA writes
+                      tests, DevOps prepares Docker)<br />
+                      <strong>Step 4:</strong> Code Canvas updates with real
+                      files (/api/auth.py, /components/HeroSection.tsx,
+                      /tests/test_auth.py, Dockerfile)<br />
+                      <strong>Step 5:</strong> User reviews → clicks "Approve" →
+                      Crew-7 bundles deployment-ready output
                     </div>
 
                     <p>
-                      <strong>Why Now?</strong> LLMs are powerful but
-                      unstructured. Teams win projects, not prompts. The
-                      marketplace doesn't exist yet.
+                      <strong>You SEE everything:</strong> node glow, edge
+                      messages, tool calls — live in the Agent Graph.
                     </p>
 
                     <p
                       style="
                         color: #ea2323;
+                        font-size: 1.3rem;
                         text-align: center;
-                        font-size: 1.4rem;
+                        margin-top: 1rem;
                       "
                     >
-                      "I hired a Crew-7" will mean something globally.
+                      "This entire workflow takes minutes — not a sprint."
                     </p>
                   </div>
                   <div class="card-footer">
                     <button class="info-icon" onclick="showMemoryTip(4)">
+                      ⓘ
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Card 5: MARKET & USE CASES (45 seconds) -->
+                <div class="philosophy-card">
+                  <div class="card-header">
+                    <h3 class="card-title">5. Market & Use Cases</h3>
+                    <div class="card-mnemonic">
+                      "Crew-7 applies beyond engineering"
+                    </div>
+                  </div>
+                  <div class="card-content">
+                    <p>
+                      <strong style="color: #ea2323"
+                        >Crew-7 isn't just for code:</strong
+                      >
+                    </p>
+
+                    <div class="card-keypoint">
+                      <strong>Applications:</strong><br />
+                      • <strong>Marketing squads</strong> → content, funnels,
+                      campaigns<br />
+                      • <strong>Business analysts</strong> → forecasts,
+                      valuations, competitor insights<br />
+                      • <strong>Operations</strong> → workflows, SOPs,
+                      planning<br />
+                      • <strong>Event teams</strong> → logistics, timelines,
+                      assets
+                    </div>
+
+                    <div class="card-keypoint">
+                      <strong>The Marketplace Economy:</strong><br />
+                      • Creators publish their best crews<br />
+                      • Others rent or buy them<br />
+                      • Revenue splits handled automatically (off-chain or
+                      on-chain)<br />
+                      • A global "talent marketplace" — but for autonomous AI
+                      teams
+                    </div>
+
+                    <p
+                      style="
+                        color: #ea2323;
+                        font-size: 1.3rem;
+                        text-align: center;
+                        margin-top: 1rem;
+                      "
+                    >
+                      "From hiring 'an AI' to hiring 'an AI Crew'"
+                    </p>
+                  </div>
+                  <div class="card-footer">
+                    <button class="info-icon" onclick="showMemoryTip(5)">
+                      ⓘ
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Card 6: VISION & ASK (30 seconds) -->
+                <div class="philosophy-card">
+                  <div class="card-header">
+                    <h3 class="card-title">6. Vision & Ask</h3>
+                    <div class="card-mnemonic">
+                      "A world where people hire AI Crews, not just AI"
+                    </div>
+                  </div>
+                  <div class="card-content">
+                    <p>
+                      <strong style="color: #ea2323"
+                        >The Vision is Simple and Huge:</strong
+                      >
+                    </p>
+
+                    <p>
+                      A world where people stop hiring "an AI" and start hiring
+                      <strong>an AI Crew</strong>. Where organizations don't
+                      need to scale headcount — they scale missions.
+                    </p>
+
+                    <div class="card-keypoint">
+                      <strong>Our Ask:</strong><br />
+                      • Looking for early partners, pilots, and first investment
+                      round<br />
+                      • Give us one mission your team is too busy to ship this
+                      quarter<br />
+                      • Crew-7 will ship it this month
+                    </div>
+
+                    <p
+                      style="
+                        color: #ea2323;
+                        font-size: 1.4rem;
+                        text-align: center;
+                        margin-top: 1.5rem;
+                        font-weight: bold;
+                      "
+                    >
+                      "Thank you."
+                    </p>
+                  </div>
+                  <div class="card-footer">
+                    <button class="info-icon" onclick="showMemoryTip(6)">
                       ⓘ
                     </button>
                   </div>
@@ -6942,41 +7181,40 @@
               </h3>
 
               <div style="margin-bottom: 1.5rem">
-                <h4 style="color: #00ff9d">The SLOW Method</h4>
+                <h4 style="color: #ea2323">The 4 M's Method</h4>
                 <ul style="line-height: 1.8">
+                  <li><strong>M</strong>onths to hire = recruitment delays</li>
                   <li>
-                    <strong>S</strong>low hiring = months of recruitment delays
+                    <strong>M</strong>isalignment in handoffs = communication
+                    failures
                   </li>
                   <li>
-                    <strong>L</strong>ong coordination = expensive meetings,
-                    misalignment
+                    <strong>M</strong>ost can't afford new teams = scalability
+                    problem
                   </li>
                   <li>
-                    <strong>O</strong>verhead costs = salaries, benefits, office
-                    space
-                  </li>
-                  <li>
-                    <strong>W</strong>eeks to align = decision paralysis,
-                    consensus fatigue
+                    <strong>M</strong>odels work isolated = single agent
+                    limitation
                   </li>
                 </ul>
               </div>
 
               <div style="margin-bottom: 1.5rem">
-                <h4 style="color: #00ff9d">Visual Association</h4>
+                <h4 style="color: #ea2323">Visual Association</h4>
                 <p>
-                  Picture a <strong>snail</strong> carrying a briefcase full of
-                  resumes, moving through an endless office hallway. Each door
-                  takes months to open.
+                  Picture a <strong>broken assembly line</strong> where each
+                  worker sits in a separate room, unable to see or coordinate
+                  with others. Projects pile up, deadlines slip.
                 </p>
               </div>
 
               <div style="margin-bottom: 1.5rem">
-                <h4 style="color: #00ff9d">Repetition Strategy</h4>
+                <h4 style="color: #ea2323">Repetition Strategy</h4>
                 <p>
-                  Say "SLOW" 3 times while tapping your fingers:
-                  <strong>S</strong> (thumb), <strong>L</strong> (index),
-                  <strong>O</strong> (middle), <strong>W</strong> (ring).
+                  Tap your fingers while saying: <strong>M</strong>onths
+                  (thumb), <strong>M</strong>isalign (index),
+                  <strong>M</strong>ost can't (middle), <strong>M</strong>odels
+                  isolated (ring).
                 </p>
               </div>
 
@@ -6987,8 +7225,8 @@
                   border-left: 3px solid #ea2323;
                 "
               >
-                <strong>Quick Test:</strong> Without looking, what does each
-                letter stand for? Try now!
+                <strong>Quick Test:</strong> Close your eyes and recite the 4
+                M's. Visualize the broken assembly line.
               </div>
             </div>
           </div>
@@ -6999,13 +7237,13 @@
                 ×
               </button>
               <h3 style="color: #ea2323; margin-bottom: 1rem">
-                💡 Memorization Techniques: The Insight
+                💡 Memorization Techniques: The Shift → Crew-7
               </h3>
 
               <div style="margin-bottom: 1.5rem">
-                <h4 style="color: #00ff9d">The SEVEN Formula</h4>
+                <h4 style="color: #ea2323">The SEVEN Formula</h4>
                 <p
-                  style="font-size: 1.3rem; text-align: center; color: #00ff9d"
+                  style="font-size: 1.3rem; text-align: center; color: #ea2323"
                 >
                   1 + 6 = 7
                 </p>
@@ -7017,7 +7255,7 @@
               </div>
 
               <div style="margin-bottom: 1.5rem">
-                <h4 style="color: #00ff9d">Miller's Magic Number</h4>
+                <h4 style="color: #ea2323">Miller's Magic Number</h4>
                 <ul style="line-height: 1.8">
                   <li>Psychology: 7±2 chunks in working memory</li>
                   <li>Nature: Bee swarms have ~7 scouts</li>
@@ -7029,7 +7267,7 @@
               </div>
 
               <div style="margin-bottom: 1.5rem">
-                <h4 style="color: #00ff9d">Hand Memory Technique</h4>
+                <h4 style="color: #ea2323">Hand Memory Technique</h4>
                 <p>
                   Hold up your hand: 1 thumb (orchestrator) + 6 fingers
                   (specialists). When you see your hand, remember
@@ -7175,25 +7413,616 @@
             </div>
           </div>
 
+          <div class="modal-overlay" id="memoryModal5">
+            <div class="modal-content">
+              <button class="modal-close" onclick="closeMemoryModal(5)">
+                ×
+              </button>
+              <h3 style="color: #ea2323; margin-bottom: 1rem">
+                💡 Memorization Techniques: Market & Use Cases
+              </h3>
+
+              <div style="margin-bottom: 1.5rem">
+                <h4 style="color: #ea2323">The MOBE Formula</h4>
+                <ul style="line-height: 1.8">
+                  <li>
+                    <strong>M</strong>arketing squads = Content, funnels,
+                    campaigns
+                  </li>
+                  <li>
+                    <strong>O</strong>perations = Workflows, SOPs, planning
+                  </li>
+                  <li>
+                    <strong>B</strong>usiness analysts = Forecasts, valuations,
+                    insights
+                  </li>
+                  <li>
+                    <strong>E</strong>vent teams = Logistics, timelines, assets
+                  </li>
+                </ul>
+              </div>
+
+              <div style="margin-bottom: 1.5rem">
+                <h4 style="color: #ea2323">The Marketplace Vision</h4>
+                <p>
+                  Imagine <strong>Upwork meets GitHub</strong> but for AI teams.
+                  Creators publish crews, others rent them, revenue splits
+                  automatically.
+                </p>
+              </div>
+
+              <div style="margin-bottom: 1.5rem">
+                <h4 style="color: #ea2323">Memory Anchor</h4>
+                <p>
+                  Think: <em>"From hiring 'an AI' to hiring 'an AI Crew'"</em> —
+                  this phrase captures the entire paradigm shift.
+                </p>
+              </div>
+
+              <div
+                style="
+                  padding: 1rem;
+                  background: rgba(234, 35, 35, 0.1);
+                  border-left: 3px solid #ea2323;
+                "
+              >
+                <strong>Quick Test:</strong> Name 4 verticals where Crew-7
+                applies beyond engineering. Say them out loud now!
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-overlay" id="memoryModal6">
+            <div class="modal-content">
+              <button class="modal-close" onclick="closeMemoryModal(6)">
+                ×
+              </button>
+              <h3 style="color: #ea2323; margin-bottom: 1rem">
+                💡 Memorization Techniques: Vision & Ask
+              </h3>
+
+              <div style="margin-bottom: 1.5rem">
+                <h4 style="color: #ea2323">The Simple Vision</h4>
+                <p
+                  style="
+                    font-size: 1.3rem;
+                    text-align: center;
+                    color: #ea2323;
+                    font-weight: bold;
+                  "
+                >
+                  "Hire AI Crews, not just AI. Scale missions, not headcount."
+                </p>
+                <p>
+                  This two-part statement captures everything: the product (AI
+                  Crews) and the outcome (scale missions).
+                </p>
+              </div>
+
+              <div style="margin-bottom: 1.5rem">
+                <h4 style="color: #ea2323">The Ask Formula (P-P-D)</h4>
+                <ul style="line-height: 1.8">
+                  <li>
+                    <strong>P</strong>artners = Early pilots and collaborators
+                  </li>
+                  <li>
+                    <strong>P</strong>ilots = Give us one mission too busy to
+                    ship
+                  </li>
+                  <li>
+                    <strong>D</strong>elivery = Crew-7 ships it this month (not
+                    quarter)
+                  </li>
+                </ul>
+              </div>
+
+              <div style="margin-bottom: 1.5rem">
+                <h4 style="color: #ea2323">Closing Technique</h4>
+                <p>
+                  Say "Thank you." → Hold eye contact for 2 seconds → Step back.
+                  Let silence carry the weight. Don't rush off stage.
+                </p>
+              </div>
+
+              <div
+                style="
+                  padding: 1rem;
+                  background: rgba(234, 35, 35, 0.1);
+                  border-left: 3px solid #ea2323;
+                "
+              >
+                <strong>Pitch Practice:</strong> Stand up, say the vision + ask
+                out loud with eye contact (imagine judges). Feel the confidence!
+              </div>
+            </div>
+          </div>
+
           <!-- Prepare Tab Content -->
           <div
             id="prepare-content"
             class="slide-content script-slide tab-content"
           >
-            <h2 style="text-align: center; margin-bottom: 2rem">Prepare</h2>
-            <p>[Preparation content will be added here]</p>
-            <p class="script-direction">(Placeholder for preparation tips)</p>
-            <p>
-              This section will contain preparation guidelines and checklists.
-            </p>
+            <div style="max-width: 900px; margin: 0 auto">
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  1. 🧘 Breathe Like an Athlete (5-5-5 Technique)
+                </h3>
+                <p>
+                  <strong>What:</strong> 10 minutes before presenting, do this:
+                  Inhale for 5 seconds → Hold for 5 seconds → Exhale for 5
+                  seconds. Repeat 10 times.
+                </p>
+                <p>
+                  <strong>Why:</strong> Deep breathing activates your
+                  parasympathetic nervous system, reducing cortisol (stress
+                  hormone) and increasing oxygen to your brain.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: You'll feel calmer, think clearer, and speak
+                  smoother. Athletes use this before competition for a reason.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  2. 💪 Power Pose for 2 Minutes
+                </h3>
+                <p>
+                  <strong>What:</strong> Stand in a "Superman" pose (hands on
+                  hips, chest out, feet wide) for 120 seconds in private. Or
+                  raise your arms in a "V" like a victory pose.
+                </p>
+                <p>
+                  <strong>Why:</strong> Harvard research shows power posing
+                  increases testosterone (confidence hormone) by 20% and
+                  decreases cortisol by 25%. You literally trick your brain into
+                  confidence.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: You'll walk on stage feeling like you've already
+                  won. Your body language will radiate authority.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  3. 🎵 Listen to Your Hype Song
+                </h3>
+                <p>
+                  <strong>What:</strong> Create a 3-minute playlist of songs
+                  that pump you up. Listen 15 minutes before you present. Pick
+                  tracks with a fast tempo (120-140 BPM).
+                </p>
+                <p>
+                  <strong>Why:</strong> Music releases dopamine (the reward
+                  neurotransmitter), which enhances mood and motivation. Fast
+                  tempos increase heart rate, priming your energy.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: You'll feel energized, not anxious. Your voice will
+                  have natural enthusiasm without forcing it.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  4. 🗣️ Warm Up Your Voice
+                </h3>
+                <p>
+                  <strong>What:</strong> Do 5 minutes of vocal warm-ups: Hum
+                  scales, tongue twisters ("Red leather, yellow leather" 10x),
+                  and say your opening line out loud 3 times with exaggerated
+                  volume.
+                </p>
+                <p>
+                  <strong>Why:</strong> A cold voice sounds shaky and uncertain.
+                  Warming up loosens your vocal cords, improves clarity, and
+                  prevents cracking.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: Your first words will land with confidence. Judges
+                  notice a strong opening immediately.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  5. 🚶 Move Your Body (Mini Workout)
+                </h3>
+                <p>
+                  <strong>What:</strong> 20 jumping jacks, 10 squats, or a
+                  2-minute brisk walk around the block. Get your blood flowing.
+                </p>
+                <p>
+                  <strong>Why:</strong> Physical movement releases endorphins
+                  (natural painkillers and mood boosters) and burns off nervous
+                  energy. Sitting makes anxiety worse.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: You'll channel nervous energy into physical energy.
+                  Your body will feel lighter, your mind sharper.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  6. 🍫 Eat Smart (Fuel, Don't Crash)
+                </h3>
+                <p>
+                  <strong>What:</strong> 30-60 minutes before, eat a small
+                  snack: banana + almond butter, dark chocolate, or a handful of
+                  nuts. Avoid heavy meals, sugar spikes, or caffeine overload.
+                </p>
+                <p>
+                  <strong>Why:</strong> Your brain needs glucose for focus, but
+                  sugar crashes kill energy. Complex carbs + healthy fats =
+                  sustained energy. Too much caffeine = jitters.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: Stable blood sugar = stable performance. You won't
+                  fade mid-pitch or feel shaky.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  7. 🧠 Visualize Success (Mental Rehearsal)
+                </h3>
+                <p>
+                  <strong>What:</strong> Close your eyes for 3 minutes.
+                  Visualize yourself on stage: confident posture, clear voice,
+                  judges nodding, applause at the end. Feel the success.
+                </p>
+                <p>
+                  <strong>Why:</strong> Olympians and elite performers use this.
+                  Your brain can't distinguish between real and vividly imagined
+                  experiences. Mental rehearsal builds neural pathways for
+                  success.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: You'll step on stage feeling like you've done this
+                  before. Confidence is a rehearsed state, not a lucky accident.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-top: 3rem;
+                  padding: 2rem;
+                  background: rgba(234, 35, 35, 0.1);
+                  border: 2px solid #ea2323;
+                  border-radius: 12px;
+                  text-align: center;
+                "
+              >
+                <p
+                  style="
+                    font-size: 1.5rem;
+                    color: #ea2323;
+                    font-weight: bold;
+                    margin-bottom: 1rem;
+                  "
+                >
+                  🔥 Pre-Pitch Checklist (Do All 7 in 30 Minutes)
+                </p>
+                <div
+                  style="
+                    text-align: left;
+                    display: inline-block;
+                    font-size: 1.2rem;
+                    line-height: 1.8;
+                  "
+                >
+                  ☐ 5-5-5 Breathing (10 min)<br />
+                  ☐ Power Pose (2 min)<br />
+                  ☐ Hype Music (3 min)<br />
+                  ☐ Voice Warm-up (5 min)<br />
+                  ☐ Body Movement (2 min)<br />
+                  ☐ Smart Snack (5 min)<br />
+                  ☐ Visualization (3 min)
+                </div>
+                <p
+                  style="
+                    font-size: 1.3rem;
+                    color: #ea2323;
+                    margin-top: 1.5rem;
+                    font-style: italic;
+                  "
+                >
+                  "Your pitch starts 30 minutes before you speak. Prepare your
+                  body, dominate the stage."
+                </p>
+              </div>
+            </div>
           </div>
 
           <!-- Tips Tab Content -->
           <div id="tips-content" class="slide-content script-slide tab-content">
-            <h2 style="text-align: center; margin-bottom: 2rem">Tips</h2>
-            <p>[Tips content will be added here]</p>
-            <p class="script-direction">(Placeholder for presentation tips)</p>
-            <p>This section will contain helpful tips and best practices.</p>
+            <div style="max-width: 900px; margin: 0 auto">
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  1. 🎯 Know Your Core Message Cold
+                </h3>
+                <p>
+                  <strong>What:</strong> Master the one-sentence pitch: "Crew-7
+                  gives you a full AI team — 1 Orchestrator + 6 Specialists —
+                  that delivers projects in minutes instead of months."
+                </p>
+                <p>
+                  <strong>Why:</strong> Judges remember clarity, not complexity.
+                  If you can't say it in 10 seconds, you don't own it yet.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Say it 50 times out loud. In the shower, walking,
+                  before bed. Make it muscle memory.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  2. 👁️ Eye Contact = Trust
+                </h3>
+                <p>
+                  <strong>What:</strong> Make direct eye contact with each judge
+                  for 2-3 seconds as you speak. Rotate naturally through the
+                  panel.
+                </p>
+                <p>
+                  <strong>Why:</strong> Eye contact signals confidence and
+                  honesty. Breaking it too often suggests uncertainty or fear.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Present to friends/family and have them raise
+                  their hands when you look away. Train yourself to hold gaze.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  3. 🎭 Show Passion, Not Panic
+                </h3>
+                <p>
+                  <strong>What:</strong> Speak with genuine enthusiasm about
+                  solving the problem. Let your voice rise and fall naturally.
+                  Use hand gestures to emphasize key points.
+                </p>
+                <p>
+                  <strong>Why:</strong> Judges invest in founders who care, not
+                  just ideas. Passion is contagious; panic repels.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Record yourself. Watch for flat delivery or
+                  nervous fidgeting. Adjust until you see energy, not anxiety.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  4. 📊 Use Numbers as Anchors
+                </h3>
+                <p>
+                  <strong>What:</strong> Drop concrete numbers: "7 agents,"
+                  "minutes not months," "$80B TAM," "1 Orchestrator + 6
+                  Specialists." Numbers stick.
+                </p>
+                <p>
+                  <strong>Why:</strong> Vague claims fade. Specific metrics
+                  create mental hooks judges can recall later.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Highlight 3-5 key numbers in your script. Pause
+                  briefly after saying each one to let it land.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  5. ⏱️ Respect Time Like Gold
+                </h3>
+                <p>
+                  <strong>What:</strong> Keep to 3-4 minutes max. If you have 5
+                  minutes, save 1 minute for Q&A. Never go over.
+                </p>
+                <p>
+                  <strong>Why:</strong> Going over time signals poor execution
+                  skills. Finishing early shows confidence and control.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Time yourself with a stopwatch. Cut ruthlessly.
+                  Every second must earn its place.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  6. 🎬 Demo > Deck Every Time
+                </h3>
+                <p>
+                  <strong>What:</strong> Show the Agent Graph live. Let judges
+                  see specialists activate in real-time. Visual proof > verbal
+                  claims.
+                </p>
+                <p>
+                  <strong>Why:</strong> "Show, don't tell" is the golden rule. A
+                  working demo crushes skepticism instantly.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Have a backup plan if tech fails. Pre-record a
+                  30-second screen capture as insurance. Test on venue WiFi
+                  beforehand.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  7. 🚀 End With a Clear Call to Action
+                </h3>
+                <p>
+                  <strong>What:</strong> "Give us one mission your team is too
+                  busy to ship this quarter — Crew-7 will ship it this month.
+                  Thank you."
+                </p>
+                <p>
+                  <strong>Why:</strong> Judges need to know what you want. A
+                  vague ending wastes momentum. A bold ask shows you're ready to
+                  execute.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: End with silence. Say "Thank you," hold eye
+                  contact for 1-2 seconds, then step back. Let the ask breathe.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-top: 3rem;
+                  padding: 2rem;
+                  background: rgba(234, 35, 35, 0.1);
+                  border: 2px solid #ea2323;
+                  border-radius: 12px;
+                  text-align: center;
+                "
+              >
+                <p
+                  style="
+                    font-size: 1.5rem;
+                    color: #ea2323;
+                    font-weight: bold;
+                    margin-bottom: 1rem;
+                  "
+                >
+                  🎯 The Ultimate Rule
+                </p>
+                <p style="font-size: 1.3rem; line-height: 1.6">
+                  Judges don't remember every detail. They remember
+                  <strong>how you made them feel</strong>. Confident?
+                  Trustworthy? Excited? That's what wins.
+                </p>
+                <p
+                  style="
+                    font-size: 1.2rem;
+                    color: #ea2323;
+                    margin-top: 1rem;
+                    font-style: italic;
+                  "
+                >
+                  "Your energy is your biggest asset. Protect it. Project it.
+                  Win with it."
+                </p>
+              </div>
+            </div>
           </div>
 
           <footer class="slide-footer">
@@ -7209,17 +8038,1827 @@
 
       <!-- View 3: Technical -->
       <div id="technical-view" class="view hidden">
+        <!-- Technical Slide 1: System Architecture Overview -->
         <section class="slide active">
-          <div class="slide-content script-slide">
-            <h2 style="text-align: center; margin-bottom: 2rem">
-              Technical Overview
-            </h2>
-            <p>[Technical content will be added here]</p>
-            <p class="script-direction">(Placeholder for technical details)</p>
+          <div class="slide-content split-layout">
+            <!-- Left: Content -->
+            <div class="split-content">
+              <h2>System Architecture</h2>
+              <p style="font-size: 1.5rem; margin-bottom: 1.5rem">
+                Multi-layered platform with event-driven orchestration
+              </p>
+              <ul style="font-size: 1.4rem">
+                <li>
+                  <strong>Frontend:</strong> React + XYFlow for Agent Graph
+                  visualization
+                </li>
+                <li>
+                  <strong>API Gateway:</strong> FastAPI with REST, WebSocket,
+                  and SSE
+                </li>
+                <li>
+                  <strong>Orchestrator:</strong> CrewAI-powered agent
+                  coordination
+                </li>
+                <li>
+                  <strong>Memory:</strong> Qdrant vector store for context
+                  persistence
+                </li>
+                <li><strong>Storage:</strong> PostgreSQL + Redis cache</li>
+                <li>
+                  <strong>LLM Layer:</strong> Gemini (orchestrator) + aimalapi
+                  (specialists)
+                </li>
+              </ul>
+            </div>
+
+            <!-- Right: Architecture Diagram -->
+            <div class="split-illustration">
+              <svg
+                class="blueprint-svg diagram-zoomable"
+                viewBox="0 0 600 700"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <!-- Grid Background -->
+                <defs>
+                  <pattern
+                    id="techGrid1"
+                    width="20"
+                    height="20"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <path
+                      d="M 20 0 L 0 0 0 20"
+                      fill="none"
+                      stroke="rgba(234,35,35,0.1)"
+                      stroke-width="0.5"
+                    />
+                  </pattern>
+                  <marker
+                    id="techArrow"
+                    markerWidth="8"
+                    markerHeight="8"
+                    refX="7"
+                    refY="3"
+                    orient="auto"
+                  >
+                    <polygon points="0 0, 8 3, 0 6" fill="#ea2323" />
+                  </marker>
+                </defs>
+                <rect width="600" height="700" fill="url(#techGrid1)" />
+
+                <!-- Title -->
+                <text
+                  x="300"
+                  y="30"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 16px; fill: #ea2323"
+                >
+                  CREW-7 SYSTEM ARCHITECTURE
+                </text>
+
+                <!-- Frontend Layer -->
+                <rect
+                  x="50"
+                  y="60"
+                  width="500"
+                  height="80"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="300"
+                  y="85"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 14px"
+                >
+                  FRONTEND LAYER
+                </text>
+                <text x="70" y="105" class="blueprint-text-small">
+                  • React 19 + TypeScript
+                </text>
+                <text x="70" y="120" class="blueprint-text-small">
+                  • XYFlow/ReactFlow (Agent Graph)
+                </text>
+                <text x="330" y="105" class="blueprint-text-small">
+                  • anime.js (animations)
+                </text>
+                <text x="330" y="120" class="blueprint-text-small">
+                  • WebSocket client
+                </text>
+
+                <!-- API Gateway -->
+                <rect
+                  x="50"
+                  y="180"
+                  width="500"
+                  height="70"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="300"
+                  y="205"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 14px"
+                >
+                  API GATEWAY
+                </text>
+                <text x="70" y="225" class="blueprint-text-small">
+                  FastAPI • REST/WebSocket/SSE
+                </text>
+                <text x="70" y="240" class="blueprint-text-small">
+                  Auth • Rate Limiting
+                </text>
+
+                <!-- Orchestrator Service -->
+                <rect
+                  x="150"
+                  y="290"
+                  width="300"
+                  height="70"
+                  class="blueprint-shape"
+                  stroke-width="2.5"
+                  fill="rgba(234,35,35,0.15)"
+                />
+                <text
+                  x="300"
+                  y="315"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 15px; fill: #ea2323"
+                >
+                  ORCHESTRATOR
+                </text>
+                <text
+                  x="300"
+                  y="335"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  CrewAI • Gemini
+                </text>
+                <text
+                  x="300"
+                  y="350"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  Task Planning & Coordination
+                </text>
+
+                <!-- Memory Service -->
+                <rect
+                  x="50"
+                  y="400"
+                  width="180"
+                  height="70"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="140"
+                  y="425"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 13px"
+                >
+                  MEMORY
+                </text>
+                <text
+                  x="140"
+                  y="445"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  Qdrant Vector DB
+                </text>
+                <text
+                  x="140"
+                  y="460"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  Crew/Mission Context
+                </text>
+
+                <!-- Run & Trace Service -->
+                <rect
+                  x="260"
+                  y="400"
+                  width="180"
+                  height="70"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="350"
+                  y="425"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 13px"
+                >
+                  RUN & TRACE
+                </text>
+                <text
+                  x="350"
+                  y="445"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  Events Storage
+                </text>
+                <text
+                  x="350"
+                  y="460"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  Agent Logs
+                </text>
+
+                <!-- Artifact Service -->
+                <rect
+                  x="470"
+                  y="400"
+                  width="80"
+                  height="70"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="510"
+                  y="425"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  ARTIFACTS
+                </text>
+                <text
+                  x="510"
+                  y="445"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 10px"
+                >
+                  Code
+                </text>
+                <text
+                  x="510"
+                  y="460"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 10px"
+                >
+                  Docs
+                </text>
+
+                <!-- Data Layer -->
+                <rect
+                  x="50"
+                  y="510"
+                  width="230"
+                  height="70"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="165"
+                  y="535"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 13px"
+                >
+                  DATABASE
+                </text>
+                <text
+                  x="165"
+                  y="555"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  PostgreSQL
+                </text>
+                <text
+                  x="165"
+                  y="570"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  Users • Crews • Runs
+                </text>
+
+                <rect
+                  x="320"
+                  y="510"
+                  width="230"
+                  height="70"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="435"
+                  y="535"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 13px"
+                >
+                  CACHE & EVENTS
+                </text>
+                <text
+                  x="435"
+                  y="555"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  Redis
+                </text>
+                <text
+                  x="435"
+                  y="570"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  Pub/Sub • Cache
+                </text>
+
+                <!-- LLM Providers -->
+                <rect
+                  x="150"
+                  y="620"
+                  width="300"
+                  height="60"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  stroke="#00ff9d"
+                  fill="rgba(0,255,157,0.05)"
+                />
+                <text
+                  x="300"
+                  y="642"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 13px; fill: #00ff9d"
+                >
+                  LLM PROVIDERS
+                </text>
+                <text
+                  x="300"
+                  y="660"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  Gemini • aimalapi • Multiple Models
+                </text>
+
+                <!-- Connection Arrows -->
+                <line
+                  x1="300"
+                  y1="140"
+                  x2="300"
+                  y2="180"
+                  stroke="#ea2323"
+                  stroke-width="2"
+                  marker-end="url(#techArrow)"
+                />
+                <line
+                  x1="300"
+                  y1="250"
+                  x2="300"
+                  y2="290"
+                  stroke="#ea2323"
+                  stroke-width="2"
+                  marker-end="url(#techArrow)"
+                />
+                <line
+                  x1="300"
+                  y1="360"
+                  x2="140"
+                  y2="400"
+                  stroke="#ea2323"
+                  stroke-width="1.5"
+                  marker-end="url(#techArrow)"
+                />
+                <line
+                  x1="300"
+                  y1="360"
+                  x2="350"
+                  y2="400"
+                  stroke="#ea2323"
+                  stroke-width="1.5"
+                  marker-end="url(#techArrow)"
+                />
+                <line
+                  x1="300"
+                  y1="360"
+                  x2="510"
+                  y2="400"
+                  stroke="#ea2323"
+                  stroke-width="1.5"
+                  marker-end="url(#techArrow)"
+                />
+                <line
+                  x1="165"
+                  y1="470"
+                  x2="165"
+                  y2="510"
+                  stroke="#ea2323"
+                  stroke-width="1.5"
+                  marker-end="url(#techArrow)"
+                />
+                <line
+                  x1="435"
+                  y1="470"
+                  x2="435"
+                  y2="510"
+                  stroke="#ea2323"
+                  stroke-width="1.5"
+                  marker-end="url(#techArrow)"
+                />
+                <line
+                  x1="300"
+                  y1="360"
+                  x2="300"
+                  y2="620"
+                  stroke="#00ff9d"
+                  stroke-width="2"
+                  marker-end="url(#techArrow)"
+                  stroke-dasharray="5,5"
+                />
+              </svg>
+            </div>
+          </div>
+          <footer class="slide-footer">
             <p>
-              This section will contain the technical architecture, system
-              design, and implementation details of Crew-7.
+              <b
+                >Crew-7 by Preview <span class="red-accent">→Lab's</span> minds
+                and realized in ZYNIQ Firm's</b
+              >
             </p>
+          </footer>
+        </section>
+
+        <!-- Technical Slide 2: Agentic AI Structure -->
+        <section class="slide">
+          <div class="slide-content split-layout">
+            <!-- Left: Content -->
+            <div class="split-content">
+              <h2>Agentic AI Structure</h2>
+              <p style="font-size: 1.5rem; margin-bottom: 1.5rem">
+                1 Orchestrator + 6 Specialists with focused toolsets
+              </p>
+              <ul style="font-size: 1.4rem">
+                <li>
+                  <strong>Orchestrator (Gemini):</strong> Planning, task
+                  decomposition, coordination
+                </li>
+                <li>
+                  <strong>Backend Architect:</strong> API design, schema,
+                  architecture
+                </li>
+                <li>
+                  <strong>Backend Implementer:</strong> Code generation, testing
+                </li>
+                <li>
+                  <strong>Frontend Architect:</strong> UI/UX design, component
+                  structure
+                </li>
+                <li>
+                  <strong>Frontend Implementer:</strong> React components,
+                  styling
+                </li>
+                <li>
+                  <strong>QA Engineer:</strong> Test generation, validation
+                </li>
+                <li>
+                  <strong>DevOps Engineer:</strong> Docker, CI/CD, deployment
+                </li>
+              </ul>
+              <p style="font-size: 1.3rem; margin-top: 1rem; color: #00ff9d">
+                Each agent has 1-3 specialized tools for maximum efficiency
+              </p>
+            </div>
+
+            <!-- Right: Agent Structure Diagram -->
+            <div class="split-illustration">
+              <svg
+                class="blueprint-svg diagram-zoomable"
+                viewBox="0 0 600 700"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <pattern
+                    id="techGrid2"
+                    width="20"
+                    height="20"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <path
+                      d="M 20 0 L 0 0 0 20"
+                      fill="none"
+                      stroke="rgba(234,35,35,0.1)"
+                      stroke-width="0.5"
+                    />
+                  </pattern>
+                  <marker
+                    id="agentArrow"
+                    markerWidth="8"
+                    markerHeight="8"
+                    refX="7"
+                    refY="3"
+                    orient="auto"
+                  >
+                    <polygon points="0 0, 8 3, 0 6" fill="#ea2323" />
+                  </marker>
+                </defs>
+                <rect width="600" height="700" fill="url(#techGrid2)" />
+
+                <!-- Title -->
+                <text
+                  x="300"
+                  y="30"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 16px; fill: #ea2323"
+                >
+                  AGENTIC AI STRUCTURE
+                </text>
+
+                <!-- Central Orchestrator -->
+                <circle
+                  cx="300"
+                  cy="200"
+                  r="60"
+                  class="blueprint-shape"
+                  stroke-width="3"
+                  fill="rgba(234,35,35,0.2)"
+                />
+                <text
+                  x="300"
+                  y="195"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 14px; font-weight: bold"
+                >
+                  ORCHESTRATOR
+                </text>
+                <text
+                  x="300"
+                  y="212"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                >
+                  (Gemini)
+                </text>
+
+                <!-- Specialist Agents in Circle -->
+                <!-- Backend Architect -->
+                <circle
+                  cx="150"
+                  cy="120"
+                  r="40"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(255,255,255,0.03)"
+                />
+                <text
+                  x="150"
+                  y="118"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  Backend
+                </text>
+                <text
+                  x="150"
+                  y="130"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  Architect
+                </text>
+
+                <!-- Frontend Architect -->
+                <circle
+                  cx="450"
+                  cy="120"
+                  r="40"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(255,255,255,0.03)"
+                />
+                <text
+                  x="450"
+                  y="118"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  Frontend
+                </text>
+                <text
+                  x="450"
+                  y="130"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  Architect
+                </text>
+
+                <!-- Backend Implementer -->
+                <circle
+                  cx="100"
+                  cy="250"
+                  r="40"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(255,255,255,0.03)"
+                />
+                <text
+                  x="100"
+                  y="248"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  Backend
+                </text>
+                <text
+                  x="100"
+                  y="260"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  Implement
+                </text>
+
+                <!-- Frontend Implementer -->
+                <circle
+                  cx="500"
+                  cy="250"
+                  r="40"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(255,255,255,0.03)"
+                />
+                <text
+                  x="500"
+                  y="248"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  Frontend
+                </text>
+                <text
+                  x="500"
+                  y="260"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  Implement
+                </text>
+
+                <!-- QA Engineer -->
+                <circle
+                  cx="180"
+                  cy="350"
+                  r="40"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(255,255,255,0.03)"
+                />
+                <text
+                  x="180"
+                  y="348"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  QA
+                </text>
+                <text
+                  x="180"
+                  y="360"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  Engineer
+                </text>
+
+                <!-- DevOps Engineer -->
+                <circle
+                  cx="420"
+                  cy="350"
+                  r="40"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(255,255,255,0.03)"
+                />
+                <text
+                  x="420"
+                  y="348"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  DevOps
+                </text>
+                <text
+                  x="420"
+                  y="360"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="font-size: 11px"
+                >
+                  Engineer
+                </text>
+
+                <!-- Connections from Orchestrator -->
+                <line
+                  x1="260"
+                  y1="170"
+                  x2="180"
+                  y2="135"
+                  stroke="#ea2323"
+                  stroke-width="2"
+                  marker-end="url(#agentArrow)"
+                />
+                <line
+                  x1="340"
+                  y1="170"
+                  x2="420"
+                  y2="135"
+                  stroke="#ea2323"
+                  stroke-width="2"
+                  marker-end="url(#agentArrow)"
+                />
+                <line
+                  x1="250"
+                  y1="210"
+                  x2="140"
+                  y2="240"
+                  stroke="#ea2323"
+                  stroke-width="2"
+                  marker-end="url(#agentArrow)"
+                />
+                <line
+                  x1="350"
+                  y1="210"
+                  x2="460"
+                  y2="240"
+                  stroke="#ea2323"
+                  stroke-width="2"
+                  marker-end="url(#agentArrow)"
+                />
+                <line
+                  x1="265"
+                  y1="250"
+                  x2="215"
+                  y2="335"
+                  stroke="#ea2323"
+                  stroke-width="2"
+                  marker-end="url(#agentArrow)"
+                />
+                <line
+                  x1="335"
+                  y1="250"
+                  x2="385"
+                  y2="335"
+                  stroke="#ea2323"
+                  stroke-width="2"
+                  marker-end="url(#agentArrow)"
+                />
+
+                <!-- Memory Node -->
+                <rect
+                  x="480"
+                  y="440"
+                  width="100"
+                  height="60"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(0,255,157,0.1)"
+                  stroke="#00ff9d"
+                />
+                <text
+                  x="530"
+                  y="465"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="fill: #00ff9d"
+                >
+                  MEMORY
+                </text>
+                <text
+                  x="530"
+                  y="482"
+                  class="blueprint-text-small"
+                  text-anchor="middle"
+                  style="fill: #00ff9d; font-size: 10px"
+                >
+                  Qdrant
+                </text>
+                <line
+                  x1="360"
+                  y1="200"
+                  x2="480"
+                  y2="460"
+                  stroke="#00ff9d"
+                  stroke-width="2"
+                  stroke-dasharray="5,5"
+                  marker-end="url(#agentArrow)"
+                />
+
+                <!-- Tools Layer -->
+                <text
+                  x="300"
+                  y="540"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 14px; fill: #ea2323"
+                >
+                  FOCUSED TOOLS (1-3 per agent)
+                </text>
+
+                <!-- Tool Groups -->
+                <g transform="translate(50, 560)">
+                  <rect
+                    x="0"
+                    y="0"
+                    width="150"
+                    height="100"
+                    class="blueprint-shape"
+                    stroke-width="1.5"
+                    fill="rgba(255,255,255,0.02)"
+                  />
+                  <text
+                    x="75"
+                    y="20"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 11px"
+                  >
+                    Backend Tools
+                  </text>
+                  <text
+                    x="10"
+                    y="40"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • Code Writer
+                  </text>
+                  <text
+                    x="10"
+                    y="55"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • Schema Designer
+                  </text>
+                  <text
+                    x="10"
+                    y="70"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • API Tester
+                  </text>
+                  <text
+                    x="10"
+                    y="85"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • DB Query Tool
+                  </text>
+                </g>
+
+                <g transform="translate(225, 560)">
+                  <rect
+                    x="0"
+                    y="0"
+                    width="150"
+                    height="100"
+                    class="blueprint-shape"
+                    stroke-width="1.5"
+                    fill="rgba(255,255,255,0.02)"
+                  />
+                  <text
+                    x="75"
+                    y="20"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 11px"
+                  >
+                    Frontend Tools
+                  </text>
+                  <text
+                    x="10"
+                    y="40"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • UI Generator
+                  </text>
+                  <text
+                    x="10"
+                    y="55"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • Asset Helper
+                  </text>
+                  <text
+                    x="10"
+                    y="70"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • API Client Gen
+                  </text>
+                  <text
+                    x="10"
+                    y="85"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • Style Manager
+                  </text>
+                </g>
+
+                <g transform="translate(400, 560)">
+                  <rect
+                    x="0"
+                    y="0"
+                    width="150"
+                    height="100"
+                    class="blueprint-shape"
+                    stroke-width="1.5"
+                    fill="rgba(255,255,255,0.02)"
+                  />
+                  <text
+                    x="75"
+                    y="20"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 11px"
+                  >
+                    QA & DevOps
+                  </text>
+                  <text
+                    x="10"
+                    y="40"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • Test Generator
+                  </text>
+                  <text
+                    x="10"
+                    y="55"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • Dockerfile Gen
+                  </text>
+                  <text
+                    x="10"
+                    y="70"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • CI Pipeline
+                  </text>
+                  <text
+                    x="10"
+                    y="85"
+                    class="blueprint-text-small"
+                    style="font-size: 9px"
+                  >
+                    • Coverage Check
+                  </text>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <footer class="slide-footer">
+            <p>
+              <b
+                >Crew-7 by Preview <span class="red-accent">→Lab's</span> minds
+                and realized in ZYNIQ Firm's</b
+              >
+            </p>
+          </footer>
+        </section>
+
+        <!-- Technical Slide 3: Mission Workflow -->
+        <section class="slide">
+          <div class="slide-content split-layout">
+            <!-- Left: Content -->
+            <div class="split-content">
+              <h2>Mission Workflow</h2>
+              <p style="font-size: 1.5rem; margin-bottom: 1.5rem">
+                End-to-end mission execution timeline
+              </p>
+              <ul style="font-size: 1.4rem">
+                <li><strong>T0:</strong> User submits mission via chat</li>
+                <li>
+                  <strong>T1:</strong> Orchestrator retrieves memory context
+                </li>
+                <li><strong>T2:</strong> Task planning and decomposition</li>
+                <li><strong>T3:</strong> Architects design system structure</li>
+                <li><strong>T4:</strong> Implementers generate code</li>
+                <li>
+                  <strong>T5:</strong> QA creates tests, DevOps prepares
+                  deployment
+                </li>
+                <li><strong>T6:</strong> Artifacts packaged and delivered</li>
+              </ul>
+              <p style="font-size: 1.3rem; margin-top: 1rem; color: #00ff9d">
+                All events logged in real-time, visualized in Agent Graph
+              </p>
+            </div>
+
+            <!-- Right: Workflow Timeline -->
+            <div class="split-illustration">
+              <svg
+                class="blueprint-svg diagram-zoomable"
+                viewBox="0 0 600 700"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <pattern
+                    id="techGrid3"
+                    width="20"
+                    height="20"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <path
+                      d="M 20 0 L 0 0 0 20"
+                      fill="none"
+                      stroke="rgba(234,35,35,0.1)"
+                      stroke-width="0.5"
+                    />
+                  </pattern>
+                  <marker
+                    id="flowArrow"
+                    markerWidth="8"
+                    markerHeight="8"
+                    refX="7"
+                    refY="3"
+                    orient="auto"
+                  >
+                    <polygon points="0 0, 8 3, 0 6" fill="#ea2323" />
+                  </marker>
+                </defs>
+                <rect width="600" height="700" fill="url(#techGrid3)" />
+
+                <!-- Title -->
+                <text
+                  x="300"
+                  y="30"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 16px; fill: #ea2323"
+                >
+                  MISSION EXECUTION TIMELINE
+                </text>
+
+                <!-- Timeline Vertical Line -->
+                <line
+                  x1="100"
+                  y1="60"
+                  x2="100"
+                  y2="660"
+                  stroke="#ea2323"
+                  stroke-width="3"
+                  stroke-dasharray="10,5"
+                />
+
+                <!-- T0: User Submission -->
+                <circle cx="100" cy="80" r="8" fill="#ea2323" />
+                <rect
+                  x="140"
+                  y="60"
+                  width="420"
+                  height="60"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="160"
+                  y="80"
+                  class="blueprint-text"
+                  style="font-size: 13px; fill: #ea2323"
+                >
+                  T0: MISSION SUBMISSION
+                </text>
+                <text x="160" y="100" class="blueprint-text-small">
+                  User defines requirements via chat interface
+                </text>
+                <text x="160" y="113" class="blueprint-text-small">
+                  WebSocket connection established
+                </text>
+
+                <!-- T1: Memory Retrieval -->
+                <circle cx="100" cy="150" r="8" fill="#ea2323" />
+                <rect
+                  x="140"
+                  y="130"
+                  width="420"
+                  height="60"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="160"
+                  y="150"
+                  class="blueprint-text"
+                  style="font-size: 13px; fill: #ea2323"
+                >
+                  T1: CONTEXT LOADING
+                </text>
+                <text x="160" y="170" class="blueprint-text-small">
+                  Orchestrator queries Qdrant for mission history
+                </text>
+                <text x="160" y="183" class="blueprint-text-small">
+                  Crew memory and past artifacts retrieved
+                </text>
+
+                <!-- T2: Planning -->
+                <circle cx="100" cy="220" r="8" fill="#ea2323" />
+                <rect
+                  x="140"
+                  y="200"
+                  width="420"
+                  height="60"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(234,35,35,0.1)"
+                />
+                <text
+                  x="160"
+                  y="220"
+                  class="blueprint-text"
+                  style="font-size: 13px; fill: #ea2323"
+                >
+                  T2: TASK DECOMPOSITION
+                </text>
+                <text x="160" y="240" class="blueprint-text-small">
+                  Orchestrator breaks mission into subtasks
+                </text>
+                <text x="160" y="253" class="blueprint-text-small">
+                  Assigns roles to specialist agents
+                </text>
+
+                <!-- T3: Architecture Phase -->
+                <circle cx="100" cy="290" r="8" fill="#ea2323" />
+                <rect
+                  x="140"
+                  y="270"
+                  width="420"
+                  height="60"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="160"
+                  y="290"
+                  class="blueprint-text"
+                  style="font-size: 13px; fill: #ea2323"
+                >
+                  T3: ARCHITECTURE DESIGN
+                </text>
+                <text x="160" y="310" class="blueprint-text-small">
+                  Backend Architect: API schemas, DB models
+                </text>
+                <text x="160" y="323" class="blueprint-text-small">
+                  Frontend Architect: Component structure, layouts
+                </text>
+
+                <!-- T4: Implementation Phase -->
+                <circle cx="100" cy="360" r="8" fill="#ea2323" />
+                <rect
+                  x="140"
+                  y="340"
+                  width="420"
+                  height="60"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="160"
+                  y="360"
+                  class="blueprint-text"
+                  style="font-size: 13px; fill: #ea2323"
+                >
+                  T4: CODE GENERATION
+                </text>
+                <text x="160" y="380" class="blueprint-text-small">
+                  Implementers write code using specialized tools
+                </text>
+                <text x="160" y="393" class="blueprint-text-small">
+                  Artifacts saved to storage service
+                </text>
+
+                <!-- T5: QA & DevOps -->
+                <circle cx="100" cy="430" r="8" fill="#ea2323" />
+                <rect
+                  x="140"
+                  y="410"
+                  width="420"
+                  height="70"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="160"
+                  y="430"
+                  class="blueprint-text"
+                  style="font-size: 13px; fill: #ea2323"
+                >
+                  T5: TESTING & DEPLOYMENT PREP
+                </text>
+                <text x="160" y="450" class="blueprint-text-small">
+                  QA Engineer: Generates test suites
+                </text>
+                <text x="160" y="463" class="blueprint-text-small">
+                  DevOps Engineer: Creates Dockerfiles, CI configs
+                </text>
+                <text x="160" y="476" class="blueprint-text-small">
+                  All tests executed and validated
+                </text>
+
+                <!-- T6: Delivery -->
+                <circle cx="100" cy="510" r="8" fill="#ea2323" />
+                <rect
+                  x="140"
+                  y="490"
+                  width="420"
+                  height="60"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(0,255,157,0.1)"
+                  stroke="#00ff9d"
+                />
+                <text
+                  x="160"
+                  y="510"
+                  class="blueprint-text"
+                  style="font-size: 13px; fill: #00ff9d"
+                >
+                  T6: ARTIFACT DELIVERY
+                </text>
+                <text
+                  x="160"
+                  y="530"
+                  class="blueprint-text-small"
+                  style="fill: #00ff9d"
+                >
+                  Orchestrator aggregates results
+                </text>
+                <text
+                  x="160"
+                  y="543"
+                  class="blueprint-text-small"
+                  style="fill: #00ff9d"
+                >
+                  Complete project delivered to user
+                </text>
+
+                <!-- Infrastructure Components -->
+                <text
+                  x="300"
+                  y="580"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 13px; fill: #ea2323"
+                >
+                  INFRASTRUCTURE TOUCHPOINTS
+                </text>
+
+                <g transform="translate(100, 595)">
+                  <rect
+                    x="0"
+                    y="0"
+                    width="80"
+                    height="50"
+                    class="blueprint-shape"
+                    stroke-width="1"
+                  />
+                  <text
+                    x="40"
+                    y="20"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 10px"
+                  >
+                    PostgreSQL
+                  </text>
+                  <text
+                    x="40"
+                    y="35"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 9px"
+                  >
+                    Metadata
+                  </text>
+                </g>
+
+                <g transform="translate(200, 595)">
+                  <rect
+                    x="0"
+                    y="0"
+                    width="80"
+                    height="50"
+                    class="blueprint-shape"
+                    stroke-width="1"
+                  />
+                  <text
+                    x="40"
+                    y="20"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 10px"
+                  >
+                    Redis
+                  </text>
+                  <text
+                    x="40"
+                    y="35"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 9px"
+                  >
+                    Events
+                  </text>
+                </g>
+
+                <g transform="translate(300, 595)">
+                  <rect
+                    x="0"
+                    y="0"
+                    width="80"
+                    height="50"
+                    class="blueprint-shape"
+                    stroke-width="1"
+                    stroke="#00ff9d"
+                  />
+                  <text
+                    x="40"
+                    y="20"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 10px; fill: #00ff9d"
+                  >
+                    Qdrant
+                  </text>
+                  <text
+                    x="40"
+                    y="35"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 9px; fill: #00ff9d"
+                  >
+                    Memory
+                  </text>
+                </g>
+
+                <g transform="translate(400, 595)">
+                  <rect
+                    x="0"
+                    y="0"
+                    width="80"
+                    height="50"
+                    class="blueprint-shape"
+                    stroke-width="1"
+                  />
+                  <text
+                    x="40"
+                    y="20"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 10px"
+                  >
+                    LLMs
+                  </text>
+                  <text
+                    x="40"
+                    y="35"
+                    class="blueprint-text-small"
+                    text-anchor="middle"
+                    style="font-size: 9px"
+                  >
+                    Inference
+                  </text>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <footer class="slide-footer">
+            <p>
+              <b
+                >Crew-7 by Preview <span class="red-accent">→Lab's</span> minds
+                and realized in ZYNIQ Firm's</b
+              >
+            </p>
+          </footer>
+        </section>
+
+        <!-- Technical Slide 4: Tech Stack Layers -->
+        <section class="slide">
+          <div class="slide-content split-layout content-heavy">
+            <!-- Left: Content -->
+            <div class="split-content">
+              <h2>Tech Stack Layers</h2>
+              <p style="font-size: 1.5rem; margin-bottom: 1.5rem">
+                Production-grade infrastructure with enterprise security
+              </p>
+              <ul style="font-size: 1.3rem">
+                <li>
+                  <strong>Data Layer:</strong> PostgreSQL, Qdrant, Object
+                  Storage
+                </li>
+                <li>
+                  <strong>Backend Layer:</strong> FastAPI, CrewAI, Redis cache
+                </li>
+                <li>
+                  <strong>Frontend Layer:</strong> React 19, XYFlow, anime.js
+                </li>
+                <li>
+                  <strong>AI Layer:</strong> Gemini + aimalapi multi-model
+                </li>
+                <li>
+                  <strong>Security:</strong> JWT auth, encrypted secrets,
+                  sandboxed tools
+                </li>
+                <li>
+                  <strong>Web3 (Future):</strong> C7T token, on-chain reputation
+                </li>
+              </ul>
+            </div>
+
+            <!-- Right: Stack Layers -->
+            <div class="split-illustration">
+              <svg
+                class="blueprint-svg diagram-zoomable"
+                viewBox="0 0 500 700"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <pattern
+                    id="techGrid4"
+                    width="20"
+                    height="20"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <path
+                      d="M 20 0 L 0 0 0 20"
+                      fill="none"
+                      stroke="rgba(234,35,35,0.1)"
+                      stroke-width="0.5"
+                    />
+                  </pattern>
+                </defs>
+                <rect width="500" height="700" fill="url(#techGrid4)" />
+
+                <!-- Title -->
+                <text
+                  x="250"
+                  y="30"
+                  class="blueprint-text"
+                  text-anchor="middle"
+                  style="font-size: 16px; fill: #ea2323"
+                >
+                  TECHNOLOGY STACK
+                </text>
+
+                <!-- Layer 6: Web3 (Future) -->
+                <rect
+                  x="50"
+                  y="60"
+                  width="400"
+                  height="70"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(0,255,157,0.05)"
+                  stroke="#00ff9d"
+                />
+                <text
+                  x="70"
+                  y="85"
+                  class="blueprint-text"
+                  style="font-size: 13px; fill: #00ff9d"
+                >
+                  WEB3 LAYER (FUTURE)
+                </text>
+                <text
+                  x="70"
+                  y="105"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  C7T Utility Token • On-Chain Reputation
+                </text>
+                <text
+                  x="70"
+                  y="118"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  Smart Contracts • Marketplace Royalties
+                </text>
+
+                <!-- Layer 5: Security -->
+                <rect
+                  x="50"
+                  y="150"
+                  width="400"
+                  height="70"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                  fill="rgba(234,35,35,0.05)"
+                />
+                <text
+                  x="70"
+                  y="175"
+                  class="blueprint-text"
+                  style="font-size: 13px; fill: #ea2323"
+                >
+                  SECURITY LAYER
+                </text>
+                <text
+                  x="70"
+                  y="195"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  JWT/Session Auth • Org/Workspace Isolation
+                </text>
+                <text
+                  x="70"
+                  y="208"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  Encrypted Secrets • Tool Sandboxing • RBAC
+                </text>
+
+                <!-- Layer 4: AI/LLM -->
+                <rect
+                  x="50"
+                  y="240"
+                  width="400"
+                  height="80"
+                  class="blueprint-shape"
+                  stroke-width="2.5"
+                  fill="rgba(234,35,35,0.1)"
+                />
+                <text
+                  x="70"
+                  y="265"
+                  class="blueprint-text"
+                  style="font-size: 13px; fill: #ea2323"
+                >
+                  AI / LLM LAYER
+                </text>
+                <text
+                  x="70"
+                  y="285"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  Gemini (Orchestrator)
+                </text>
+                <text
+                  x="70"
+                  y="298"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  aimalapi (6 Specialist Models)
+                </text>
+                <text
+                  x="70"
+                  y="311"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  LLM Connection Manager • Multi-Provider Support
+                </text>
+
+                <!-- Layer 3: Frontend -->
+                <rect
+                  x="50"
+                  y="340"
+                  width="400"
+                  height="80"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="70"
+                  y="365"
+                  class="blueprint-text"
+                  style="font-size: 13px"
+                >
+                  FRONTEND LAYER
+                </text>
+                <text
+                  x="70"
+                  y="385"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  React 19 + TypeScript • Vite
+                </text>
+                <text
+                  x="70"
+                  y="398"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  XYFlow (Agent Graph) • anime.js (Animations)
+                </text>
+                <text
+                  x="70"
+                  y="411"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  WebSocket Client • Dark/Blueprint UI
+                </text>
+
+                <!-- Layer 2: Backend -->
+                <rect
+                  x="50"
+                  y="440"
+                  width="400"
+                  height="90"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="70"
+                  y="465"
+                  class="blueprint-text"
+                  style="font-size: 13px"
+                >
+                  BACKEND LAYER
+                </text>
+                <text
+                  x="70"
+                  y="485"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  FastAPI (REST/WebSocket/SSE)
+                </text>
+                <text
+                  x="70"
+                  y="498"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  CrewAI Framework • Agent Orchestration
+                </text>
+                <text
+                  x="70"
+                  y="511"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  Redis (Cache/PubSub) • Qdrant Client
+                </text>
+                <text
+                  x="70"
+                  y="524"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  Background Workers • Event Streaming
+                </text>
+
+                <!-- Layer 1: Data -->
+                <rect
+                  x="50"
+                  y="550"
+                  width="400"
+                  height="100"
+                  class="blueprint-shape"
+                  stroke-width="2"
+                />
+                <text
+                  x="70"
+                  y="575"
+                  class="blueprint-text"
+                  style="font-size: 13px"
+                >
+                  DATA LAYER
+                </text>
+                <text
+                  x="70"
+                  y="595"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  PostgreSQL (Users, Crews, Runs, Metadata)
+                </text>
+                <text
+                  x="70"
+                  y="608"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  Qdrant Vector DB (Memory, Context)
+                </text>
+                <text
+                  x="70"
+                  y="621"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  Object Storage (Artifacts, Generated Code)
+                </text>
+                <text
+                  x="70"
+                  y="634"
+                  class="blueprint-text-small"
+                  style="font-size: 10px"
+                >
+                  Redis (Real-time Events, Session Cache)
+                </text>
+
+                <!-- Side Labels -->
+                <text
+                  x="465"
+                  y="95"
+                  class="blueprint-text-small"
+                  text-anchor="end"
+                  style="font-size: 9px; fill: #00ff9d"
+                >
+                  LAYER 6
+                </text>
+                <text
+                  x="465"
+                  y="185"
+                  class="blueprint-text-small"
+                  text-anchor="end"
+                  style="font-size: 9px"
+                >
+                  LAYER 5
+                </text>
+                <text
+                  x="465"
+                  y="280"
+                  class="blueprint-text-small"
+                  text-anchor="end"
+                  style="font-size: 9px"
+                >
+                  LAYER 4
+                </text>
+                <text
+                  x="465"
+                  y="380"
+                  class="blueprint-text-small"
+                  text-anchor="end"
+                  style="font-size: 9px"
+                >
+                  LAYER 3
+                </text>
+                <text
+                  x="465"
+                  y="485"
+                  class="blueprint-text-small"
+                  text-anchor="end"
+                  style="font-size: 9px"
+                >
+                  LAYER 2
+                </text>
+                <text
+                  x="465"
+                  y="600"
+                  class="blueprint-text-small"
+                  text-anchor="end"
+                  style="font-size: 9px"
+                >
+                  LAYER 1
+                </text>
+              </svg>
+            </div>
           </div>
           <footer class="slide-footer">
             <p>
@@ -7740,6 +10379,19 @@
       let indicatorDots = [];
       let currentSlide = 0;
       let indicatorHideTimer = null;
+      let currentViewId = "pitch-deck-view"; // Track current view
+
+      // Track slides per view
+      const viewSlides = {
+        "pitch-deck-view": document.querySelectorAll(
+          "#pitch-deck-view .deck-container .slide"
+        ),
+        "technical-view": document.querySelectorAll("#technical-view .slide"),
+      };
+      let currentViewSlideIndex = {
+        "pitch-deck-view": 0,
+        "technical-view": 0,
+      };
 
       // Debug: Check slide count
       console.log("Total slides found:", slides.length);
@@ -7780,14 +10432,54 @@
         });
       }
 
+      function nextSlideInView() {
+        const currentViewSlides = viewSlides[currentViewId];
+        if (!currentViewSlides) return;
+
+        const currentIndex = currentViewSlideIndex[currentViewId];
+        const nextIndex = (currentIndex + 1) % currentViewSlides.length;
+        currentViewSlideIndex[currentViewId] = nextIndex;
+        showSlideInView(currentViewId, nextIndex);
+      }
+
+      function prevSlideInView() {
+        const currentViewSlides = viewSlides[currentViewId];
+        if (!currentViewSlides) return;
+
+        const currentIndex = currentViewSlideIndex[currentViewId];
+        const prevIndex =
+          (currentIndex - 1 + currentViewSlides.length) %
+          currentViewSlides.length;
+        currentViewSlideIndex[currentViewId] = prevIndex;
+        showSlideInView(currentViewId, prevIndex);
+      }
+
+      function showSlideInView(viewId, index) {
+        const currentViewSlides = viewSlides[viewId];
+        if (!currentViewSlides) return;
+
+        currentViewSlides.forEach((slide, i) => {
+          slide.classList.remove("active");
+        });
+        currentViewSlides[index].classList.add("active");
+      }
+
       function nextSlide() {
-        currentSlide = (currentSlide + 1) % slides.length;
-        showSlide(currentSlide);
+        if (currentViewId === "pitch-deck-view") {
+          currentSlide = (currentSlide + 1) % slides.length;
+          showSlide(currentSlide);
+        } else if (viewSlides[currentViewId]) {
+          nextSlideInView();
+        }
       }
 
       function prevSlide() {
-        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-        showSlide(currentSlide);
+        if (currentViewId === "pitch-deck-view") {
+          currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+          showSlide(currentSlide);
+        } else if (viewSlides[currentViewId]) {
+          prevSlideInView();
+        }
       }
 
       function switchView(viewId) {
@@ -7795,6 +10487,7 @@
           view.classList.add("hidden");
         });
         document.getElementById(viewId).classList.remove("hidden");
+        currentViewId = viewId;
 
         const isPitchDeck = viewId === "pitch-deck-view";
 
@@ -7807,10 +10500,11 @@
       }
 
       function updateNavVisibility(viewId) {
-        const isPitchDeck = viewId === "pitch-deck-view";
-        nextBtn.style.display = isPitchDeck ? "block" : "none";
-        prevBtn.style.display = isPitchDeck ? "block" : "none";
+        const hasSlides = viewId === "pitch-deck-view" || viewSlides[viewId];
+        nextBtn.style.display = hasSlides ? "block" : "none";
+        prevBtn.style.display = hasSlides ? "block" : "none";
 
+        const isPitchDeck = viewId === "pitch-deck-view";
         slideIndicator.style.display = isPitchDeck ? "flex" : "none";
 
         if (window.innerWidth <= 768) {
@@ -7837,16 +10531,20 @@
       prevBtn.addEventListener("click", prevSlide);
 
       document.addEventListener("keydown", (e) => {
-        if (
-          document
-            .getElementById("pitch-deck-view")
-            .classList.contains("hidden")
-        ) {
+        // Allow navigation in pitch-deck-view and technical-view
+        const activeView = document.querySelector(".view:not(.hidden)");
+        if (!activeView) return;
+
+        const activeViewId = activeView.id;
+        if (activeViewId !== "pitch-deck-view" && !viewSlides[activeViewId]) {
           return;
         }
-        if (e.key === "ArrowRight") {
+
+        if (e.key === "ArrowRight" || e.key === " ") {
+          e.preventDefault();
           nextSlide();
         } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
           prevSlide();
         }
       });
@@ -8055,9 +10753,86 @@
         }
       });
 
-      // Make modal functions globally available
+      <!-- Make modal functions globally available -->
       window.showMemoryTip = showMemoryTip;
       window.closeMemoryModal = closeMemoryModal;
+
+      // ===== DIAGRAM ZOOM FUNCTIONS =====
+      // Create modal container for diagram zoom
+      const diagramModal = document.createElement("div");
+      diagramModal.className = "diagram-zoom-modal";
+      diagramModal.id = "diagramZoomModal";
+      diagramModal.innerHTML = `
+        <button class="diagram-close-btn" onclick="closeDiagramZoom()">✕</button>
+        <div class="diagram-zoom-content" id="diagramZoomContent"></div>
+      `;
+      document.body.appendChild(diagramModal);
+
+      // Add click listeners to all zoomable diagrams
+      function initDiagramZoom() {
+        document.querySelectorAll(".diagram-zoomable").forEach((diagram) => {
+          diagram.addEventListener("click", function (e) {
+            e.stopPropagation();
+            openDiagramZoom(this);
+          });
+        });
+      }
+
+      function openDiagramZoom(svgElement) {
+        const modal = document.getElementById("diagramZoomModal");
+        const content = document.getElementById("diagramZoomContent");
+
+        // Clone the SVG
+        const clonedSVG = svgElement.cloneNode(true);
+        clonedSVG.classList.remove("diagram-zoomable");
+        clonedSVG.style.cursor = "default";
+
+        // Clear previous content and add new
+        content.innerHTML = "";
+        content.appendChild(clonedSVG);
+
+        // Show modal
+        modal.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeDiagramZoom() {
+        const modal = document.getElementById("diagramZoomModal");
+        modal.classList.remove("active");
+        document.body.style.overflow = "";
+      }
+
+      // Close on click outside
+      document.addEventListener("click", function (e) {
+        const modal = document.getElementById("diagramZoomModal");
+        if (e.target === modal) {
+          closeDiagramZoom();
+        }
+      });
+
+      // Close on ESC key (add to existing ESC handler)
+      const originalEscHandler = document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          // Close memory modals
+          document
+            .querySelectorAll(".modal-overlay.active")
+            .forEach((modal) => {
+              modal.classList.remove("active");
+              document.body.style.overflow = "";
+            });
+          // Close diagram zoom modal
+          closeDiagramZoom();
+        }
+      });
+
+      // Initialize diagram zoom on load
+      window.addEventListener("load", () => {
+        initDiagramZoom();
+      });
+
+      // Make functions globally available
+      window.openDiagramZoom = openDiagramZoom;
+      window.closeDiagramZoom = closeDiagramZoom;
     </script>
   </body>
 </html>

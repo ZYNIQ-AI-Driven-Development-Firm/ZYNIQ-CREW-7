@@ -216,6 +216,51 @@ html {
   animation: slideInRight 0.3s ease-out;
 }
 
+/* Agent Graph Animations */
+.animate-node-glow {
+  animation: node-glow 1s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+@keyframes node-glow {
+  0% {
+    filter: drop-shadow(0 0 0px rgba(229, 72, 77, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(229, 72, 77, 0.8)) drop-shadow(0 0 40px rgba(229, 72, 77, 0.6));
+  }
+  100% {
+    filter: drop-shadow(0 0 0px rgba(229, 72, 77, 0));
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* Hex grid background pattern */
 .hex-grid-bg {
   background-image: 

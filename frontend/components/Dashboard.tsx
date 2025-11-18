@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { animate, stagger } from 'animejs';
+
 import type { Crew } from '@/src/lib/api';
 import { getDashboardStats, type DashboardStats } from '@/src/lib/api';
 import { MissionWebSocket, type MissionEvent } from '@/src/lib/websocket';
@@ -31,7 +32,8 @@ const StreamingConsole: React.FC<{ events: RunLogEvent[] }> = ({ events }) => {
   useEffect(() => {
     if (consoleRef.current && events.length > 0) {
       const items = consoleRef.current.querySelectorAll('.console-item');
-      animate(items, {
+      animate({
+        targets: items,
         opacity: [0, 1],
         translateY: [20, 0],
         duration: 400,
@@ -149,7 +151,8 @@ const Dashboard: React.FC<DashboardProps> = ({ crew, missionStatus, runEvents })
   useEffect(() => {
     if (cardsRef.current && !loading) {
       const cards = cardsRef.current.querySelectorAll('.stat-card');
-      animate(cards, {
+      animate({
+        targets: cards,
         opacity: [0, 1],
         translateY: [30, 0],
         duration: 500,

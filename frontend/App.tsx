@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { animate, remove, stagger } from 'animejs';
+
 import ChatInput from './components/ChatInput';
 import Dashboard, { type RunLogEvent } from './components/Dashboard';
 import SettingsPanel from './components/SettingsPanel';
@@ -7,12 +9,14 @@ import { AgentIcon, AgentKey } from './components/AgentIcon';
 import { AgentLottie } from './components/AgentLottie';
 import { Crew7Logo, AuthLogo } from './components/Crew7Logo';
 import { AgentGraph } from './components/graph/AgentGraph';
-import LandingPageV3 from './pages/LandingPageV3';
+import LandingPageBlueprint from './pages/LandingPageBlueprint';
+import { Presentation } from './pages/Presentation';
 import { MarketplacePage } from './pages/MarketplacePage';
 import { MissionLabPage } from './pages/MissionLabPage';
 import { WalletProvider } from './components/Wallet/useWallet';
 import { WalletConnect } from './components/Wallet/WalletConnect';
 import { TokenBalanceChip } from './components/Wallet/TokenBalanceChip';
+import { WorkspaceManager } from './components/workspace/WorkspaceManager';
 import { crewSet, idForRole, AGENT_IDS } from './roles/avatar-utils';
 import './styles/crew7.css';
 import './styles/design-system.css';
@@ -65,8 +69,6 @@ type NotificationItem = {
   variant: NotificationVariant;
   unread?: boolean;
 };
-
-const DEFAULT_AVATAR = 'https://ik.imagekit.io/demo/img/image1.jpeg';
 
 const classNames = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
@@ -153,31 +155,28 @@ const NOTIFICATION_VARIANT_STYLES: Record<NotificationVariant, { label: string; 
   critical: { label: 'Critical', dotClass: 'bg-[#f1786b] shadow-[0_0_8px_rgba(241,120,107,0.45)]' },
 };
 
-const NOTIFICATION_SEED: NotificationItem[] = [
-  {
-    id: 'n1',
-    title: 'Crew deployment succeeded',
-    description: 'Synced changes across 4 nodes without conflicts.',
-    timestamp: '2m',
-    variant: 'success',
-    unread: true,
-  },
-  {
-    id: 'n2',
-    title: 'New marketplace templates',
-    description: 'Three vetted crew templates are now available.',
-    timestamp: '1h',
-    variant: 'info',
-  },
-  {
-    id: 'n3',
-    title: 'Token usage trending up',
-    description: 'Watch your daily budget across projects.',
-    timestamp: '3h',
-    variant: 'warning',
-    unread: true,
-  },
-];
+const NOTIFICATION_SEED: NotificationItem[] = [];
+
+// Load notifications from localStorage
+const loadNotifications = (): NotificationItem[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = localStorage.getItem('crew7_notifications');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+// Save notifications to localStorage
+const saveNotifications = (notifications: NotificationItem[]) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('crew7_notifications', JSON.stringify(notifications));
+  } catch (error) {
+    console.error('Failed to save notifications', error);
+  }
+};
 
 const WORKSPACE_OPTIONS: Array<{ id: string; name: string }> = [
   { id: 'crew-7-command', name: 'Crew-7 Command' },
@@ -224,7 +223,11 @@ const formatLocalTime = (timeZoneId: string) => {
 };
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'landing' | 'auth' | 'shell'>('landing');
+  const [view, setView] = useState<'landing' | 'auth' | 'shell'>(() => {
+    // Check if user is already authenticated
+    const token = localStorage.getItem('crew7_token') || localStorage.getItem('crew7_access_token');
+    return token ? 'shell' : 'landing';
+  });
   const [activeSection, setActiveSection] = useState<Section>('chat');
 
   useEffect(() => {
@@ -272,22 +275,35 @@ const App: React.FC = () => {
     };
   }, []);
 
-  if (view === 'landing') {
-    return <LandingPageV3 onNavigate={setView} />;
-  }
+  // Main App Content Component (for routing)
+  const AppContent = () => {
+    if (view === 'landing') {
+      return <LandingPageBlueprint onNavigate={setView} />;
+    }
 
-  if (view === 'auth') {
-    return <AuthScreen onAuthenticated={() => setView('shell')} />;
-  }
+    if (view === 'auth') {
+      return <AuthScreen onAuthenticated={() => setView('shell')} />;
+    }
 
+    return (
+      <WalletProvider>
+        <ApplicationShell
+          activeSection={activeSection}
+          onNavigate={setActiveSection}
+          onSignOut={() => setView('auth')}
+        />
+      </WalletProvider>
+    );
+  };
+
+  // Return with Router wrapper
   return (
-    <WalletProvider>
-      <ApplicationShell
-        activeSection={activeSection}
-        onNavigate={setActiveSection}
-        onSignOut={() => setView('auth')}
-      />
-    </WalletProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/presentation" element={<Presentation />} />
+        <Route path="*" element={<AppContent />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
 
@@ -459,11 +475,12 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
   const [messages, setMessages] = useState<Message[]>([]);
   const [isResponding, setIsResponding] = useState(false);
   const [prefilledPrompt, setPrefilledPrompt] = useState<string | null>(null);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(NOTIFICATION_SEED);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(() => loadNotifications());
   const [presenceStatus, setPresenceStatus] = useState<PresenceStatus>('available');
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
+  const [isWalletMenuOpen, setIsWalletMenuOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [activeWorkspaceId, setActiveWorkspaceId] = useState(() => WORKSPACE_OPTIONS[0]?.id ?? 'crew-7-command');
   const [user, setUser] = useState<User | null>(null);
@@ -480,11 +497,13 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
   const streamCloseRef = useRef<(() => void) | null>(null);
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
   const [advancedMode, setAdvancedMode] = useState<boolean>(false);
+  const [chatMode, setChatMode] = useState<boolean>(false); // Normal chat mode vs Crew mode
   const [crewType, setCrewType] = useState<'standard' | 'fullstack'>('standard');
 
   const notificationMenuRef = useRef<HTMLDivElement | null>(null);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
   const workspaceMenuRef = useRef<HTMLDivElement | null>(null);
+  const walletMenuRef = useRef<HTMLDivElement | null>(null);
 
   const activeWorkspace = useMemo(
     () =>
@@ -519,7 +538,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
       name: user?.name ?? 'Commander',
       role: user?.role ?? 'Member',
       timezone: `${timeZoneInfo.label} • ${localTime}`,
-      avatar: user?.avatarUrl ?? DEFAULT_AVATAR,
+      avatar: null, // Removed avatar URL, using initials only
     }),
     [user, timeZoneInfo.label, localTime]
   );
@@ -543,9 +562,29 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         const me = await getMe();
         if (!cancelled) {
           setUser(me);
+          // Add login notification
+          const loginTime = new Date().toLocaleString();
+          const newNotification: NotificationItem = {
+            id: makeId(),
+            title: 'Successfully logged in',
+            description: `Welcome back! Logged in at ${loginTime}`,
+            timestamp: 'Just now',
+            variant: 'success',
+            unread: true,
+          };
+          setNotifications(prev => [newNotification, ...prev]);
         }
       } catch (error) {
         console.error('Unable to fetch current user', error);
+        // Set a default user if API fails
+        if (!cancelled) {
+          setUser({
+            id: 'default-user',
+            name: 'Commander',
+            email: 'commander@crew7.ai',
+            role: 'Member',
+          } as User);
+        }
       }
     };
 
@@ -561,6 +600,11 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     setTimeZoneInfo({ id: user.timezone, label: formatTimeZoneLabel(user.timezone) });
     setLocalTime(formatLocalTime(user.timezone));
   }, [user?.timezone]);
+
+  // Save notifications to localStorage whenever they change
+  useEffect(() => {
+    saveNotifications(notifications);
+  }, [notifications]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -689,11 +733,14 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
       if (isWorkspaceMenuOpen && workspaceMenuRef.current && !workspaceMenuRef.current.contains(target)) {
         setIsWorkspaceMenuOpen(false);
       }
+      if (isWalletMenuOpen && walletMenuRef.current && !walletMenuRef.current.contains(target)) {
+        setIsWalletMenuOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isNotificationMenuOpen, isProfileMenuOpen, isWorkspaceMenuOpen]);
+  }, [isNotificationMenuOpen, isProfileMenuOpen, isWorkspaceMenuOpen, isWalletMenuOpen]);
 
   const unreadCount = useMemo(
     () => notifications.reduce((total, item) => (item.unread ? total + 1 : total), 0),
@@ -882,6 +929,8 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
             setCrewType={setCrewType}
             advancedMode={advancedMode}
             onToggleAdvancedMode={() => setAdvancedMode((prev) => !prev)}
+            chatMode={chatMode}
+            onToggleChatMode={() => setChatMode((prev) => !prev)}
           />
           <AgentGraph
             crewId={activeCrewId}
@@ -901,6 +950,8 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
           setCrewType={setCrewType}
           advancedMode={advancedMode}
           onToggleAdvancedMode={() => setAdvancedMode((prev) => !prev)}
+          chatMode={chatMode}
+          onToggleChatMode={() => setChatMode((prev) => !prev)}
         />
       );
     }
@@ -919,6 +970,10 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
 
     if (activeSection === 'settings') {
       return <SettingsPanel />;
+    }
+
+    if (activeSection === 'workspace') {
+      return <WorkspaceManager />;
     }
 
     const descriptions: Record<Section, string> = {
@@ -973,16 +1028,25 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
             setIsNotificationMenuOpen((prev) => !prev);
             setIsProfileMenuOpen(false);
             setIsWorkspaceMenuOpen(false);
+            setIsWalletMenuOpen(false);
           }}
           onToggleProfile={() => {
             setIsProfileMenuOpen((prev) => !prev);
             setIsNotificationMenuOpen(false);
             setIsWorkspaceMenuOpen(false);
+            setIsWalletMenuOpen(false);
           }}
           onToggleWorkspace={() => {
             setIsWorkspaceMenuOpen((prev) => !prev);
             setIsNotificationMenuOpen(false);
             setIsProfileMenuOpen(false);
+            setIsWalletMenuOpen(false);
+          }}
+          onToggleWallet={() => {
+            setIsWalletMenuOpen((prev) => !prev);
+            setIsNotificationMenuOpen(false);
+            setIsProfileMenuOpen(false);
+            setIsWorkspaceMenuOpen(false);
           }}
           onMarkAllRead={handleMarkAllRead}
           onStatusChange={handleStatusChange}
@@ -991,17 +1055,21 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
           notificationMenuRef={notificationMenuRef}
           profileMenuRef={profileMenuRef}
           workspaceMenuRef={workspaceMenuRef}
+          walletMenuRef={walletMenuRef}
           isNotificationMenuOpen={isNotificationMenuOpen}
           isProfileMenuOpen={isProfileMenuOpen}
           isWorkspaceMenuOpen={isWorkspaceMenuOpen}
+          isWalletMenuOpen={isWalletMenuOpen}
           onSelectWorkspace={handleSelectWorkspace}
           onCreateWorkspace={handleCreateWorkspace}
           activeSection={activeSection}
           advancedMode={advancedMode}
           onToggleAdvancedMode={() => setAdvancedMode((prev) => !prev)}
         />
-        <section className="mt-4 flex-1 flex flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/8 shadow-[0_25px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl">
-          {renderMainPanel()}
+        <section className={`mt-2 flex-1 flex ${activeSection === 'chat' ? 'flex-col' : ''} overflow-hidden rounded-3xl bg-white/8 shadow-[0_25px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl`}>
+          <div className={activeSection !== 'chat' ? 'flex-col' : ''}>
+            {renderMainPanel()}
+          </div>
         </section>
       </main>
     </div>
@@ -1025,7 +1093,8 @@ const ShellSidebar: React.FC<ShellSidebarProps> = ({ activeSection, onNavigate, 
     if (!sidebarRef.current) return;
 
     remove(sidebarRef.current);
-    animate(sidebarRef.current, {
+    animate({
+      targets: sidebarRef.current,
       width: isExpanded ? 240 : 64,
       duration: 200,
       easing: 'easeOutQuad',
@@ -1034,7 +1103,8 @@ const ShellSidebar: React.FC<ShellSidebarProps> = ({ activeSection, onNavigate, 
     if (navRef.current) {
       const navItems = navRef.current.querySelectorAll('button');
       remove(navItems);
-      animate(navItems, {
+      animate({
+        targets: navItems,
         opacity: [0.7, 1],
         scale: [0.98, 1],
         duration: 150,
@@ -1197,9 +1267,12 @@ type ShellHeaderProps = {
   notificationMenuRef: React.RefObject<HTMLDivElement>;
   profileMenuRef: React.RefObject<HTMLDivElement>;
   workspaceMenuRef: React.RefObject<HTMLDivElement>;
+  walletMenuRef: React.RefObject<HTMLDivElement>;
   isNotificationMenuOpen: boolean;
   isProfileMenuOpen: boolean;
   isWorkspaceMenuOpen: boolean;
+  isWalletMenuOpen: boolean;
+  onToggleWallet: () => void;
   onSelectWorkspace: (workspaceId: string) => void;
   onCreateWorkspace: () => void;
   activeSection: Section;
@@ -1227,6 +1300,7 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
   onToggleNotifications,
   onToggleProfile,
   onToggleWorkspace,
+  onToggleWallet,
   onMarkAllRead,
   onStatusChange,
   onGoToSettings,
@@ -1234,9 +1308,11 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
   notificationMenuRef,
   profileMenuRef,
   workspaceMenuRef,
+  walletMenuRef,
   isNotificationMenuOpen,
   isProfileMenuOpen,
   isWorkspaceMenuOpen,
+  isWalletMenuOpen,
   onSelectWorkspace,
   onCreateWorkspace,
   activeSection,
@@ -1257,84 +1333,77 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
           <span>{presence.label}</span>
           <span className="text-[#4f576d]">•</span>
           <span>Operating from {locationLabel} • {localTime}</span>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#2c3447] bg-[#121a28] px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-[#b4f0d0]">
-            <span className="h-2 w-2 rounded-full bg-[#4cf5a1] shadow-[0_0_8px_rgba(76,245,161,0.55)]" aria-hidden="true" />
-            GPT-5 mini active
-          </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <div className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-[#1e2635]/80 px-4 py-2 text-xs font-medium text-[#acb6cf] shadow-[0_12px_32px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-            <SparkIcon className="h-4 w-4 text-[#ea2323]" />
-            <span>{messageCount ? `${messageCount} transmissions logged` : 'Awaiting first command'}</span>
-          </div>
-          {/* Crew Selector with Orchestrator */}
-          <div ref={crewMenuRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setIsCrewMenuOpen((prev) => !prev)}
-              className="group flex items-center gap-3 rounded-2xl border border-white/15 bg-[#1e2635]/80 px-3 py-2 text-xs shadow-[0_12px_32px_rgba(0,0,0,0.3)] backdrop-blur-sm transition hover:border-[#ea2323]/60 hover:bg-[#1e2635]"
-              aria-haspopup="menu"
-              aria-expanded={isCrewMenuOpen}
-            >
-              <AgentLottie id={orchestratorAgent} size={38} />
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[0.58rem] font-semibold uppercase tracking-[0.26em] text-[#7c859f]">Active Crew</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-white leading-tight">{activeCrew?.name ?? 'Select Crew'}</span>
-                  <ChevronDownIcon className="h-3.5 w-3.5 text-[#7c859f] transition group-hover:text-white" />
+          {/* Lead Orchestrator with Crew */}
+          <div className="inline-flex items-center gap-2 text-xs text-[#acb6cf]">
+            <AgentLottie id={orchestratorAgent} size={32} />
+            <span className="font-medium">Lead orchestrator from</span>
+            <div ref={crewMenuRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setIsCrewMenuOpen((prev) => !prev)}
+                className="group inline-flex items-center gap-1.5 text-white font-semibold transition hover:text-[#ea2323]"
+                aria-haspopup="menu"
+                aria-expanded={isCrewMenuOpen}
+              >
+                <span>{activeCrew?.name ?? 'Select Crew'}</span>
+                <ChevronDownIcon className="h-3.5 w-3.5 text-[#7c859f] transition group-hover:text-[#ea2323]" />
+              </button>
+              
+              {isCrewMenuOpen && (
+                <div className="absolute left-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635]/95 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl z-30">
+                  <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
+                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[#7c859f]">Select Crew</p>
+                  </div>
+                  <ul className="max-h-72 overflow-y-auto py-2">
+                    {crews.length === 0 ? (
+                      <li className="px-5 py-6 text-center text-xs text-[#7c859f]">No crews available</li>
+                    ) : (
+                      crews.map((crew) => (
+                        <li key={crew.id}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onSelectCrew(crew.id);
+                              setIsCrewMenuOpen(false);
+                            }}
+                            className={classNames(
+                              'flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition mx-2',
+                              crew.id === activeCrew?.id
+                                ? 'border-[#ea2323]/60 bg-[#ea2323]/10 text-white shadow-[0_12px_32px_rgba(234,35,35,0.25)]'
+                                : 'border-transparent text-[#d5d8e4] hover:border-white/10 hover:bg-white/5'
+                            )}
+                          >
+                            <div className="flex-1">
+                              <span className="font-semibold block">{crew.name}</span>
+                              <span className="text-xs text-white/50">{crew.role ?? 'Multi-purpose'}</span>
+                            </div>
+                            {crew.id === activeCrew?.id && (
+                              <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[#ea2323]">Active</span>
+                            )}
+                          </button>
+                        </li>
+                      ))
+                    )}
+                  </ul>
                 </div>
-              </div>
-            </button>
-            
-            {isCrewMenuOpen && (
-              <div className="absolute left-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635]/95 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl z-30">
-                <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
-                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[#7c859f]">Select Crew</p>
-                </div>
-                <ul className="max-h-72 overflow-y-auto py-2">
-                  {crews.length === 0 ? (
-                    <li className="px-5 py-6 text-center text-xs text-[#7c859f]">No crews available</li>
-                  ) : (
-                    crews.map((crew) => (
-                      <li key={crew.id}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onSelectCrew(crew.id);
-                            setIsCrewMenuOpen(false);
-                          }}
-                          className={classNames(
-                            'flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition mx-2',
-                            crew.id === activeCrew?.id
-                              ? 'border-[#ea2323]/60 bg-[#ea2323]/10 text-white shadow-[0_12px_32px_rgba(234,35,35,0.25)]'
-                              : 'border-transparent text-[#d5d8e4] hover:border-white/10 hover:bg-white/5'
-                          )}
-                        >
-                          <div className="flex-1">
-                            <span className="font-semibold block">{crew.name}</span>
-                            <span className="text-xs text-white/50">{crew.role ?? 'Multi-purpose'}</span>
-                          </div>
-                          {crew.id === activeCrew?.id && (
-                            <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[#ea2323]">Active</span>
-                          )}
-                        </button>
-                      </li>
-                    ))
-                  )}
-                </ul>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           
-          <div className="flex items-center gap-2 rounded-2xl border border-white/15 bg-[#1e2635]/80 px-3 py-2 text-xs text-[#acb6cf] shadow-[0_12px_32px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-            <span className="text-[0.58rem] uppercase tracking-[0.22em] text-[#7c859f]">Crew rotation</span>
+          <span className="text-[#4f576d]">•</span>
+          
+          {/* Crew Rotation */}
+          <div className="inline-flex items-center gap-2 text-xs text-[#acb6cf]">
+            <span className="font-medium">Crew rotation</span>
             <div className="flex items-center gap-1">
               {crewPreview.map((agent) => (
                 <div
                   key={agent}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[#0d1523] shadow-[0_8px_20px_rgba(6,8,12,0.45)]"
+                  className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-[#0d1523] shadow-[0_4px_12px_rgba(6,8,12,0.35)]"
                 >
-                  <AgentIcon id={agent} size={28} idle />
+                  <AgentIcon id={agent} size={24} idle />
                 </div>
               ))}
               {overflowCount > 0 ? (
@@ -1342,11 +1411,88 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
               ) : null}
             </div>
           </div>
+          
+          <span className="text-[#4f576d]">•</span>
+          
+          {/* Status Message */}
+          <div className="inline-flex items-center gap-2 text-xs text-[#acb6cf]">
+            <SparkIcon className="h-4 w-4 text-[#ea2323]" />
+            <span className="font-medium">{messageCount ? `${messageCount} transmissions logged` : 'Awaiting first command'}</span>
+          </div>
         </div>
       </div>
       <div className="flex flex-wrap items-start justify-end gap-2 self-start lg:gap-3">
-      {/* Token Balance Chip */}
-      <TokenBalanceChip />
+      {/* Token Balance Dropdown */}
+      <div ref={walletMenuRef} className="relative">
+        <button
+          type="button"
+          onClick={onToggleWallet}
+          className="relative inline-flex h-10 items-center gap-2 px-4 rounded-full border border-white/15 bg-[#1e2635]/90 shadow-[0_16px_40px_rgba(0,0,0,0.3)] backdrop-blur-sm transition hover:border-[#ea2323]/60"
+          aria-label="Wallet"
+          aria-expanded={isWalletMenuOpen}
+        >
+          <div className="w-5 h-5 bg-gradient-to-br from-[#ea2323] to-[#ff2e2e] rounded-full flex items-center justify-center text-[0.6rem] font-bold">
+            C7
+          </div>
+          <span className="text-sm font-semibold text-white">0.00 C7T</span>
+        </button>
+        {isWalletMenuOpen ? (
+          <div className="absolute right-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635]/95 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl z-30">
+            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-[#ea2323] to-[#ff2e2e] rounded-full flex items-center justify-center font-bold shadow-lg">
+                  C7
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">C7T Wallet</p>
+                  <p className="text-xs text-[#9ea6bd]">Crew-7 Utility Token</p>
+                </div>
+              </div>
+            </div>
+            <div className="px-5 py-4 space-y-4">
+              <div className="flex justify-between items-center p-3 rounded-2xl bg-white/5 border border-white/10">
+                <span className="text-sm text-[#9ea6bd]">Your Balance</span>
+                <span className="text-lg font-bold text-white">0.00 C7T</span>
+              </div>
+              
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  className="w-full inline-flex items-center justify-center rounded-2xl border border-[#ea2323]/60 bg-[#ea2323]/10 px-4 py-3 text-sm font-semibold text-white transition hover:border-[#ea2323] hover:bg-[#ea2323]/20 shadow-[0_12px_32px_rgba(234,35,35,0.25)]"
+                >
+                  Top Up Credits
+                </button>
+                
+                <WalletConnect />
+              </div>
+              
+              <div className="pt-4 border-t border-white/10 space-y-2 text-xs text-[#9ea6bd]">
+                <p className="font-semibold text-white text-sm mb-2">How to use C7T:</p>
+                <div className="flex items-start gap-2">
+                  <span className="text-[#ea2323]">•</span>
+                  <span>Rent AI crews from the marketplace</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-[#ea2323]">•</span>
+                  <span>Purchase crews for permanent ownership</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-[#ea2323]">•</span>
+                  <span>Earn tokens by renting out your crews</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-[#ea2323]">•</span>
+                  <span>Level up crews and gain XP</span>
+                </div>
+              </div>
+              
+              <div className="text-xs text-[#7c859f] text-center pt-2 border-t border-white/10">
+                Running in test mode
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
       
       <div ref={notificationMenuRef} className="relative">
         <button
@@ -1478,8 +1624,7 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
           aria-expanded={isProfileMenuOpen}
         >
           <span className="relative inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#ea2323] via-[#f26464] to-[#f2a45c] text-sm font-semibold uppercase flex-shrink-0">
-            <span className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${profile.avatar})` }} />
-            <span className="relative z-10">{profileInitials}</span>
+            <span className="relative z-10 text-white">{profileInitials}</span>
             <span className={classNames('absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-[#0e1626]', presence.dotClass)} aria-hidden="true" />
           </span>
           <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 group-hover:max-w-xs group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold text-white">
@@ -1491,8 +1636,7 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
           <div className="absolute right-0 mt-3 w-72 rounded-3xl border border-white/15 bg-[#1e2635]/95 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl z-30">
             <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
               <span className="relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#ea2323] via-[#f26464] to-[#f2a45c] text-base font-semibold uppercase">
-                <span className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${profile.avatar})` }} />
-                <span className="relative z-10">{profileInitials}</span>
+                <span className="relative z-10 text-white">{profileInitials}</span>
                 <span className={classNames('absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-[#0e1626]', presence.dotClass)} aria-hidden="true" />
               </span>
               <div className="flex-1">
@@ -1564,6 +1708,8 @@ type ChatSurfaceProps = {
   setCrewType: (type: 'standard' | 'fullstack') => void;
   advancedMode?: boolean;
   onToggleAdvancedMode?: () => void;
+  chatMode?: boolean;
+  onToggleChatMode?: () => void;
 };
 
 const ChatSurface: React.FC<ChatSurfaceProps> = ({
@@ -1577,6 +1723,8 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
   setCrewType,
   advancedMode = false,
   onToggleAdvancedMode,
+  chatMode = false,
+  onToggleChatMode,
 }) => (
   <section className="relative flex min-h-0 flex-1 flex-col">
     <div className="flex-1 overflow-y-auto px-5 pb-24 pt-5 md:px-8">
@@ -1653,6 +1801,8 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
         onPrefillConsumed={onPrefillConsumed}
         advancedMode={advancedMode}
         onToggleAdvancedMode={onToggleAdvancedMode}
+        chatMode={chatMode}
+        onToggleChatMode={onToggleChatMode}
       />
     </div>
   </section>

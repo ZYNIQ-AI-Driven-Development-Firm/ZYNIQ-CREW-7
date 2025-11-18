@@ -12,7 +12,7 @@ from app.deps import UserCtx, auth, crew_api_key, get_db, optional_auth
 from app.models.crew import Crew
 from app.models.run import Run, RunStatus
 from app.schemas.run import RunCreate, RunOut
-from app.services.artifact_service import put_artifact
+from app.services.artifact_service import list_artifacts, put_artifact
 from app.services.crew_service import start_run
 from app.services.limits import add_quota, enforce_rate
 
@@ -147,3 +147,81 @@ async def upload_artifact(
         file.content_type or "application/octet-stream",
     )
     return {"uri": uri}
+
+
+@router.get("/{run_id}/artifacts")
+def get_artifacts(
+    run_id: UUID,
+    db: Session = Depends(get_db),
+    user: UserCtx | None = Depends(optional_auth),
+    api_key: str | None = Depends(crew_api_key),
+) -> dict[str, Any]:
+    """Retrieve all artifacts for a run, grouped by category."""
+    run = db.get(Run, run_id)
+    if not run:
+        raise HTTPException(404, "Run not found")
+    crew = db.get(Crew, run.crew_id)
+    if not crew:
+        raise HTTPException(404, "Crew not found")
+    _authorize(crew, user, api_key)
+    
+    # Get all artifacts
+    artifacts = list_artifacts(run_id)
+    
+    # Group by category based on path
+    grouped: dict[str, list[dict[str, Any]]] = {
+        'backend': [],
+        'frontend': [],
+        'tests': [],
+        'infra': [],
+        'docs': [],
+    }
+    
+    for artifact in artifacts:
+        path = artifact['path']
+        
+        # Determine language from extension
+        ext = path.split('.')[-1].lower() if '.' in path else ''
+        language_map = {
+            'py': 'python',
+            'ts': 'typescript',
+            'tsx': 'typescript',
+            'js': 'javascript',
+            'jsx': 'javascript',
+            'json': 'json',
+            'html': 'html',
+            'css': 'css',
+            'md': 'markdown',
+            'sql': 'sql',
+            'yml': 'yaml',
+            'yaml': 'yaml',
+        }
+        language = language_map.get(ext, 'plaintext')
+        
+        artifact_data = {
+            'path': path,
+            'content': artifact['content'],
+            'language': language,
+        }
+        
+        # Categorize based on path or extension
+        if any(x in path.lower() for x in ['backend', 'api', 'server', 'app.py', 'models.py']):
+            grouped['backend'].append(artifact_data)
+        elif any(x in path.lower() for x in ['frontend', 'client', 'components', 'app.tsx', 'index.html']):
+            grouped['frontend'].append(artifact_data)
+        elif any(x in path.lower() for x in ['test', 'spec']):
+            grouped['tests'].append(artifact_data)
+        elif any(x in path.lower() for x in ['docker', 'deploy', 'infra', 'config']):
+            grouped['infra'].append(artifact_data)
+        elif ext in ['md', 'txt', 'rst']:
+            grouped['docs'].append(artifact_data)
+        else:
+            # Default to backend if unclear
+            grouped['backend'].append(artifact_data)
+    
+    return {
+        'run_id': str(run_id),
+        'artifacts': grouped,
+        'updated_at': run.finished_at.isoformat() if run.finished_at else None,
+    }
+

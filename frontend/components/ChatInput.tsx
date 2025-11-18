@@ -8,6 +8,8 @@ type ChatInputProps = {
   maxLength?: number;
   advancedMode?: boolean;
   onToggleAdvancedMode?: () => void;
+  chatMode?: boolean;
+  onToggleChatMode?: () => void;
 };
 
 const DEFAULT_MAX_LENGTH = 1000;
@@ -20,6 +22,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
   maxLength = DEFAULT_MAX_LENGTH,
   advancedMode = false,
   onToggleAdvancedMode,
+  chatMode = false,
+  onToggleChatMode,
 }) => {
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -118,7 +122,23 @@ const ChatInput: React.FC<ChatInputProps> = ({
             </button>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
-            {onToggleAdvancedMode && (
+            {onToggleChatMode && (
+              <button
+                type="button"
+                onClick={onToggleChatMode}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition ${
+                  chatMode
+                    ? 'bg-[#1c2f1c] text-[#6bff6b] border border-[#4cf5a1]/60'
+                    : 'bg-[#161d2b] text-[#8e96ad] border border-transparent'
+                }`}
+                aria-pressed={chatMode}
+                aria-label="Toggle Chat Mode"
+              >
+                <ChatIcon className="w-3 h-3" />
+                <span>{chatMode ? 'Return to Crew' : 'Chat Mode'}</span>
+              </button>
+            )}
+            {onToggleAdvancedMode && !chatMode && (
               <button
                 type="button"
                 onClick={onToggleAdvancedMode}
@@ -185,6 +205,12 @@ const CameraIcon: React.FC<IconProps> = ({ className }) => (
 const GridIcon: React.FC<IconProps> = ({ className }) => (
   <svg viewBox="0 0 20 20" fill="currentColor" className={className}>
     <path fillRule="evenodd" d="M4.25 2A2.25 2.25 0 0 0 2 4.25v2.5A2.25 2.25 0 0 0 4.25 9h2.5A2.25 2.25 0 0 0 9 6.75v-2.5A2.25 2.25 0 0 0 6.75 2h-2.5Zm0 9A2.25 2.25 0 0 0 2 13.25v2.5A2.25 2.25 0 0 0 4.25 18h2.5A2.25 2.25 0 0 0 9 15.75v-2.5A2.25 2.25 0 0 0 6.75 11h-2.5Zm9-9A2.25 2.25 0 0 0 11 4.25v2.5A2.25 2.25 0 0 0 13.25 9h2.5A2.25 2.25 0 0 0 18 6.75v-2.5A2.25 2.25 0 0 0 15.75 2h-2.5Zm0 9A2.25 2.25 0 0 0 11 13.25v2.5A2.25 2.25 0 0 0 13.25 18h2.5A2.25 2.25 0 0 0 18 15.75v-2.5A2.25 2.25 0 0 0 15.75 11h-2.5Z" clipRule="evenodd" />
+  </svg>
+);
+
+const ChatIcon: React.FC<IconProps> = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path fillRule="evenodd" d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 0 1-3.476.383.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.68 3.348-3.97Z" clipRule="evenodd" />
   </svg>
 );
 

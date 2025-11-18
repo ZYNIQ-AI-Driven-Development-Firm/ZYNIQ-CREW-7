@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { animate, stagger, utils } from 'animejs';
+import { animate, stagger } from 'animejs';
+
 import { Crew7Logo } from '../components/Crew7Logo';
+import { getMe } from '../src/lib/api';
+import type { User } from '../src/lib/api';
 import {
   OrchestratorFace,
   EngineerFace,
@@ -26,8 +29,31 @@ interface LandingPageV3Props {
 export const LandingPageV3: React.FC<LandingPageV3Props> = ({ onNavigate }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const geometricLinesRef = useRef<SVGSVGElement>(null);
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('crew7_token') || localStorage.getItem('crew7_access_token');
+      if (token) {
+        try {
+          const userData = await getMe();
+          setUser(userData);
+        } catch (error) {
+          console.error('Failed to fetch user:', error);
+          // Token might be invalid, clear it
+          localStorage.removeItem('crew7_token');
+          localStorage.removeItem('crew7_access_token');
+        }
+      }
+      setIsLoadingUser(false);
+    };
+
+    void checkAuth();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,7 +66,8 @@ export const LandingPageV3: React.FC<LandingPageV3Props> = ({ onNavigate }) => {
       // Animate geometric lines based on scroll
       if (geometricLinesRef.current) {
         const lines = geometricLinesRef.current.querySelectorAll('line, path, circle');
-        animate(lines, {
+        animate({
+          targets: lines,
           opacity: 0.3 + progress * 0.3,
           translateY: scrollTop * 0.2,
           easing: 'linear',
@@ -58,7 +85,8 @@ export const LandingPageV3: React.FC<LandingPageV3Props> = ({ onNavigate }) => {
   useEffect(() => {
     if (geometricLinesRef.current) {
       const lines = geometricLinesRef.current.querySelectorAll('line, path, circle');
-      animate(lines, {
+      animate({
+        targets: lines,
         opacity: [0, 0.4],
         scale: [0.8, 1],
         easing: 'easeInOutQuad',
@@ -75,8 +103,22 @@ export const LandingPageV3: React.FC<LandingPageV3Props> = ({ onNavigate }) => {
   };
 
   const handleGetStarted = () => {
+    if (user) {
+      // User is authenticated, go directly to shell
+      if (onNavigate) {
+        onNavigate('shell');
+      }
+    } else {
+      // User not authenticated, go to auth screen
+      if (onNavigate) {
+        onNavigate('auth');
+      }
+    }
+  };
+
+  const handleDashboard = () => {
     if (onNavigate) {
-      onNavigate('auth');
+      onNavigate('shell');
     }
   };
 
@@ -94,6 +136,9 @@ export const LandingPageV3: React.FC<LandingPageV3Props> = ({ onNavigate }) => {
         setIsMenuOpen={setIsMenuOpen}
         onSignIn={handleSignIn}
         onGetStarted={handleGetStarted}
+        user={user}
+        isLoadingUser={isLoadingUser}
+        onDashboard={handleDashboard}
       />
 
       {/* Hero Section */}
@@ -215,12 +260,15 @@ const GeometricLines = React.forwardRef<SVGSVGElement, { scrollProgress: number 
   );
 });
 
-const Navigation: React.FC<{ 
-  isMenuOpen: boolean; 
+const Navigation: React.FC<{
+  isMenuOpen: boolean;
   setIsMenuOpen: (open: boolean) => void;
   onSignIn: () => void;
   onGetStarted: () => void;
-}> = ({ isMenuOpen, setIsMenuOpen, onSignIn, onGetStarted }) => {
+  user: User | null;
+  isLoadingUser: boolean;
+  onDashboard: () => void;
+}> = ({ isMenuOpen, setIsMenuOpen, onSignIn, onGetStarted, user, isLoadingUser, onDashboard }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -230,6 +278,16 @@ const Navigation: React.FC<{
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Get user initials
+  const getUserInitials = (userName: string) => {
+    return userName
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <nav 
@@ -264,21 +322,43 @@ const Navigation: React.FC<{
 
         {/* CTA Buttons */}
         <div className="hidden md:flex items-center gap-4">
-          <button 
-            onClick={onSignIn}
-            className="px-5 py-2.5 text-sm font-semibold text-white/90 hover:text-white transition-colors"
-          >
-            Sign In
-          </button>
-          <button 
-            onClick={onGetStarted}
-            className="px-6 py-2.5 rounded-xl bg-[#ea2323] text-sm font-semibold text-white shadow-lg shadow-[#ea2323]/30 hover:bg-[#ff2e2e] hover:shadow-[#ea2323]/50 transition-all"
-          >
-            Get Started
-          </button>
-        </div>
-
-        {/* Mobile Menu Button */}
+          {isLoadingUser ? (
+            <div className="w-8 h-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin"></div>
+          ) : user ? (
+            <>
+              <div className="flex items-center gap-3 px-4 py-2 rounded-xl border border-white/20 bg-white/5">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#ea2323] to-[#ff2e2e] flex items-center justify-center text-sm font-bold text-white">
+                  {getUserInitials(user.name)}
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-white">{user.name}</p>
+                  <p className="text-xs text-white/60">ID: {user.id.slice(0, 8)}</p>
+                </div>
+              </div>
+              <button 
+                onClick={onDashboard}
+                className="px-6 py-2.5 rounded-xl bg-[#ea2323] text-sm font-semibold text-white shadow-lg shadow-[#ea2323]/30 hover:bg-[#ff2e2e] hover:shadow-[#ea2323]/50 transition-all"
+              >
+                Dashboard
+              </button>
+            </>
+          ) : (
+            <>
+              <button 
+                onClick={onSignIn}
+                className="px-5 py-2.5 text-sm font-semibold text-white/90 hover:text-white transition-colors"
+              >
+                Sign In
+              </button>
+              <button 
+                onClick={onGetStarted}
+                className="px-6 py-2.5 rounded-xl bg-[#ea2323] text-sm font-semibold text-white shadow-lg shadow-[#ea2323]/30 hover:bg-[#ff2e2e] hover:shadow-[#ea2323]/50 transition-all"
+              >
+                Get Started
+              </button>
+            </>
+          )}
+        </div>        {/* Mobile Menu Button */}
         <button 
           className="md:hidden p-2"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -304,18 +384,44 @@ const Navigation: React.FC<{
             <a href="#pricing" className="block text-white/80 hover:text-white transition-colors">Pricing</a>
             <a href="#faq" className="block text-white/80 hover:text-white transition-colors">FAQ</a>
             <div className="pt-4 border-t border-white/10 space-y-3">
-              <button 
-                onClick={onSignIn}
-                className="w-full px-5 py-2.5 text-sm font-semibold text-white/90 border border-white/20 rounded-xl hover:bg-white/5 transition-colors"
-              >
-                Sign In
-              </button>
-              <button 
-                onClick={onGetStarted}
-                className="w-full px-6 py-2.5 rounded-xl bg-[#ea2323] text-sm font-semibold text-white"
-              >
-                Get Started
-              </button>
+              {isLoadingUser ? (
+                <div className="flex justify-center py-4">
+                  <div className="w-8 h-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin"></div>
+                </div>
+              ) : user ? (
+                <>
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/20 bg-white/5">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ea2323] to-[#ff2e2e] flex items-center justify-center text-sm font-bold text-white">
+                      {getUserInitials(user.name)}
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm font-semibold text-white">{user.name}</p>
+                      <p className="text-xs text-white/60">ID: {user.id.slice(0, 8)}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={onDashboard}
+                    className="w-full px-6 py-2.5 rounded-xl bg-[#ea2323] text-sm font-semibold text-white"
+                  >
+                    Dashboard
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={onSignIn}
+                    className="w-full px-5 py-2.5 text-sm font-semibold text-white/90 border border-white/20 rounded-xl hover:bg-white/5 transition-colors"
+                  >
+                    Sign In
+                  </button>
+                  <button 
+                    onClick={onGetStarted}
+                    className="w-full px-6 py-2.5 rounded-xl bg-[#ea2323] text-sm font-semibold text-white"
+                  >
+                    Get Started
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

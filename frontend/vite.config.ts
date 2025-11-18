@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        allowedHosts: ['0.0.0.0', 'localhost', 'crew-7.zyniq.solutions'],
       },
       plugins: [react()],
       define: {
