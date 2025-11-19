@@ -72,7 +72,8 @@ def test_crews_get_metrics(client: TestClient, auth_headers: dict[str, str], use
     response = client.get(f"/crews/{user_crew_id}/metrics", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
-    assert "total_runs" in data
+    assert "runs" in data
+    assert "avg_duration_s" in data
 
 
 def test_crews_create_apikey(client: TestClient, auth_headers: dict[str, str], user_crew_id: str):
