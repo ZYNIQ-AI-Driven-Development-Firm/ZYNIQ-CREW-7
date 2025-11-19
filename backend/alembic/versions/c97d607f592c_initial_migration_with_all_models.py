@@ -21,10 +21,28 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema."""
     
-    # Create enum types
-    op.execute("CREATE TYPE runstatus AS ENUM ('queued', 'running', 'succeeded', 'failed', 'cancelled')")
-    op.execute("CREATE TYPE chaintype AS ENUM ('ethereum', 'polygon', 'arbitrum', 'optimism', 'local', 'test')")
-    op.execute("CREATE TYPE transactiondirection AS ENUM ('credit', 'debit')")
+    # Create enum types (if they don't exist)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE runstatus AS ENUM ('queued', 'running', 'succeeded', 'failed', 'cancelled');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE chaintype AS ENUM ('ethereum', 'polygon', 'arbitrum', 'optimism', 'local', 'test');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE transactiondirection AS ENUM ('credit', 'debit');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
     
     # Users table
     op.create_table(

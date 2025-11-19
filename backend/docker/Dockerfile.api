@@ -18,6 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code after dependencies are installed
 COPY ./app /app/app
 COPY worker.py /app/worker.py
+COPY alembic.ini /app/alembic.ini
+COPY alembic /app/alembic
 
 EXPOSE 8000
 

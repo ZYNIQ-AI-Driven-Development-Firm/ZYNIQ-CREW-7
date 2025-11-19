@@ -6,7 +6,7 @@ gunicorn==23.0.0
 # Database
 sqlalchemy==2.0.35
 psycopg[binary]==3.2.12
-alembic==1.17.1
+alembic==1.17.2
 
 # Data Validation
 pydantic==2.9.2
@@ -55,5 +55,3 @@ python-dateutil==2.9.0
 pyyaml==6.0.3
 click==8.3.0
 tenacity==8.5.0
-
-alembic==1.17.2

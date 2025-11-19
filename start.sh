@@ -93,8 +93,14 @@ if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
 fi
 echo ""
 
+# Start API container first (needed for migrations)
+echo -e "${BLUE}[6/9]${NC} Starting API container..."
+docker-compose up -d api
+echo -e "${YELLOW}⏳ Waiting for API container to be ready...${NC}"
+sleep 5
+
 # Run Alembic migrations
-echo -e "${BLUE}[6/9]${NC} Running database migrations with Alembic..."
+echo -e "${BLUE}[6.5/9]${NC} Running database migrations with Alembic..."
 echo -e "${YELLOW}  → Applying Alembic migrations${NC}"
 docker-compose exec -T api alembic upgrade head
 if [ $? -eq 0 ]; then
@@ -107,7 +113,7 @@ else
 fi
 echo ""
 
-# Create test user
+# Create test user (Note: User table schema only has id, email, password_hash, org_id, role)
 echo -e "${BLUE}[7/9]${NC} Creating test user..."
 cat << EOF | docker-compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 -- Check if user exists
@@ -116,16 +122,14 @@ BEGIN
     -- Delete existing user if present
     DELETE FROM users WHERE email = '${DEFAULT_USER_EMAIL}';
     
-    -- Create new user
-    INSERT INTO users (id, email, password_hash, name, role, created_at, updated_at)
+    -- Create new user (matching the actual schema from Alembic migration)
+    INSERT INTO users (id, email, password_hash, org_id, role)
     VALUES (
         gen_random_uuid(),
         '${DEFAULT_USER_EMAIL}',
         '\$2b\$12\$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5lW3Pe8vYvH7G', -- hashed version of Admin@123
-        'Admin User',
-        'admin',
-        NOW(),
-        NOW()
+        'default',
+        'admin'
     );
     
     RAISE NOTICE 'User created: ${DEFAULT_USER_EMAIL}';
@@ -143,7 +147,7 @@ echo ""
 
 # Create/update wallet with credits
 echo -e "${BLUE}[7.5/9]${NC} Setting up wallet credits..."
-docker exec -i docker-db-1 psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} <<EOF
+docker-compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} <<EOF
 DO \$\$
 DECLARE
     wallet_exists BOOLEAN;
@@ -174,18 +178,19 @@ else
 fi
 echo ""
 
-# Start all other services (including frontend)
-echo -e "${BLUE}[8/9]${NC} Starting all services (backend + frontend)..."
+# Start all other services (including nginx and frontend)
+echo -e "${BLUE}[8/9]${NC} Starting all services (nginx, worker, frontend, etc.)..."
 docker-compose up -d
 echo -e "${YELLOW}⏳ Waiting for services to be ready...${NC}"
 sleep 10
 
-# Wait for API to be ready
+# Wait for nginx/API to be ready on port 8080
 MAX_RETRIES=30
 RETRY_COUNT=0
+echo -e "${YELLOW}⏳ Checking API availability through nginx (port 8080)...${NC}"
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
     if curl -s http://localhost:8080/live > /dev/null 2>&1; then
-        echo -e "${GREEN}✓${NC} API is ready"
+        echo -e "${GREEN}✓${NC} API is ready (via nginx on port 8080)"
         break
     fi
     RETRY_COUNT=$((RETRY_COUNT + 1))
@@ -194,11 +199,20 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
 done
 
 if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-    echo -e "${RED}✗ API failed to start. Checking logs...${NC}"
-    echo ""
-    echo -e "${YELLOW}Last 20 lines of API logs:${NC}"
-    docker-compose logs --tail=20 api
-    exit 1
+    echo -e "${YELLOW}⚠ Nginx not responding, checking API directly on port 8000...${NC}"
+    # Try direct API connection as fallback
+    if curl -s http://localhost:8000/live > /dev/null 2>&1; then
+        echo -e "${GREEN}✓${NC} API is ready (direct on port 8000)"
+    else
+        echo -e "${RED}✗ API failed to start. Checking logs...${NC}"
+        echo ""
+        echo -e "${YELLOW}Last 20 lines of API logs:${NC}"
+        docker-compose logs --tail=20 api
+        echo ""
+        echo -e "${YELLOW}Last 20 lines of nginx logs:${NC}"
+        docker-compose logs --tail=20 nginx
+        exit 1
+    fi
 fi
 
 # Wait for Frontend to be ready
