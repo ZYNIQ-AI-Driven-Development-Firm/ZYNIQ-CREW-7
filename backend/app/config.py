@@ -28,9 +28,13 @@ class Settings(BaseModel):
     STRIPE_PRICE_CREDITS: str = os.getenv("STRIPE_PRICE_CREDITS", "")
     CREDITS_PER_RUN: int = int(os.getenv("CREDITS_PER_RUN", "10"))
 
-    CORS_ORIGINS: list[str] = Field(
-        default_factory=lambda: ["http://localhost:5173", "http://localhost:3000"]
-    )
+    @property
+    def CORS_ORIGINS(self) -> list[str]:
+        """Parse CORS_ORIGINS from comma-separated string or use default."""
+        cors_env = os.getenv("CORS_ORIGINS", "")
+        if cors_env:
+            return [origin.strip() for origin in cors_env.split(",")]
+        return ["http://localhost:5173", "http://localhost:3000"]
 
 
 settings = Settings()
