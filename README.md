@@ -77,39 +77,20 @@ ZYNIQ-CREW7/
 
 ### Environment Variables
 
-Create `.env` file in project root:
+**All environment variables are centralized in the root `.env` file.**
 
 ```bash
-# Database
-POSTGRES_USER=crew7
-POSTGRES_PASSWORD=crew7_secure_password
-POSTGRES_DB=crew7
-POSTGRES_PORT=5432
-
-# Redis
-REDIS_PORT=6379
-
-# Qdrant
-QDRANT_PORT=6333
-
-# MinIO
-MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=minioadmin
-MINIO_PORT=9000
-MINIO_CONSOLE_PORT=9001
-
-# Ollama
-OLLAMA_PORT=11434
-
-# pgAdmin
-PGADMIN_EMAIL=admin@zyniq.solutions
-PGADMIN_PASSWORD=admin@123
-PGADMIN_PORT=5050
-
-# Application
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
-OPENAI_API_KEY=sk-your-openai-key (optional)
+# Copy the example file and configure your values
+cp .env.example .env
 ```
+
+Key variables to configure:
+- Database credentials (PostgreSQL)
+- API keys (OpenAI, Gemini, AimalAPI)
+- Service endpoints (Redis, Qdrant, MinIO)
+- Frontend URLs (VITE_API_URL, VITE_WS_URL)
+
+**📚 See [docs/ENVIRONMENT_CONFIGURATION.md](docs/ENVIRONMENT_CONFIGURATION.md) for complete configuration guide.**
 
 ### Quick Start
 

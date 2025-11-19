@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from typing import Any
 
-from app.deps import auth, get_db
+from app.deps import auth, get_db, UserCtx
 from app.models.user import User
 
 router = APIRouter(prefix="/settings", tags=["settings"])
@@ -34,51 +34,62 @@ class AccountResponse(BaseModel):
 
 @router.get("/account", response_model=AccountResponse)
 async def get_account(
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
+    db: Session = Depends(get_db),
 ) -> AccountResponse:
     """Get current user account information."""
+    user = db.query(User).filter(User.id == current_user.user_id).first()
+    if not user:
+        raise HTTPException(404, "User not found")
     return AccountResponse(
-        id=str(current_user.id),
-        name=current_user.name,
-        email=current_user.email,
-        timezone=getattr(current_user, 'timezone', 'UTC'),
-        avatarUrl=getattr(current_user, 'avatar_url', None),
+        id=str(user.id),
+        name=user.name,
+        email=user.email,
+        timezone=getattr(user, 'timezone', 'UTC'),
+        avatarUrl=getattr(user, 'avatar_url', None),
     )
 
 
 @router.patch("/account", response_model=AccountResponse)
 async def update_account(
     payload: AccountUpdate,
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
     db: Session = Depends(get_db),
 ) -> AccountResponse:
     """Update account profile."""
+    user = db.query(User).filter(User.id == current_user.user_id).first()
+    if not user:
+        raise HTTPException(404, "User not found")
     if payload.name is not None:
-        current_user.name = payload.name
+        user.name = payload.name
     if payload.timezone is not None:
-        current_user.timezone = payload.timezone  # type: ignore
+        user.timezone = payload.timezone  # type: ignore
     if payload.avatarUrl is not None:
-        current_user.avatar_url = payload.avatarUrl  # type: ignore
+        user.avatar_url = payload.avatarUrl  # type: ignore
     
     db.commit()
-    db.refresh(current_user)
+    db.refresh(user)
     
     return AccountResponse(
-        id=str(current_user.id),
-        name=current_user.name,
-        email=current_user.email,
-        timezone=getattr(current_user, 'timezone', 'UTC'),
-        avatarUrl=getattr(current_user, 'avatar_url', None),
+        id=str(user.id),
+        name=user.name,
+        email=user.email,
+        timezone=getattr(user, 'timezone', 'UTC'),
+        avatarUrl=getattr(user, 'avatar_url', None),
     )
 
 
 @router.post("/account/delete-request")
 async def request_account_deletion(
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
+    db: Session = Depends(get_db),
 ) -> dict[str, str]:
     """Request account deletion (would typically send email or create ticket)."""
+    user = db.query(User).filter(User.id == current_user.user_id).first()
+    if not user:
+        raise HTTPException(404, "User not found")
     # In production, this would create a deletion request ticket
-    return {"message": f"Deletion request created for {current_user.email}"}
+    return {"message": f"Deletion request created for {user.email}"}
 
 
 # ============================================
@@ -102,7 +113,7 @@ class OrganizationResponse(BaseModel):
 
 @router.get("/org", response_model=OrganizationResponse)
 async def get_organization(
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
     db: Session = Depends(get_db),
 ) -> OrganizationResponse:
     """Get organization information."""
@@ -118,7 +129,7 @@ async def get_organization(
 @router.patch("/org", response_model=OrganizationResponse)
 async def update_organization(
     payload: OrganizationUpdate,
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
     db: Session = Depends(get_db),
 ) -> OrganizationResponse:
     """Update organization settings."""
@@ -144,7 +155,7 @@ class SecurityConfig(BaseModel):
 
 @router.get("/security", response_model=SecurityConfig)
 async def get_security_config(
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
 ) -> SecurityConfig:
     """Get security configuration."""
     return SecurityConfig(
@@ -157,7 +168,7 @@ async def get_security_config(
 @router.patch("/security", response_model=SecurityConfig)
 async def update_security_config(
     payload: SecurityConfig,
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
     db: Session = Depends(get_db),
 ) -> SecurityConfig:
     """Update security settings."""
@@ -173,7 +184,7 @@ class SAMLConfig(BaseModel):
 @router.post("/security/saml")
 async def configure_saml(
     payload: SAMLConfig,
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
 ) -> dict[str, str]:
     """Upload SAML metadata XML."""
     # In production, would parse and store SAML config
@@ -193,7 +204,7 @@ class Integration(BaseModel):
 
 @router.get("/integrations", response_model=list[Integration])
 async def list_integrations(
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
 ) -> list[Integration]:
     """List available integrations."""
     return [
@@ -212,7 +223,7 @@ class WebhookConfig(BaseModel):
 @router.patch("/integrations/webhook")
 async def update_webhook(
     payload: WebhookConfig,
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
 ) -> dict[str, str]:
     """Update alert webhook URL."""
     # In production, would store webhook URL
@@ -234,7 +245,7 @@ class NotificationPreferences(BaseModel):
 
 @router.get("/notifications", response_model=NotificationPreferences)
 async def get_notification_preferences(
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
 ) -> NotificationPreferences:
     """Get notification preferences."""
     return NotificationPreferences()
@@ -243,7 +254,7 @@ async def get_notification_preferences(
 @router.patch("/notifications", response_model=NotificationPreferences)
 async def update_notification_preferences(
     payload: NotificationPreferences,
-    current_user: User = Depends(auth),
+    current_user: UserCtx = Depends(auth),
     db: Session = Depends(get_db),
 ) -> NotificationPreferences:
     """Update notification preferences."""

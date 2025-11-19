@@ -352,6 +352,43 @@
   color: var(--accent);
 }
 
+/* Crew List Styles */
+.crew-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.crew-member {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  transition: all 0.3s ease;
+}
+
+.crew-member:hover {
+  background: rgba(234, 35, 35, 0.05);
+  border-left-width: 5px;
+  transform: translateX(5px);
+}
+
+.crew-role {
+  font-size: 1.5rem;
+  color: var(--accent);
+  margin: 0 0 0.5rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.crew-description {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  margin: 0;
+  line-height: 1.6;
+}
+
 /* Stats Row */
 .stats-row {
   display: flex;

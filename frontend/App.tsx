@@ -316,6 +316,49 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const logoRef = useRef<HTMLImageElement>(null);
+
+  // Logo animation sequence
+  useEffect(() => {
+    if (!logoRef.current) return;
+
+    const logos = [
+      '/new-logo-sign-only-white-frame.png',
+      '/new-logo-sign-only-white.png',
+      '/new-logo-sign-only.png'
+    ];
+    let currentIndex = 0;
+
+    const animateLogo = () => {
+      if (!logoRef.current) return;
+
+      (anime as any)({
+        targets: logoRef.current,
+        opacity: [1, 0],
+        duration: 800,
+        easing: 'easeInOutQuad',
+        complete: () => {
+          if (!logoRef.current) return;
+          currentIndex = (currentIndex + 1) % logos.length;
+          logoRef.current.src = logos[currentIndex];
+          
+          (anime as any)({
+            targets: logoRef.current,
+            opacity: [0, 1],
+            duration: 800,
+            easing: 'easeInOutQuad',
+            complete: () => {
+              setTimeout(animateLogo, 2000);
+            }
+          });
+        }
+      });
+    };
+
+    setTimeout(animateLogo, 2000);
+  }, []);
 
   const isSignUp = mode === 'signUp';
   const canSubmit = formData.email.trim() && formData.password.trim() && (!isSignUp || formData.name.trim());
@@ -355,106 +398,170 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-gradient-to-br from-[#1a1f2e] via-[#232b3d] to-[#2d3748] text-[#f0f3f9]">
-      <div className="relative flex h-full w-full items-center justify-center px-6 py-10 sm:px-10">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#ea2323]/20 blur-3xl" />
-          <div className="absolute bottom-0 right-[-40px] h-80 w-80 rounded-full bg-[#ea2323]/16 blur-3xl" />
-        </div>
-        <div className="relative z-10 w-full max-w-5xl">
-          <div className="grid gap-10 rounded-[32px] bg-slate-900/80 p-8 shadow-[0_40px_120px_rgba(0,0,0,0.4)] lg:grid-cols-[1.05fr,0.95fr] lg:p-12 border border-white/10">
-            <div className="space-y-6">
-              <Crew7Logo variant="horizontal" size="sm" className="mb-2" />
-              <h1 className="text-3xl font-semibold leading-tight text-white md:text-4xl lg:text-[2.8rem]">
-                Assemble your AI crew in minutes, not months.
-              </h1>
-              <p className="text-sm text-[#b8c2d8] md:text-base">
-                Sign in to sync your workspaces or create an account to unlock personalized project orchestration, shared context, and seamless collaboration across your team.
-              </p>
-              <div className="grid gap-4 text-sm text-[#cbd4e6]">
-                <HighlightCard title="Unified Workspace" description="Launch coordinated frontend, backend, and AI specialists inside a single interface." />
-                <HighlightCard title="Context-Aware" description="Bring your repos, briefs, and documents together so every response is instantly relevant." />
-                <HighlightCard title="Ship Faster" description="Use curated prompt templates and guided orchestration to move from idea to production-ready deliverables." />
-              </div>
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-[#1a1f2e] via-[#232b3d] to-[#2d3748] text-[#f0f3f9] relative">
+      {/* Background blur effects */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#ea2323]/20 blur-3xl" />
+        <div className="absolute bottom-0 right-[-40px] h-80 w-80 rounded-full bg-[#ea2323]/16 blur-3xl" />
+      </div>
+
+      {/* Centered auth form */}
+      <div className="relative z-10 flex h-full w-full items-center justify-center px-6">
+        <div 
+          className="relative w-full max-w-md"
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+        >
+          {/* Vaporized blur overlay with logo */}
+          <div 
+            className="absolute inset-0 rounded-[28px] overflow-hidden pointer-events-none z-20"
+            style={{
+              clipPath: isHovering 
+                ? 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)' 
+                : 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
+              transition: isHovering 
+                ? 'clip-path 1.2s cubic-bezier(0.645, 0.045, 0.355, 1.000), opacity 1.2s ease-out' 
+                : 'clip-path 1.5s cubic-bezier(0.175, 0.885, 0.320, 1.275), opacity 1.5s ease-in',
+              opacity: isHovering ? 0 : 1,
+              filter: isHovering 
+                ? 'blur(20px) brightness(1.5)' 
+                : 'blur(0px) brightness(1) saturate(1.2)',
+              transform: isHovering 
+                ? 'scale(1.05) rotate(0.5deg)' 
+                : 'scale(1) rotate(0deg)',
+            }}
+          >
+            <div 
+              className="absolute inset-0 backdrop-blur-xl bg-slate-900/60 border border-white/20 rounded-[28px]"
+              style={{
+                background: isHovering 
+                  ? 'radial-gradient(circle at center, rgba(30, 38, 53, 0.4), transparent)' 
+                  : 'linear-gradient(135deg, rgba(30, 38, 53, 0.8), rgba(45, 55, 72, 0.6))',
+                transition: 'background 1s ease-in-out',
+              }}
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img 
+                ref={logoRef}
+                src="/new-logo-sign-only-white-frame.png" 
+                alt="Crew-7 Logo" 
+                className="w-32 h-32 object-contain opacity-90"
+                style={{
+                  filter: isHovering 
+                    ? 'drop-shadow(0 0 30px rgba(234, 35, 35, 0.8)) brightness(1.5)' 
+                    : 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.3))',
+                  transition: 'filter 1s ease-in-out',
+                }}
+              />
             </div>
-            <div className="rounded-[28px] border border-white/15 bg-[#1e2635] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.5)] md:p-8">
-              <div className="flex items-center justify-between rounded-full bg-[#283347] p-1">
-                <button
-                  type="button"
-                  onClick={() => setMode('signIn')}
-                  className={classNames(
-                    'w-1/2 rounded-full px-4 py-2 text-sm font-semibold transition',
-                    mode === 'signIn' ? 'bg-[#ea2323] text-white shadow-[#ea232333]' : 'text-[#9099b4]'
-                  )}
-                >
-                  Sign in
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode('signUp')}
-                  className={classNames(
-                    'w-1/2 rounded-full px-4 py-2 text-sm font-semibold transition',
-                    mode === 'signUp' ? 'bg-[#ea2323] text-white shadow-[#ea232333]' : 'text-[#9099b4]'
-                  )}
-                >
-                  Create account
-                </button>
-              </div>
-              <form className="mt-8 space-y-5" onSubmit={handleSubmit} noValidate>
-                {isSignUp ? (
-                  <label className="block text-sm font-medium text-[#c0c6d8]">
-                    <span className="mb-2 inline-block">Full name</span>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={handleChange('name')}
-                      placeholder="Taylor Edison"
-                      className="w-full rounded-xl border border-[#3d4759] bg-[#1a2332] px-4 py-3 text-[#f8fafc] shadow-sm placeholder:text-[#8892a8] focus:border-[#ea2323] focus:outline-none focus:ring-2 focus:ring-[#ea2323]/30"
-                    />
-                  </label>
-                ) : null}
+          </div>
+
+          {/* Auth form */}
+          <div className="relative rounded-[28px] border border-white/15 bg-[#1e2635] p-8 shadow-[0_28px_80px_rgba(0,0,0,0.5)]">
+            {/* Toggle buttons */}
+            <div className="flex items-center justify-between rounded-full bg-[#283347] p-1 mb-8">
+              <button
+                type="button"
+                onClick={() => setMode('signIn')}
+                className={classNames(
+                  'w-1/2 rounded-full px-4 py-2 text-sm font-semibold transition',
+                  mode === 'signIn' ? 'bg-[#ea2323] text-white shadow-lg' : 'text-[#9099b4] hover:text-white'
+                )}
+              >
+                Sign in
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('signUp')}
+                className={classNames(
+                  'w-1/2 rounded-full px-4 py-2 text-sm font-semibold transition',
+                  mode === 'signUp' ? 'bg-[#ea2323] text-white shadow-lg' : 'text-[#9099b4] hover:text-white'
+                )}
+              >
+                Create account
+              </button>
+            </div>
+
+            {/* Form */}
+            <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+              {isSignUp ? (
                 <label className="block text-sm font-medium text-[#c0c6d8]">
-                  <span className="mb-2 inline-block">Email</span>
+                  <span className="mb-2 inline-block">Full name</span>
                   <input
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange('email')}
-                    placeholder="john@company.com"
-                    className="w-full rounded-xl border border-[#3d4759] bg-[#1a2332] px-4 py-3 text-[#f8fafc] shadow-sm placeholder:text-[#8892a8] focus:border-[#ea2323] focus:outline-none focus:ring-2 focus:ring-[#ea2323]/30"
-                    required
+                    type="text"
+                    value={formData.name}
+                    onChange={handleChange('name')}
+                    placeholder="Taylor Edison"
+                    className="w-full rounded-xl border border-[#3d4759] bg-[#1a2332] px-4 py-3 text-[#f8fafc] shadow-sm placeholder:text-[#8892a8] focus:border-[#ea2323] focus:outline-none focus:ring-2 focus:ring-[#ea2323]/30 transition"
                   />
                 </label>
-                <label className="block text-sm font-medium text-[#c0c6d8]">
-                  <span className="mb-2 inline-block">Password</span>
+              ) : null}
+              
+              <label className="block text-sm font-medium text-[#c0c6d8]">
+                <span className="mb-2 inline-block">Email</span>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange('email')}
+                  placeholder="john@company.com"
+                  className="w-full rounded-xl border border-[#3d4759] bg-[#1a2332] px-4 py-3 text-[#f8fafc] shadow-sm placeholder:text-[#8892a8] focus:border-[#ea2323] focus:outline-none focus:ring-2 focus:ring-[#ea2323]/30 transition"
+                  required
+                />
+              </label>
+
+              <label className="block text-sm font-medium text-[#c0c6d8]">
+                <span className="mb-2 inline-block">Password</span>
+                <div className="relative">
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={formData.password}
                     onChange={handleChange('password')}
                     placeholder="••••••••"
-                    className="w-full rounded-xl border border-[#3d4759] bg-[#1a2332] px-4 py-3 text-[#f8fafc] shadow-sm placeholder:text-[#8892a8] focus:border-[#ea2323] focus:outline-none focus:ring-2 focus:ring-[#ea2323]/30"
+                    className="w-full rounded-xl border border-[#3d4759] bg-[#1a2332] px-4 py-3 pr-12 text-[#f8fafc] shadow-sm placeholder:text-[#8892a8] focus:border-[#ea2323] focus:outline-none focus:ring-2 focus:ring-[#ea2323]/30 transition"
                     required
                   />
-                </label>
-                {error && (
-                  <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
-                    {error}
-                  </div>
-                )}
-                <button
-                  type="submit"
-                  disabled={!canSubmit || loading}
-                  className="w-full rounded-xl bg-[#ea2323] py-3 text-sm font-semibold text-white shadow-lg shadow-[#ea232336] transition hover:bg-[#c81f1f] disabled:cursor-not-allowed disabled:bg-[#6b1c1c]"
-                >
-                  {loading ? 'Please wait...' : (isSignUp ? 'Create your account' : 'Sign in to Crew-7')}
-                </button>
-              </form>
-              <div className="mt-6 text-xs text-[#acb6cf]">
-                <p>
-                  By continuing you agree to our{' '}
-                  <a className="font-semibold text-[#ea2323] hover:text-[#ff4040]" href="#">Terms of Service</a> and{' '}
-                  <a className="font-semibold text-[#ea2323] hover:text-[#ff4040]" href="#">Privacy Policy</a>.
-                </p>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8892a8] hover:text-[#ea2323] transition"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </label>
+
+              {error && (
+                <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={!canSubmit || loading}
+                className="w-full rounded-xl bg-[#ea2323] py-3 text-sm font-semibold text-white shadow-lg shadow-[#ea232336] transition hover:bg-[#c81f1f] hover:shadow-xl disabled:cursor-not-allowed disabled:bg-[#6b1c1c] disabled:shadow-none"
+              >
+                {loading ? 'Please wait...' : (isSignUp ? 'Create your account' : 'Sign in to Crew-7')}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center text-xs text-[#acb6cf]">
+              <p>
+                By continuing you agree to our{' '}
+                <a className="font-semibold text-[#ea2323] hover:text-[#ff4040] transition" href="#">Terms</a>
+                {' '}&{' '}
+                <a className="font-semibold text-[#ea2323] hover:text-[#ff4040] transition" href="#">Privacy</a>
+              </p>
             </div>
           </div>
         </div>

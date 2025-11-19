@@ -118,20 +118,51 @@ sleep 5
 
 # Run Alembic migrations
 echo -e "${BLUE}[6.5/9]${NC} Running database migrations with Alembic..."
-echo -e "${YELLOW}  → Applying Alembic migrations${NC}"
-docker-compose exec -T api alembic upgrade head
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}  ✓ All migrations applied successfully${NC}"
+
+# Check if alembic_version table exists
+echo -e "${YELLOW}  → Checking migration status...${NC}"
+ALEMBIC_TABLE_EXISTS=$(docker-compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_name='alembic_version';")
+
+if [ "$ALEMBIC_TABLE_EXISTS" -eq "0" ]; then
+    # First time setup - check if tables already exist
+    USERS_TABLE_EXISTS=$(docker-compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_name='users';")
+    
+    if [ "$USERS_TABLE_EXISTS" -gt "0" ]; then
+        echo -e "${YELLOW}  → Tables exist but no migration history found${NC}"
+        echo -e "${YELLOW}  → Stamping database as up-to-date (marking current revision)${NC}"
+        docker-compose exec -T api alembic stamp head
+        echo -e "${GREEN}  ✓ Database stamped with current migration version${NC}"
+    else
+        echo -e "${YELLOW}  → Running initial migration${NC}"
+        docker-compose exec -T api alembic upgrade head
+        if [ $? -eq 0 ]; then
+            echo -e "${GREEN}  ✓ Initial migration applied successfully${NC}"
+        else
+            echo -e "${RED}  ✗ Migration failed${NC}"
+            exit 1
+        fi
+    fi
 else
-    echo -e "${RED}  ✗ Migration failed${NC}"
-    echo -e "${YELLOW}  Checking migration status...${NC}"
-    docker-compose exec -T api alembic current
-    exit 1
+    # Migration history exists - run normal upgrade
+    echo -e "${YELLOW}  → Applying pending migrations${NC}"
+    docker-compose exec -T api alembic upgrade head
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}  ✓ All migrations applied successfully${NC}"
+    else
+        echo -e "${RED}  ✗ Migration failed${NC}"
+        echo -e "${YELLOW}  Checking migration status...${NC}"
+        docker-compose exec -T api alembic current
+        exit 1
+    fi
 fi
 echo ""
 
 # Create test user (Note: User table schema only has id, email, password_hash, org_id, role)
 echo -e "${BLUE}[7/9]${NC} Creating test user..."
+
+# Generate password hash using Python/bcrypt
+PASSWORD_HASH=$(docker-compose exec -T api python -c "import bcrypt; print(bcrypt.hashpw(b'${DEFAULT_USER_PASSWORD}', bcrypt.gensalt()).decode('utf-8'))")
+
 cat << EOF | docker-compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 -- Check if user exists
 DO \$\$
@@ -144,7 +175,7 @@ BEGIN
     VALUES (
         gen_random_uuid(),
         '${DEFAULT_USER_EMAIL}',
-        '\$2b\$12\$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5lW3Pe8vYvH7G', -- hashed version of Admin@123
+        '${PASSWORD_HASH}',
         'default',
         'admin'
     );

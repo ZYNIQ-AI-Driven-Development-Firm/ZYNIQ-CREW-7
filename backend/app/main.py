@@ -21,12 +21,12 @@ from app.routes import (
     pricing,
     ratings,
     runs,
-    settings,
     stream,
     tools,
     # wallet,  # Temporarily disabled - needs UserCtx migration
     ws,
 )
+from app.routes import settings as settings_router
 from app.services.bootstrap import ensure_seed_crews
 from app.services.cache_warming import warm_all_caches
 from app.infra.telemetry import setup_logging, setup_tracing
@@ -101,7 +101,7 @@ app.include_router(metadata.router)
 app.include_router(pricing.router)
 app.include_router(ratings.router)
 app.include_router(runs.router)
-app.include_router(settings.router)
+app.include_router(settings_router.router)
 app.include_router(graph.router)
 app.include_router(stream.router)
 app.include_router(ws.router)

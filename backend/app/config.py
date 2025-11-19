@@ -29,7 +29,7 @@ class Settings(BaseModel):
     CREDITS_PER_RUN: int = int(os.getenv("CREDITS_PER_RUN", "10"))
 
     CORS_ORIGINS: list[str] = Field(
-        default_factory=lambda: ["http://localhost:5173", "http://localhost:3000"]
+        default_factory=lambda: os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
     )
 
 

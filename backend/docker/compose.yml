@@ -4,6 +4,8 @@ services:
     build:
       context: ../../frontend
       dockerfile: Dockerfile.dev
+    env_file:
+      - ../../.env
     environment:
       - VITE_API_URL=http://localhost:8080
     volumes:

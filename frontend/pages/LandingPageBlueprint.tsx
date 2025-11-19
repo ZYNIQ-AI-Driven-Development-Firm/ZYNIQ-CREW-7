@@ -143,13 +143,8 @@ const Navigation: React.FC<{ onGetStarted: () => void; scrollToSection: (id: str
         <a className="nav-link" onClick={() => scrollToSection('sec-5')}>Meet the Crew</a>
         <a className="nav-link" onClick={() => scrollToSection('sec-6')}>Pricing</a>
         <a className="nav-link" onClick={() => scrollToSection('sec-7')}>Get Started</a>
-        <a href="/pages/presentation.html" className="nav-icon-link" title="View Presentation">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7h9v6h-9z" />
-          </svg>
-        </a>
-        <button onClick={onGetStarted} className="nav-connect-btn">Launch App</button>
+        <a className="nav-link" href="/presentation" target="_blank">Presentation</a>
+        <button onClick={onGetStarted} className="nav-connect-btn">My Crew-7</button>
       </nav>
     </header>
   );
@@ -296,14 +291,32 @@ const Section5: React.FC = () => (
     <div className="section-label"><span>05</span> / Meet the Crew</div>
     <div className="content-wrapper">
       <h2 className="section-title">Meet Your AI Crew</h2>
-      <p className="section-text">
-        <strong>Orchestrator (Gemini):</strong> Plans missions, breaks down complex tasks, maintains context<br />
-        <strong>Backend Engineer:</strong> Builds APIs, databases, and server infrastructure<br />
-        <strong>Frontend Developer:</strong> Creates responsive UIs and user experiences<br />
-        <strong>Research Analyst:</strong> Processes data and generates actionable insights<br />
-        <strong>QA Specialist:</strong> Tests, validates, and ensures quality<br />
-        <strong>DevOps Engineer:</strong> Manages deployment, monitoring, and infrastructure
-      </p>
+      <div className="crew-list">
+        <div className="crew-member">
+          <h3 className="crew-role">Orchestrator (Gemini)</h3>
+          <p className="crew-description">Plans missions, breaks down complex tasks, maintains context</p>
+        </div>
+        <div className="crew-member">
+          <h3 className="crew-role">Backend Engineer</h3>
+          <p className="crew-description">Builds APIs, databases, and server infrastructure</p>
+        </div>
+        <div className="crew-member">
+          <h3 className="crew-role">Frontend Developer</h3>
+          <p className="crew-description">Creates responsive UIs and user experiences</p>
+        </div>
+        <div className="crew-member">
+          <h3 className="crew-role">Research Analyst</h3>
+          <p className="crew-description">Processes data and generates actionable insights</p>
+        </div>
+        <div className="crew-member">
+          <h3 className="crew-role">QA Specialist</h3>
+          <p className="crew-description">Tests, validates, and ensures quality</p>
+        </div>
+        <div className="crew-member">
+          <h3 className="crew-role">DevOps Engineer</h3>
+          <p className="crew-description">Manages deployment, monitoring, and infrastructure</p>
+        </div>
+      </div>
     </div>
   </section>
 );
