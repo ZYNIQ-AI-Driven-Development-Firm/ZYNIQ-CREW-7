@@ -131,7 +131,7 @@ async def rate_crew(
     # Check if user already rated this crew
     existing_rating = db.query(CrewRating).filter(
         CrewRating.crew_id == crew_id,
-        CrewRating.user_id == user.user_id,
+        CrewRating.user_id == UUID(user.user_id),
     ).first()
     
     if existing_rating:
@@ -146,7 +146,7 @@ async def rate_crew(
         # Create new rating
         rating_record = CrewRating(
             crew_id=crew_id,
-            user_id=user.user_id,
+            user_id=UUID(user.user_id),
             rating=request.rating,
             comment=request.comment,
             run_id=request.run_id,
