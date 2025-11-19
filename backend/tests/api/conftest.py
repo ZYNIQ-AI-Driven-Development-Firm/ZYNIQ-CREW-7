@@ -7,12 +7,18 @@ from __future__ import annotations
 
 import atexit
 import os
+import sys
 import tempfile
 from typing import Callable
+from pathlib import Path
 
 import fakeredis
 import pytest
 from fastapi.testclient import TestClient
+
+# Add backend directory to Python path
+backend_dir = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(backend_dir))
 
 # Configure test environment before importing the app
 if "APP_SECRET" not in os.environ:

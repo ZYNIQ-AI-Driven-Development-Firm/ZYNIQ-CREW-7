@@ -19,11 +19,11 @@ def test_liveness_check(client: TestClient):
     """Test GET /live"""
     response = client.get("/live")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json() == {"ok": True}
 
 
 def test_readiness_check(client: TestClient):
     """Test GET /ready"""
     response = client.get("/ready")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json() == {"ok": True}

@@ -5,9 +5,10 @@ from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import Column, String, Text
+from sqlalchemy import Column, String, Text, JSON
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PGUUID
 from sqlalchemy.orm import Session
+from sqlalchemy.types import TypeDecorator
 
 from app.deps import UserCtx, auth, get_db
 from app.infra.db import Base
@@ -18,13 +19,26 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/graph", tags=["graph"])
 
 
+# Use JSON for SQLite, JSONB for PostgreSQL
+class JSONBCompat(TypeDecorator):
+    """JSONB compatible type that works with both PostgreSQL and SQLite."""
+    impl = JSON
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(JSONB())
+        else:
+            return dialect.type_descriptor(JSON())
+
+
 # Graph layout persistence model
 class CrewGraph(Base):
     __tablename__ = "crew_graphs"
     
     crew_id = Column(PGUUID(as_uuid=True), primary_key=True)
     org_id = Column(String, nullable=False, index=True)
-    layout_json = Column(JSONB, nullable=False, default=dict)
+    layout_json = Column(JSONBCompat, nullable=False, default=dict)
 
 
 @router.get("/{crew_id}")
