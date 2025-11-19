@@ -472,7 +472,115 @@ docker compose -f backend/docker/compose.yml logs api | grep -i agent
 
 ---
 
-## 📈 Performance Expectations
+## �️ Database Migrations with Alembic
+
+### What is Alembic?
+
+Alembic is a database migration tool for SQLAlchemy that provides:
+- **Auto-generation** - Creates migrations from model changes
+- **Version control** - Tracks schema evolution over time
+- **Rollback support** - Can upgrade/downgrade to any version
+- **Production-ready** - Safe for production deployments
+
+### Migration Files
+
+All migrations are in: `backend/alembic/versions/`
+
+Current migration includes:
+- ✅ 15 tables (users, wallets, crews, agents, runs, ratings, crypto, etc.)
+- ✅ 3 enum types (runstatus, chaintype, transactiondirection)
+- ✅ Indexes for performance
+- ✅ Foreign key relationships
+- ✅ Duplicate protection with DO blocks
+
+### Using Alembic
+
+**Check Migration Status:**
+```bash
+cd backend
+./db-migrate.sh current    # Show current version
+./db-migrate.sh history    # Show all migrations
+```
+
+**Apply Migrations:**
+```bash
+./db-migrate.sh upgrade    # Apply all pending
+```
+
+**Create New Migration:**
+```bash
+# 1. Modify models in app/models/
+# 2. Generate migration
+./db-migrate.sh create "add new column"
+
+# 3. Review generated file
+cat alembic/versions/xxxxx_add_new_column.py
+
+# 4. Apply migration
+./db-migrate.sh upgrade
+```
+
+**Rollback Migration:**
+```bash
+./db-migrate.sh downgrade  # Go back one version
+```
+
+### Alembic vs SQL Files
+
+**Old Approach (SQL Files):**
+- ❌ Manual SQL writing
+- ❌ Hard to track which ran
+- ❌ No rollback support
+- ❌ Duplicate errors on re-run
+
+**New Approach (Alembic):**
+- ✅ Auto-generated from models
+- ✅ Version tracking built-in
+- ✅ Upgrade/downgrade support
+- ✅ Handles duplicates gracefully
+- ✅ Production-ready
+
+### Integration with start.sh
+
+The startup script automatically runs:
+
+```bash
+docker-compose exec -T api alembic upgrade head
+```
+
+This ensures:
+1. All migrations are applied in order
+2. Database schema matches current models
+3. Duplicate enums are handled gracefully
+4. Tables are created only if missing
+
+### Troubleshooting Migrations
+
+**Check if migrations applied:**
+```bash
+docker compose -f backend/docker/compose.yml exec api alembic current
+```
+
+**View migration history:**
+```bash
+docker compose -f backend/docker/compose.yml exec api alembic history --verbose
+```
+
+**Manually apply migrations:**
+```bash
+docker compose -f backend/docker/compose.yml exec api alembic upgrade head
+```
+
+**Reset database (clean slate):**
+```bash
+# This deletes ALL data
+docker compose -f backend/docker/compose.yml down -v
+./start.sh
+```
+
+---
+
+## �📈 Performance Expectations
 
 ### API Response Times (Without Cache)
 - List crews: 50-150ms
