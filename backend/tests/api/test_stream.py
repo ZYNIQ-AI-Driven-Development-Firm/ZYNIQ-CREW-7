@@ -6,6 +6,7 @@ Router: app.routes.stream
 """
 import pytest
 from fastapi.testclient import TestClient
+from unittest.mock import AsyncMock, patch
 
 
 def test_stream_events_run(
@@ -23,7 +24,16 @@ def test_stream_events_run(
     )
     run_id = create_resp.json()["id"]
     
-    # Note: SSE endpoints return different response format
-    # Just check the endpoint is accessible
-    response = client.get(f"/events/runs/{run_id}", headers=auth_headers)
-    assert response.status_code in [200, 202]
+    # Mock the pubsub bus to avoid hanging on stream consumption
+    async def mock_consume(run_id):
+        """Mock consumer that immediately yields a done event"""
+        yield {"type": "boot"}
+        yield {"type": "done"}
+    
+    with patch("app.routes.stream.bus") as mock_bus:
+        mock_bus.consume = mock_consume
+        
+        # Test that endpoint returns proper SSE response
+        response = client.get(f"/events/runs/{run_id}", headers=auth_headers)
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "text/event-stream; charset=utf-8"
