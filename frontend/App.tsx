@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import * as anime from 'animejs';
+import { animate, remove, stagger } from 'animejs';
 
 import ChatInput from './components/ChatInput';
 import Dashboard, { type RunLogEvent } from './components/Dashboard';
@@ -1098,9 +1098,8 @@ const ShellSidebar: React.FC<ShellSidebarProps> = ({ activeSection, onNavigate, 
   useEffect(() => {
     if (!sidebarRef.current) return;
 
-    anime.remove(sidebarRef.current);
-    (anime as any)({
-      targets: sidebarRef.current,
+    remove(sidebarRef.current);
+    animate(sidebarRef.current, {
       width: isExpanded ? 240 : 64,
       duration: 200,
       easing: 'easeOutQuad',
@@ -1108,13 +1107,12 @@ const ShellSidebar: React.FC<ShellSidebarProps> = ({ activeSection, onNavigate, 
 
     if (navRef.current) {
       const navItems = navRef.current.querySelectorAll('button');
-      anime.remove(navItems);
-      (anime as any)({
-        targets: navItems,
+      remove(navItems);
+      animate(navItems, {
         opacity: [0.7, 1],
         scale: [0.98, 1],
         duration: 150,
-        delay: anime.stagger(20),
+        delay: stagger(20),
         easing: 'easeOutQuad',
       });
     }
