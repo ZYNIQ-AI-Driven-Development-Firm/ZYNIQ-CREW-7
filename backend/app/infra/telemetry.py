@@ -15,11 +15,18 @@ OTEL_ENDPOINT = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:
 
 
 def setup_tracing() -> None:
-    resource = Resource.create({"service.name": SERVICE_NAME})
-    provider = TracerProvider(resource=resource)
-    exporter = OTLPSpanExporter(endpoint=f"{OTEL_ENDPOINT}/v1/traces")
-    provider.add_span_processor(BatchSpanProcessor(exporter))
-    trace.set_tracer_provider(provider)
+    # Suppress the TracerProvider override warning from multiple Gunicorn workers
+    logging.getLogger("opentelemetry.trace").setLevel(logging.ERROR)
+    
+    try:
+        resource = Resource.create({"service.name": SERVICE_NAME})
+        provider = TracerProvider(resource=resource)
+        exporter = OTLPSpanExporter(endpoint=f"{OTEL_ENDPOINT}/v1/traces")
+        provider.add_span_processor(BatchSpanProcessor(exporter))
+        trace.set_tracer_provider(provider)
+    except Exception:
+        # Silently ignore if tracer provider already set by another worker
+        pass
 
 
 def setup_logging() -> None:

@@ -102,8 +102,8 @@
   top: 0;
   left: 0;
   right: 0;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
   align-items: center;
   padding: 1rem 2rem;
   background: rgba(5, 7, 18, 0.85);
@@ -137,6 +137,13 @@
 .nav-links {
   display: flex;
   gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-actions {
+  display: flex;
+  justify-content: flex-end;
   align-items: center;
 }
 
@@ -254,9 +261,10 @@
 }
 
 .hero-logo {
-  max-width: 400px;
-  margin: 0 auto 2rem;
+  max-width: 280px;
+  margin: 10% auto 2rem;
   filter: drop-shadow(0 0 30px var(--glow));
+  opacity: 0;
 }
 
 .hero-title {
@@ -313,11 +321,12 @@
 
 .section-label {
   position: absolute;
-  top: 4rem;
+  top: 8rem;
   left: 4rem;
   font-size: 1rem;
   color: var(--text-dim);
   letter-spacing: 0.1em;
+  z-index: 10;
 }
 
 .section-label span {
@@ -497,4 +506,58 @@
 .nav-connect-btn,
 .cta-button {
   animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Floating Navigation Button */
+.floating-nav-btn {
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  background: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 999;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 0 20px var(--glow);
+}
+
+.floating-nav-btn svg {
+  width: 24px;
+  height: 24px;
+  color: #fff;
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.floating-nav-btn:hover {
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 0 40px var(--glow);
+  background: #ff2a2a;
+}
+
+.floating-nav-btn.flip-up svg {
+  transform: rotate(180deg);
+}
+
+.floating-nav-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .floating-nav-btn {
+    right: 1rem;
+    width: 45px;
+    height: 45px;
+  }
+  
+  .floating-nav-btn svg {
+    width: 20px;
+    height: 20px;
+  }
 }

@@ -14,8 +14,12 @@ interface LandingPageBlueprintProps {
 
 export const LandingPageBlueprint: React.FC<LandingPageBlueprintProps> = ({ onNavigate }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [currentSection, setCurrentSection] = useState(0);
+  const [isAtBottom, setIsAtBottom] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const geometricLinesRef = useRef<SVGSVGElement>(null);
+
+  const sections = ['hero', 'sec-1', 'sec-2', 'sec-3', 'sec-4', 'sec-5', 'sec-6', 'sec-7'];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +27,20 @@ export const LandingPageBlueprint: React.FC<LandingPageBlueprintProps> = ({ onNa
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = scrollTop / docHeight;
       setScrollProgress(progress);
+      
+      // Check if at bottom (within 100px)
+      const atBottom = scrollTop + window.innerHeight >= document.documentElement.scrollHeight - 100;
+      setIsAtBottom(atBottom);
+
+      // Detect current section
+      const sectionElements = sections.map(id => document.getElementById(id)).filter(Boolean);
+      let current = 0;
+      sectionElements.forEach((el, idx) => {
+        if (el && el.offsetTop <= scrollTop + window.innerHeight / 2) {
+          current = idx;
+        }
+      });
+      setCurrentSection(current);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -56,6 +74,20 @@ export const LandingPageBlueprint: React.FC<LandingPageBlueprintProps> = ({ onNa
     }
   };
 
+  const handleFloatingNavClick = () => {
+    if (isAtBottom) {
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Scroll to next section
+      const nextIndex = Math.min(currentSection + 1, sections.length - 1);
+      const nextSection = document.getElementById(sections[nextIndex]);
+      if (nextSection) {
+        nextSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <div ref={containerRef} className="blueprint-landing">
       {/* Page Frame */}
@@ -69,6 +101,9 @@ export const LandingPageBlueprint: React.FC<LandingPageBlueprintProps> = ({ onNa
 
       {/* Navigation */}
       <Navigation onGetStarted={handleGetStarted} scrollToSection={scrollToSection} />
+
+      {/* Floating Navigation Button */}
+      <FloatingNavButton onClick={handleFloatingNavClick} isAtBottom={isAtBottom} />
 
       {/* Hero Section */}
       <HeroSection onGetStarted={handleGetStarted} />
@@ -97,6 +132,21 @@ export const LandingPageBlueprint: React.FC<LandingPageBlueprintProps> = ({ onNa
       {/* Footer */}
       <Footer />
     </div>
+  );
+};
+
+// Floating Navigation Button
+const FloatingNavButton: React.FC<{ onClick: () => void; isAtBottom: boolean }> = ({ onClick, isAtBottom }) => {
+  return (
+    <button 
+      className={`floating-nav-btn ${isAtBottom ? 'flip-up' : ''}`}
+      onClick={onClick}
+      aria-label={isAtBottom ? 'Scroll to top' : 'Next section'}
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 5v14M19 12l-7 7-7-7" />
+      </svg>
+    </button>
   );
 };
 
@@ -135,33 +185,86 @@ const Navigation: React.FC<{ onGetStarted: () => void; scrollToSection: (id: str
         </div>
       </div>
       <nav className="nav-links">
-        <a className="nav-link" onClick={() => scrollToSection('hero')}>Home</a>
-        <a className="nav-link" onClick={() => scrollToSection('sec-1')}>Why Crew-7</a>
-        <a className="nav-link" onClick={() => scrollToSection('sec-2')}>The Science</a>
-        <a className="nav-link" onClick={() => scrollToSection('sec-3')}>How It Works</a>
-        <a className="nav-link" onClick={() => scrollToSection('sec-4')}>Use Cases</a>
-        <a className="nav-link" onClick={() => scrollToSection('sec-5')}>Meet the Crew</a>
-        <a className="nav-link" onClick={() => scrollToSection('sec-6')}>Pricing</a>
-        <a className="nav-link" onClick={() => scrollToSection('sec-7')}>Get Started</a>
+        <a className="nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('hero'); }}>Home</a>
+        <a className="nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('sec-1'); }}>Why Crew-7</a>
+        <a className="nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('sec-2'); }}>The Science</a>
+        <a className="nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('sec-3'); }}>How It Works</a>
+        <a className="nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('sec-4'); }}>Use Cases</a>
+        <a className="nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('sec-5'); }}>Meet the Crew</a>
+        <a className="nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('sec-6'); }}>Pricing</a>
+        <a className="nav-link" onClick={(e) => { e.preventDefault(); scrollToSection('sec-7'); }}>Get Started</a>
         <a className="nav-link" href="/presentation" target="_blank">Presentation</a>
-        <button onClick={onGetStarted} className="nav-connect-btn">My Crew-7</button>
       </nav>
+      <div className="nav-actions">
+        <button onClick={onGetStarted} className="nav-connect-btn">My Crew-7</button>
+      </div>
     </header>
   );
 };
 
 // Hero Section
 const HeroSection: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
+  const heroLinesRef = useRef<HTMLDivElement>(null);
+  const heroLogoRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Animate hero lines on scroll
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const heroSection = document.getElementById('hero');
+      if (!heroSection || !heroLinesRef.current) return;
+
+      const sectionTop = heroSection.offsetTop;
+      const sectionHeight = heroSection.offsetHeight;
+      const scrollProgress = Math.max(0, Math.min(1, (scrollY - sectionTop + window.innerHeight) / sectionHeight));
+
+      // Animate lines based on scroll
+      const lines = heroLinesRef.current.querySelectorAll('.hero-line');
+      lines.forEach((line, index) => {
+        const delay = index * 0.1;
+        const progress = Math.max(0, Math.min(1, (scrollProgress - delay) * 2));
+        (line as HTMLElement).style.opacity = String(progress);
+        (line as HTMLElement).style.transform = `scale(${0.5 + progress * 0.5})`;
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial call
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Logo entrance animation - animate the container, not the img element
+    if (heroLogoRef.current) {
+      const anime = (window as any).anime;
+      if (anime) {
+        anime({
+          targets: heroLogoRef.current,
+          scale: [0.8, 1],
+          opacity: [0, 1],
+          duration: 1200,
+          easing: 'easeOutElastic(1, .8)'
+        });
+      }
+    }
+  }, []);
+
   return (
     <section id="hero" className="hero-section">
-      <div className="hero-container">
+      <div className="hero-container" ref={heroLinesRef}>
         {/* Sci-Fi Lines */}
         <div className="hero-line line-top" />
         <div className="hero-line line-bottom" />
         <div className="hero-line line-left" />
         <div className="hero-line line-right" />
         
-        <img src="/public/new-complete-logo.png" alt="Crew-7 Complete Logo" className="hero-logo" />
+        <div ref={heroLogoRef} style={{ display: 'inline-block' }}>
+          <img 
+            src="/crew7_transparent.gif" 
+            alt="Crew-7 Logo" 
+            className="hero-logo" 
+          />
+        </div>
         <h1 className="hero-title">Multi-Agent Orchestration Platform</h1>
         <p className="hero-subtitle">
           CrewAI-powered agent coordination with real-time visualization and advanced workflow management. 

@@ -9,6 +9,11 @@ export default defineConfig(({ mode }) => {
         port: 3000,
         host: '0.0.0.0',
         allowedHosts: ['0.0.0.0', 'localhost', 'crew-7.zyniq.solutions'],
+        hmr: {
+          clientPort: mode === 'production' ? 443 : 3000,
+          protocol: mode === 'production' ? 'wss' : 'ws',
+          host: mode === 'production' ? 'crew-7.zyniq.solutions' : 'localhost'
+        }
       },
       plugins: [react()],
       define: {

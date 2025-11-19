@@ -408,7 +408,34 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
       onAuthenticated();
     } catch (err: any) {
       console.error('Auth error:', err);
-      setError(err.message || 'Authentication failed. Please try again.');
+      
+      // Better error messages based on error type
+      let errorMessage = 'Authentication failed. Please try again.';
+      
+      if (err.response) {
+        // Server responded with error
+        const status = err.response.status;
+        if (status === 400) {
+          errorMessage = 'Invalid email or password format.';
+        } else if (status === 401) {
+          errorMessage = 'Incorrect email or password.';
+        } else if (status === 409) {
+          errorMessage = 'An account with this email already exists.';
+        } else if (status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (err.response.data?.detail) {
+          errorMessage = err.response.data.detail;
+        } else if (err.response.data?.message) {
+          errorMessage = err.response.data.message;
+        }
+      } else if (err.request) {
+        // Request made but no response
+        errorMessage = 'Cannot connect to server. Please check your internet connection.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -868,9 +895,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
       }
     }, handleError);
 
-    return () => {
-      if (ws) ws.close();
-    };
+    return ws; // ws is already the cleanup function
   }, [activeCrewId, user]);
 
   useEffect(() => {
@@ -1222,8 +1247,8 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
           advancedMode={advancedMode}
           onToggleAdvancedMode={() => setAdvancedMode((prev) => !prev)}
         />
-        <section className={`relative z-10 mt-2 flex-1 flex ${activeSection === 'chat' ? 'flex-col' : ''} overflow-y-auto rounded-3xl bg-slate-900/60 shadow-[0_25px_60px_rgba(0,0,0,0.4)]`}>
-          <div className={activeSection !== 'chat' ? 'flex-col' : ''}>
+        <section className={`relative z-10 mt-2 flex-1 flex ${activeSection === 'chat' ? 'flex-col' : 'overflow-y-auto'} rounded-3xl bg-slate-900/60 shadow-[0_25px_60px_rgba(0,0,0,0.4)]`}>
+          <div className={activeSection === 'chat' ? 'flex-1 flex flex-col min-h-0' : 'flex-col'}>
             {renderMainPanel()}
           </div>
         </section>
