@@ -10,6 +10,12 @@ MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
+# Parse command line arguments
+RESET_DB=false
+if [ "$1" = "--reset" ] || [ "$1" = "-r" ]; then
+    RESET_DB=true
+fi
+
 # Script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$SCRIPT_DIR"
@@ -21,6 +27,10 @@ MIGRATIONS_DIR="$BACKEND_DIR/migrations"
 echo -e "${CYAN}╔══════════════════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}║         ZYNIQ-CREW7 - Complete Startup Script          ║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
+if [ "$RESET_DB" = true ]; then
+    echo -e "${YELLOW}║              🗑️  DATABASE RESET MODE 🗑️               ║${NC}"
+    echo -e "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
+fi
 echo ""
 
 # Load environment variables
@@ -54,11 +64,18 @@ fi
 echo -e "${GREEN}✓${NC} All required variables present"
 echo ""
 
-# Stop existing containers
+# Stop existing containers (with or without volumes)
 echo -e "${BLUE}[3/9]${NC} Stopping existing containers..."
 cd "$DOCKER_DIR"
-docker-compose down 2>/dev/null || true
-echo -e "${GREEN}✓${NC} Containers stopped"
+if [ "$RESET_DB" = true ]; then
+    echo -e "${YELLOW}🗑️  Clearing database volumes...${NC}"
+    docker-compose down -v 2>/dev/null || true
+    docker volume prune -f 2>/dev/null || true
+    echo -e "${GREEN}✓${NC} Containers stopped and volumes cleared"
+else
+    docker-compose down 2>/dev/null || true
+    echo -e "${GREEN}✓${NC} Containers stopped"
+fi
 echo ""
 
 # Build Docker containers
@@ -268,6 +285,7 @@ echo -e "   Password: ${MAGENTA}${DEFAULT_USER_PASSWORD}${NC}"
 echo -e "   Credits:  ${MAGENTA}${DEFAULT_USER_CREDITS}${NC}"
 echo ""
 echo -e "${CYAN}📝 Useful Commands:${NC}"
+echo -e "   Reset & start:      ${YELLOW}./start.sh --reset${NC} ${MAGENTA}(clears DB volumes)${NC}"
 echo -e "   View API logs:      ${YELLOW}docker-compose -f backend/docker/compose.yml logs -f api${NC}"
 echo -e "   View frontend logs: ${YELLOW}docker-compose -f backend/docker/compose.yml logs -f frontend${NC}"
 echo -e "   Stop all services:  ${YELLOW}docker-compose -f backend/docker/compose.yml down${NC}"
