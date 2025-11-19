@@ -19,7 +19,8 @@ class RunBus:
     def _stream(self, run_id: UUID) -> str:
         return f"{STREAM_PREFIX}{run_id}"
 
-    async def publish(self, run_id: UUID, event: dict) -> None:
+    def publish(self, run_id: UUID, event: dict) -> None:
+        """Publish event to Redis stream (synchronous operation)."""
         self._redis.xadd(self._stream(run_id), {"e": json.dumps(event)}, maxlen=1000)
 
     async def consume(self, run_id: UUID) -> AsyncIterator[dict]:

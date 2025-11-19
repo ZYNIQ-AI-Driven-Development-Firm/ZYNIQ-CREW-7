@@ -32,8 +32,8 @@ async def _orchestrate_run_async(run_id: UUID, crew_id: UUID, prompt: str, input
     crew_snapshot = _mark_running_and_snapshot(crew_id, run_id)
     if crew_snapshot is None:
         _mark_failed(run_id, "Crew or run missing")
-        await bus.publish(run_id, {"type": "error", "data": "Crew or run missing."})
-        await bus.publish(run_id, {"type": "done"})
+        bus.publish(run_id, {"type": "error", "data": "Crew or run missing."})
+        bus.publish(run_id, {"type": "done"})
         return
 
     rendered_prompt = _render_prompt(prompt, crew_snapshot, inputs)
@@ -42,7 +42,7 @@ async def _orchestrate_run_async(run_id: UUID, crew_id: UUID, prompt: str, input
     if org_id:
         await publish_signal(org_id, "busy", str(crew_id))
 
-    await bus.publish(run_id, {"type": "status", "data": "running"})
+    bus.publish(run_id, {"type": "status", "data": "running"})
     record_run_started(str(crew_id))
     
     # Publish graph start event
@@ -56,10 +56,10 @@ async def _orchestrate_run_async(run_id: UUID, crew_id: UUID, prompt: str, input
     try:
         for kind, data in run_orchestration(crew_id, rendered_prompt, run_id):
             if kind == "log":
-                await bus.publish(run_id, {"type": "message", "data": data})
+                bus.publish(run_id, {"type": "message", "data": data})
             elif kind == "token":
                 final_text += data
-                await bus.publish(run_id, {"type": "token", "data": data})
+                bus.publish(run_id, {"type": "token", "data": data})
             elif kind == "done":
                 if isinstance(data, str):
                     final_text = data
@@ -67,9 +67,9 @@ async def _orchestrate_run_async(run_id: UUID, crew_id: UUID, prompt: str, input
     except Exception as exc:  # noqa: BLE001 - capture orchestration errors
         _mark_failed(run_id, str(exc))
         record_run_done(str(crew_id), "failed")
-        await bus.publish(run_id, {"type": "error", "data": str(exc)})
-        await bus.publish(run_id, {"type": "status", "data": "failed"})
-        await bus.publish(run_id, {"type": "done"})
+        bus.publish(run_id, {"type": "error", "data": str(exc)})
+        bus.publish(run_id, {"type": "status", "data": "failed"})
+        bus.publish(run_id, {"type": "done"})
         
         # Publish graph error event
         await _publish_graph_event(crew_id, {
@@ -92,13 +92,13 @@ async def _orchestrate_run_async(run_id: UUID, crew_id: UUID, prompt: str, input
 
     output_text = final_text.strip()
     if output_text:
-        await bus.publish(run_id, {"type": "message", "data": output_text})
+        bus.publish(run_id, {"type": "message", "data": output_text})
 
     await _persist_memory(crew_snapshot, run_id, prompt, output_text)
     _mark_succeeded(run_id)
     record_run_done(str(crew_id), "succeeded")
-    await bus.publish(run_id, {"type": "status", "data": "succeeded"})
-    await bus.publish(run_id, {"type": "done"})
+    bus.publish(run_id, {"type": "status", "data": "succeeded"})
+    bus.publish(run_id, {"type": "done"})
     
     # Publish graph completion event
     await _publish_graph_event(crew_id, {
