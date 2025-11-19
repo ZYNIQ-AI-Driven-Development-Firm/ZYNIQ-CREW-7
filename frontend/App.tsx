@@ -493,9 +493,10 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
   const [crews, setCrews] = useState<Crew[]>([]);
   const [activeCrewId, setActiveCrewId] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return window.localStorage.getItem('crew7_active_crew_id') ?? '59aa8570-f55b-4422-8d8b-8c78bf6f6e7d';
+      const stored = window.localStorage.getItem('crew7_active_crew_id');
+      return stored ?? '';
     }
-    return '59aa8570-f55b-4422-8d8b-8c78bf6f6e7d';
+    return '';
   });
   const streamCloseRef = useRef<(() => void) | null>(null);
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
@@ -623,6 +624,10 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         const crewsData = await listCrews();
         if (!cancelled) {
           setCrews(crewsData);
+          // If no active crew is set and we have crews, set the first one
+          if (!activeCrewId && crewsData.length > 0) {
+            setActiveCrewId(crewsData[0].id);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch crews', error);
@@ -634,7 +639,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [activeCrewId]);
 
   useEffect(() => {
     if (!activeCrewId) {
@@ -653,6 +658,14 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         console.error('Failed to fetch crew', error);
         if (!cancelled) {
           setActiveCrew(null);
+          // Clear invalid crew ID from storage
+          window.localStorage.removeItem('crew7_active_crew_id');
+          // Try to set the first available crew from the list
+          if (crews.length > 0) {
+            setActiveCrewId(crews[0].id);
+          } else {
+            setActiveCrewId('');
+          }
         }
       }
     };
@@ -662,9 +675,18 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     return () => {
       cancelled = true;
     };
-  }, [activeCrewId]);
+  }, [activeCrewId, crews]);
 
   useEffect(() => {
+    // Only connect WebSocket if user is authenticated
+    if (!user) {
+      return;
+    }
+
+    const handleError = (error: Event) => {
+      console.warn('Mission WebSocket connection failed - this is normal if not authenticated');
+    };
+
     const ws = missionSocket((message: MissionMessage) => {
       if (message.type === 'signal') {
         const payload = (message.payload ?? {}) as Record<string, unknown>;
@@ -720,12 +742,12 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
           ].slice(0, 20)
         );
       }
-    });
+    }, handleError);
 
     return () => {
       if (ws) ws.close();
     };
-  }, [activeCrewId]);
+  }, [activeCrewId, user]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
