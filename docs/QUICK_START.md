@@ -22,21 +22,22 @@ The startup script automatically handles:
 2. ✅ **Stops Existing Containers** (clean slate)
 3. ✅ **Builds Docker Containers** (backend API + all services)
 4. ✅ **Starts Database & Redis** (waits for ready state)
-5. ✅ **Runs All Migrations** in order:
-   - Auth & Organization tables
-   - Crew graphs
-   - Crypto/wallet tables
-   - Run tokens
-   - User roles
-   - **NEW:** Agents table
-6. ✅ **Creates Test User** using credentials from `.env`:
+5. ✅ **Starts API Container** (required for Alembic)
+6. ✅ **Runs Alembic Migrations** automatically:
+   - Uses Alembic for schema management
+   - Auto-generates migrations from SQLAlchemy models
+   - Applies all pending migrations: `alembic upgrade head`
+   - Creates all tables: users, wallets, crews, agents, runs, ratings, crypto tables
+   - Creates enum types: runstatus, chaintype, transactiondirection
+   - Handles duplicate enum protection with DO blocks
+7. ✅ **Creates Test User** using credentials from `.env`:
    - Email: `DEFAULT_USER_EMAIL`
    - Password: `DEFAULT_USER_PASSWORD`
    - Credits: `DEFAULT_USER_CREDITS`
-7. ✅ **Sets Up Wallet** with initial credits
-8. ✅ **Starts All Services** (API, worker, Ollama, MinIO, etc.)
-9. ✅ **Starts Frontend Dev Server** (Vite on port 3000)
-10. ✅ **Health Checks** - Verifies everything is running
+8. ✅ **Sets Up Wallet** with initial credits
+9. ✅ **Starts All Services** (API, worker, Ollama, MinIO, etc.)
+10. ✅ **Starts Frontend Dev Server** (Vite on port 3000)
+11. ✅ **Health Checks** - Verifies everything is running
 
 ---
 
@@ -197,11 +198,23 @@ docker compose -f backend/docker/compose.yml down -v  # ⚠️ Deletes all data!
 
 ### Migration Errors
 ```bash
-# Check which migrations ran
+# Check current migration status
+docker compose -f backend/docker/compose.yml exec api alembic current
+
+# View migration history
+docker compose -f backend/docker/compose.yml exec api alembic history
+
+# Check which tables exist
 docker compose -f backend/docker/compose.yml exec -T db psql -U crew7 -d crew7 -c "\dt"
 
-# Re-run specific migration
-docker compose -f backend/docker/compose.yml exec -T db psql -U crew7 -d crew7 < backend/migrations/20251116_add_agents.sql
+# If migrations fail, start fresh (⚠️ DELETES ALL DATA)
+docker compose -f backend/docker/compose.yml down -v
+./start.sh
+
+# Or use the helper script
+cd backend
+./db-migrate.sh current    # Check status
+./db-migrate.sh upgrade    # Apply migrations
 ```
 
 ---

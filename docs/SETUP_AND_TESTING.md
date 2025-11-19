@@ -52,7 +52,11 @@
 [3/9] ✓ Stop existing containers
 [4/9] ✓ Build Docker images (5-10 min first time)
 [5/9] ✓ Start database & Redis
-[6/9] ✓ Run all 6 migrations in order
+[6/9] ✓ Start API container (required for Alembic)
+[6.5/9] ✓ Run Alembic migrations (alembic upgrade head)
+        - Auto-generates from SQLAlchemy models
+        - Creates all tables and enums
+        - Handles duplicates gracefully
 [7/9] ✓ Create test user (admin@crew7.ai)
 [8/9] ✓ Start all services (API, worker, etc.)
 [9/9] ✓ Start frontend dev server (Vite)
@@ -427,17 +431,28 @@ npm run dev
 ### Issue: Migrations Fail
 
 **Symptoms:**
-- Script fails at step [6/9]
+- Script fails at step [6.5/9]
 - "relation already exists" errors
+- "type already exists" errors (enums)
 
 **Solution:**
 ```bash
-# Drop and recreate database (⚠️ DELETES ALL DATA)
+# Check migration status
+docker compose -f backend/docker/compose.yml exec api alembic current
+
+# View history
+docker compose -f backend/docker/compose.yml exec api alembic history
+
+# If enums already exist, Alembic handles it with DO blocks
+# If tables conflict, drop and recreate (⚠️ DELETES ALL DATA)
 docker compose -f backend/docker/compose.yml down -v
 ./start.sh
 
-# Or manually fix specific migration:
-docker compose -f backend/docker/compose.yml exec -T db psql -U crew7 -d crew7 < backend/migrations/20251116_add_agents.sql
+# Or use the helper script
+cd backend
+./db-migrate.sh current    # Check current version
+./db-migrate.sh upgrade    # Apply pending migrations
+./db-migrate.sh downgrade  # Rollback last migration if needed
 ```
 
 ### Issue: No Agents Created
