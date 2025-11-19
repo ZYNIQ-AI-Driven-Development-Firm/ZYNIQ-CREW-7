@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { animate, stagger } from 'animejs';
 
 import { Crew7Logo } from '../components/Crew7Logo';
@@ -20,6 +20,77 @@ import { AnimatedCounter } from '../components/AnimatedCounter';
  * Production-ready design with enterprise-grade animations,
  * accessibility, SEO optimization, and conversion-focused UX
  */
+
+// ========================================
+// CUSTOM HOOKS
+// ========================================
+
+/**
+ * useAnime - Custom hook for anime.js animations
+ * Provides reusable animation functions
+ */
+const useAnime = () => {
+  const breathe = useCallback((element: HTMLElement, duration: number = 3000) => {
+    animate(element, {
+      scale: [1, 1.02, 1],
+      opacity: [1, 0.95, 1],
+      easing: 'easeInOutQuad',
+      duration: duration,
+      loop: true,
+    });
+  }, []);
+
+  const staggerFadeIn = useCallback((elements: NodeListOf<Element> | Element[], delay: number = 100) => {
+    animate(elements, {
+      opacity: [0, 1],
+      translateY: [20, 0],
+      easing: 'easeOutQuad',
+      duration: 800,
+      delay: stagger(delay),
+    });
+  }, []);
+
+  return { breathe, staggerFadeIn };
+};
+
+/**
+ * useScrollAnimation - Custom hook for scroll-triggered animations
+ * Executes callback when element enters viewport
+ */
+const useScrollAnimation = (callback: () => void) => {
+  const elementRef = useRef<HTMLElement>(null);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element || hasAnimated.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasAnimated.current) {
+            hasAnimated.current = true;
+            callback();
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px',
+      }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      if (element) {
+        observer.unobserve(element);
+      }
+    };
+  }, [callback]);
+
+  return elementRef;
+};
 
 interface LandingPageV3Props {
   onNavigate?: (view: 'auth' | 'shell') => void;
@@ -433,13 +504,20 @@ const HeroSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) =
   const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (logoRef.current) {
-      breathe(logoRef.current, 3000);
-    }
-    if (textRef.current) {
-      const elements = textRef.current.querySelectorAll('.fade-in-element');
-      staggerFadeIn(elements, 100);
-    }
+    // Add a small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      if (logoRef.current) {
+        breathe(logoRef.current, 3000);
+      }
+      if (textRef.current) {
+        const elements = textRef.current.querySelectorAll('.fade-in-element');
+        if (elements.length > 0) {
+          staggerFadeIn(elements, 100);
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [breathe, staggerFadeIn]);
 
   return (
@@ -452,7 +530,7 @@ const HeroSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) =
 
         {/* Main Headline */}
         <div ref={textRef}>
-          <h1 className="fade-in-element text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight">
+          <h1 className="fade-in-element text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight opacity-0">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white/95 to-white/90">
               Multi-Agent
             </span>
@@ -462,16 +540,16 @@ const HeroSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) =
             </span>
           </h1>
 
-          <p className="fade-in-element text-xl md:text-2xl text-white/70 mb-4 max-w-3xl mx-auto leading-relaxed">
+          <p className="fade-in-element text-xl md:text-2xl text-white/70 mb-4 max-w-3xl mx-auto leading-relaxed opacity-0">
             CrewAI-powered agent coordination with real-time visualization and advanced workflow management.
           </p>
 
-          <p className="fade-in-element text-lg text-white/50 mb-12 max-w-2xl mx-auto">
+          <p className="fade-in-element text-lg text-white/50 mb-12 max-w-2xl mx-auto opacity-0">
             Build specialized AI crews, visualize workflows, and manage missions with enterprise-grade orchestration.
           </p>
 
           {/* CTA Buttons */}
-          <div className="fade-in-element flex flex-col sm:flex-row gap-4 justify-center mb-16">
+          <div className="fade-in-element flex flex-col sm:flex-row gap-4 justify-center mb-16 opacity-0">
             <button className="group px-8 py-4 rounded-xl bg-[#ea2323] font-semibold text-lg shadow-2xl shadow-[#ea2323]/40 hover:shadow-[#ea2323]/60 hover:bg-[#ff2e2e] transition-all transform hover:scale-105">
               Deploy Your First Crew
               <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">→</span>
@@ -482,7 +560,7 @@ const HeroSection: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) =
           </div>
 
           {/* Trust Badges */}
-          <div className="fade-in-element flex flex-wrap items-center justify-center gap-8 text-sm text-white/50">
+          <div className="fade-in-element flex flex-wrap items-center justify-center gap-8 text-sm text-white/50 opacity-0">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -595,7 +673,10 @@ const CrewShowcase: React.FC = () => {
   const sectionRef = useScrollAnimation(() => {
     if (sectionRef.current) {
       const cards = sectionRef.current.querySelectorAll('.crew-card');
-      staggerFadeIn(cards, 80);
+      if (cards.length > 0) {
+        console.log('🎬 Animating', cards.length, 'crew cards');
+        staggerFadeIn(cards, 80);
+      }
     }
   });
 

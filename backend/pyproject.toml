@@ -33,7 +33,8 @@ dependencies = [
 	"crewai==0.193.2",
 	"langchain==0.2.15",
 	"langchain-ollama==0.1.3",
-	"langchain-community==0.2.10"
+	"langchain-community==0.2.10",
+	"alembic>=1.17.2",
 ]
 
 [project.optional-dependencies]

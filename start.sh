@@ -93,28 +93,18 @@ if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
 fi
 echo ""
 
-# Run migrations in order
-echo -e "${BLUE}[6/9]${NC} Running database migrations..."
-MIGRATIONS=(
-    "20251109_add_auth_org.sql"
-    "20251114_add_crew_graphs.sql"
-    "20251115_add_crypto_tables.sql"
-    "20251115_add_run_tokens.sql"
-    "20251115_add_user_role.sql"
-    "20251116_add_agents.sql"
-)
-
-for migration in "${MIGRATIONS[@]}"; do
-    echo -e "${YELLOW}  → Running $migration${NC}"
-    docker-compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} < "$MIGRATIONS_DIR/$migration"
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}  ✓ $migration applied${NC}"
-    else
-        echo -e "${RED}  ✗ $migration failed${NC}"
-        exit 1
-    fi
-done
-echo -e "${GREEN}✓${NC} All migrations applied successfully"
+# Run Alembic migrations
+echo -e "${BLUE}[6/9]${NC} Running database migrations with Alembic..."
+echo -e "${YELLOW}  → Applying Alembic migrations${NC}"
+docker-compose exec -T api alembic upgrade head
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}  ✓ All migrations applied successfully${NC}"
+else
+    echo -e "${RED}  ✗ Migration failed${NC}"
+    echo -e "${YELLOW}  Checking migration status...${NC}"
+    docker-compose exec -T api alembic current
+    exit 1
+fi
 echo ""
 
 # Create test user
