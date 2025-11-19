@@ -32,8 +32,7 @@ const StreamingConsole: React.FC<{ events: RunLogEvent[] }> = ({ events }) => {
   useEffect(() => {
     if (consoleRef.current && events.length > 0) {
       const items = consoleRef.current.querySelectorAll('.console-item');
-      animate({
-        targets: items,
+      animate(items, {
         opacity: [0, 1],
         translateY: [20, 0],
         duration: 400,
@@ -151,8 +150,7 @@ const Dashboard: React.FC<DashboardProps> = ({ crew, missionStatus, runEvents })
   useEffect(() => {
     if (cardsRef.current && !loading) {
       const cards = cardsRef.current.querySelectorAll('.stat-card');
-      animate({
-        targets: cards,
+      animate(cards, {
         opacity: [0, 1],
         translateY: [30, 0],
         duration: 500,
@@ -174,7 +172,7 @@ const Dashboard: React.FC<DashboardProps> = ({ crew, missionStatus, runEvents })
             </p>
           </div>
           {/* Live Connection Indicator */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm transition-all hover:bg-white/10">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 transition-all hover:bg-white/10">
             <div className="relative flex items-center justify-center">
               <div className="w-2 h-2 rounded-full bg-green-400" />
               <div className="absolute inset-0 w-2 h-2 rounded-full bg-green-400 animate-ping" />
@@ -201,7 +199,7 @@ const Dashboard: React.FC<DashboardProps> = ({ crew, missionStatus, runEvents })
 
       <div ref={cardsRef} className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {/* Total Runs Card */}
-        <div className="stat-card group rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-[#ea2323]/30 hover:shadow-lg hover:shadow-[#ea2323]/10 hover:-translate-y-1">
+        <div className="stat-card group rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-[#ea2323]/30 hover:shadow-lg hover:shadow-[#ea2323]/10 hover:-translate-y-1">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-white/70">Total Runs</p>
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#ea2323] transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +220,7 @@ const Dashboard: React.FC<DashboardProps> = ({ crew, missionStatus, runEvents })
         </div>
 
         {/* Success Rate Card */}
-        <div className="stat-card group rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-[#4cf5a1]/30 hover:shadow-lg hover:shadow-[#4cf5a1]/10 hover:-translate-y-1">
+        <div className="stat-card group rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-[#4cf5a1]/30 hover:shadow-lg hover:shadow-[#4cf5a1]/10 hover:-translate-y-1">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-white/70">Success Rate</p>
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#4cf5a1] transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -243,7 +241,7 @@ const Dashboard: React.FC<DashboardProps> = ({ crew, missionStatus, runEvents })
         </div>
 
         {/* Avg Latency Card */}
-        <div className="stat-card group rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-[#cbd4e6]/30 hover:shadow-lg hover:shadow-[#cbd4e6]/10 hover:-translate-y-1">
+        <div className="stat-card group rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-[#cbd4e6]/30 hover:shadow-lg hover:shadow-[#cbd4e6]/10 hover:-translate-y-1">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-white/70">Avg Latency</p>
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#cbd4e6] transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,7 +265,7 @@ const Dashboard: React.FC<DashboardProps> = ({ crew, missionStatus, runEvents })
         </div>
 
         {/* Total Tokens Card */}
-        <div className="stat-card group rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-[#f5d14c]/30 hover:shadow-lg hover:shadow-[#f5d14c]/10 hover:-translate-y-1">
+        <div className="stat-card group rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-[#f5d14c]/30 hover:shadow-lg hover:shadow-[#f5d14c]/10 hover:-translate-y-1">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-white/70">Total Tokens</p>
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#f5d14c] transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -290,7 +288,7 @@ const Dashboard: React.FC<DashboardProps> = ({ crew, missionStatus, runEvents })
 
       <div className="grid gap-4 sm:gap-6 grid-cols-1 xl:grid-cols-[1.2fr,0.8fr]">
         {/* Active Crew Section */}
-        <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-xl border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-white/20">
+        <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 p-5 sm:p-6 transition-all duration-300 hover:border-white/20">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-white/70">Active Crew</p>
             <span className="text-[0.6rem] sm:text-[0.65rem] text-white/40 truncate max-w-[120px]">{crew?.id ? `ID: ${crew.id.slice(0, 8)}...` : 'No crew'}</span>

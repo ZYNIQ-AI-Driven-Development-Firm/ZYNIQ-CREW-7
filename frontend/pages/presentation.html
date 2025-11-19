@@ -19,8 +19,8 @@
   HOW TO ADD A NEW SLIDE:
   ═══════════════════════════════════════════════════════════════════════════
   
-  1. Copy the slide template below:
-  <!-- Left: Content 
+  1. Copy the slide template below (remove the comment markers when using):
+  
   <section class="slide">
     <div class="slide-content split-layout">
       <div class="split-content">
@@ -32,10 +32,9 @@
         </ul>
       </div>
       
-      Right: Illustration 
       <div class="split-illustration">
         <svg class="blueprint-svg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
-         Your SVG illustration here
+          [Your SVG illustration here]
         </svg>
       </div>
     </div>
@@ -372,32 +371,11 @@
         max-width: 1400px;
         width: 98%;
         height: 88%;
-        background: rgba(3, 10, 20, 0.98); /* Darker background */
+        background: rgba(3, 10, 20, 0.92);
         padding: 2rem 3rem;
         border: 2px solid rgba(234, 35, 35, 0.5);
         box-shadow: 0 0 30px rgba(234, 35, 35, 0.3),
           inset 0 0 60px rgba(234, 35, 35, 0.08);
-        overflow-y: auto; /* Enable scrolling */
-        overflow-x: hidden;
-      }
-
-      /* Scrollbar styling for business view */
-      #business-view .script-slide::-webkit-scrollbar {
-        width: 10px;
-      }
-
-      #business-view .script-slide::-webkit-scrollbar-track {
-        background: rgba(234, 35, 35, 0.1);
-        border-radius: 5px;
-      }
-
-      #business-view .script-slide::-webkit-scrollbar-thumb {
-        background: #ea2323;
-        border-radius: 5px;
-      }
-
-      #business-view .script-slide::-webkit-scrollbar-thumb:hover {
-        background: #ff2e2e;
       }
 
       /* Remove neon effect from red headers in Business view */
@@ -1178,29 +1156,6 @@
       .split-content {
         flex: 0 1 45%;
         text-align: left;
-        max-height: 70vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding-right: 1rem;
-      }
-
-      /* Custom scrollbar for split-content */
-      .split-content::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      .split-content::-webkit-scrollbar-track {
-        background: rgba(234, 35, 35, 0.1);
-        border-radius: 4px;
-      }
-
-      .split-content::-webkit-scrollbar-thumb {
-        background: #ea2323;
-        border-radius: 4px;
-      }
-
-      .split-content::-webkit-scrollbar-thumb:hover {
-        background: #ff2e2e;
       }
 
       .split-illustration {
@@ -7542,601 +7497,493 @@
             id="prepare-content"
             class="slide-content script-slide tab-content"
           >
-            <!-- Card Slider Container -->
-            <div class="card-slider-container">
-              <div class="card-slider-wrapper" id="prepareSlider">
-                <!-- Prepare Card 1 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">🧘 Breathe Like an Athlete</h3>
-                    <div class="card-mnemonic">
-                      "5-5-5 Technique: Control your nervous system"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> 10 minutes before presenting, do
-                      this: Inhale for 5 seconds → Hold for 5 seconds → Exhale
-                      for 5 seconds. Repeat 10 times.
-                    </p>
+            <h2 style="text-align: center; margin-bottom: 2rem; color: #ea2323">
+              7 Points to Destress & Deliver an Energetic Pitch
+            </h2>
 
-                    <div class="card-keypoint">
-                      <strong>The Science:</strong><br />
-                      • Activates parasympathetic nervous system<br />
-                      • Reduces cortisol (stress hormone)<br />
-                      • Increases oxygen to brain<br />
-                      • Athletes use before competition
-                    </div>
+            <div style="max-width: 900px; margin: 0 auto">
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  1. 🧘 Breathe Like an Athlete (5-5-5 Technique)
+                </h3>
+                <p>
+                  <strong>What:</strong> 10 minutes before presenting, do this:
+                  Inhale for 5 seconds → Hold for 5 seconds → Exhale for 5
+                  seconds. Repeat 10 times.
+                </p>
+                <p>
+                  <strong>Why:</strong> Deep breathing activates your
+                  parasympathetic nervous system, reducing cortisol (stress
+                  hormone) and increasing oxygen to your brain.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: You'll feel calmer, think clearer, and speak
+                  smoother. Athletes use this before competition for a reason.
+                </p>
+              </div>
 
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Result: You'll feel calmer, think clearer, speak
-                      smoother.
-                    </p>
-                  </div>
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  2. 💪 Power Pose for 2 Minutes
+                </h3>
+                <p>
+                  <strong>What:</strong> Stand in a "Superman" pose (hands on
+                  hips, chest out, feet wide) for 120 seconds in private. Or
+                  raise your arms in a "V" like a victory pose.
+                </p>
+                <p>
+                  <strong>Why:</strong> Harvard research shows power posing
+                  increases testosterone (confidence hormone) by 20% and
+                  decreases cortisol by 25%. You literally trick your brain into
+                  confidence.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: You'll walk on stage feeling like you've already
+                  won. Your body language will radiate authority.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  3. 🎵 Listen to Your Hype Song
+                </h3>
+                <p>
+                  <strong>What:</strong> Create a 3-minute playlist of songs
+                  that pump you up. Listen 15 minutes before you present. Pick
+                  tracks with a fast tempo (120-140 BPM).
+                </p>
+                <p>
+                  <strong>Why:</strong> Music releases dopamine (the reward
+                  neurotransmitter), which enhances mood and motivation. Fast
+                  tempos increase heart rate, priming your energy.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: You'll feel energized, not anxious. Your voice will
+                  have natural enthusiasm without forcing it.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  4. 🗣️ Warm Up Your Voice
+                </h3>
+                <p>
+                  <strong>What:</strong> Do 5 minutes of vocal warm-ups: Hum
+                  scales, tongue twisters ("Red leather, yellow leather" 10x),
+                  and say your opening line out loud 3 times with exaggerated
+                  volume.
+                </p>
+                <p>
+                  <strong>Why:</strong> A cold voice sounds shaky and uncertain.
+                  Warming up loosens your vocal cords, improves clarity, and
+                  prevents cracking.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: Your first words will land with confidence. Judges
+                  notice a strong opening immediately.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  5. 🚶 Move Your Body (Mini Workout)
+                </h3>
+                <p>
+                  <strong>What:</strong> 20 jumping jacks, 10 squats, or a
+                  2-minute brisk walk around the block. Get your blood flowing.
+                </p>
+                <p>
+                  <strong>Why:</strong> Physical movement releases endorphins
+                  (natural painkillers and mood boosters) and burns off nervous
+                  energy. Sitting makes anxiety worse.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: You'll channel nervous energy into physical energy.
+                  Your body will feel lighter, your mind sharper.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  6. 🍫 Eat Smart (Fuel, Don't Crash)
+                </h3>
+                <p>
+                  <strong>What:</strong> 30-60 minutes before, eat a small
+                  snack: banana + almond butter, dark chocolate, or a handful of
+                  nuts. Avoid heavy meals, sugar spikes, or caffeine overload.
+                </p>
+                <p>
+                  <strong>Why:</strong> Your brain needs glucose for focus, but
+                  sugar crashes kill energy. Complex carbs + healthy fats =
+                  sustained energy. Too much caffeine = jitters.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: Stable blood sugar = stable performance. You won't
+                  fade mid-pitch or feel shaky.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  7. 🧠 Visualize Success (Mental Rehearsal)
+                </h3>
+                <p>
+                  <strong>What:</strong> Close your eyes for 3 minutes.
+                  Visualize yourself on stage: confident posture, clear voice,
+                  judges nodding, applause at the end. Feel the success.
+                </p>
+                <p>
+                  <strong>Why:</strong> Olympians and elite performers use this.
+                  Your brain can't distinguish between real and vividly imagined
+                  experiences. Mental rehearsal builds neural pathways for
+                  success.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Result: You'll step on stage feeling like you've done this
+                  before. Confidence is a rehearsed state, not a lucky accident.
+                </p>
+              </div>
+
+              <div
+                style="
+                  margin-top: 3rem;
+                  padding: 2rem;
+                  background: rgba(234, 35, 35, 0.1);
+                  border: 2px solid #ea2323;
+                  border-radius: 12px;
+                  text-align: center;
+                "
+              >
+                <p
+                  style="
+                    font-size: 1.5rem;
+                    color: #ea2323;
+                    font-weight: bold;
+                    margin-bottom: 1rem;
+                  "
+                >
+                  🔥 Pre-Pitch Checklist (Do All 7 in 30 Minutes)
+                </p>
+                <div
+                  style="
+                    text-align: left;
+                    display: inline-block;
+                    font-size: 1.2rem;
+                    line-height: 1.8;
+                  "
+                >
+                  ☐ 5-5-5 Breathing (10 min)<br />
+                  ☐ Power Pose (2 min)<br />
+                  ☐ Hype Music (3 min)<br />
+                  ☐ Voice Warm-up (5 min)<br />
+                  ☐ Body Movement (2 min)<br />
+                  ☐ Smart Snack (5 min)<br />
+                  ☐ Visualization (3 min)
                 </div>
-
-                <!-- Prepare Card 2 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">💪 Power Pose for 2 Minutes</h3>
-                    <div class="card-mnemonic">
-                      "Trick your brain into confidence with body language"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> Stand in a "Superman" pose (hands
-                      on hips, chest out, feet wide) for 120 seconds in private.
-                      Or raise your arms in a "V" like a victory pose.
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>Harvard Research Shows:</strong><br />
-                      • Increases testosterone by 20%<br />
-                      • Decreases cortisol by 25%<br />
-                      • Brain responds to physical posture<br />
-                      • Creates real biochemical changes
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Result: Walk on stage feeling like you've already won.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Prepare Card 3 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">🎵 Listen to Your Hype Song</h3>
-                    <div class="card-mnemonic">
-                      "Music primes your energy and mood"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> Create a 3-minute playlist of songs
-                      that pump you up. Listen 15 minutes before you present.
-                      Pick tracks with a fast tempo (120-140 BPM).
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>Neuroscience:</strong><br />
-                      • Releases dopamine (reward neurotransmitter)<br />
-                      • Enhances mood and motivation<br />
-                      • Fast tempos increase heart rate<br />
-                      • Primes your energy levels
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Result: Natural enthusiasm without forcing it.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Prepare Card 4 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">🗣️ Warm Up Your Voice</h3>
-                    <div class="card-mnemonic">
-                      "First impressions start with your first words"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> Do 5 minutes of vocal warm-ups: Hum
-                      scales, tongue twisters ("Red leather, yellow leather"
-                      10x), and say your opening line out loud 3 times with
-                      exaggerated volume.
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>Why It Matters:</strong><br />
-                      • Cold voice sounds shaky and uncertain<br />
-                      • Loosens vocal cords<br />
-                      • Improves clarity<br />
-                      • Prevents cracking
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Result: First words land with confidence.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Prepare Card 5 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">🚶 Move Your Body</h3>
-                    <div class="card-mnemonic">
-                      "Burn nervous energy through movement"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> 20 jumping jacks, 10 squats, or a
-                      2-minute brisk walk around the block. Get your blood
-                      flowing.
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>Physical Benefits:</strong><br />
-                      • Releases endorphins (natural mood boosters)<br />
-                      • Burns off nervous energy<br />
-                      • Increases blood flow to brain<br />
-                      • Sitting makes anxiety worse
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Result: Channel nerves into physical energy.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Prepare Card 6 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">🍫 Eat Smart</h3>
-                    <div class="card-mnemonic">
-                      "Fuel your brain, don't crash it"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> 30-60 minutes before, eat a small
-                      snack: banana + almond butter, dark chocolate, or handful
-                      of nuts. Avoid heavy meals, sugar spikes, or caffeine
-                      overload.
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>Nutrition Strategy:</strong><br />
-                      • Brain needs glucose for focus<br />
-                      • Sugar crashes kill energy<br />
-                      • Complex carbs + healthy fats = sustained energy<br />
-                      • Too much caffeine = jitters
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Result: Stable blood sugar = stable performance.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Prepare Card 7 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">🧠 Visualize Success</h3>
-                    <div class="card-mnemonic">
-                      "Mental rehearsal builds neural pathways"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> Close your eyes for 3 minutes.
-                      Visualize yourself on stage: confident posture, clear
-                      voice, judges nodding, applause at the end. Feel the
-                      success.
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>Elite Performance Technique:</strong><br />
-                      • Olympians use mental rehearsal<br />
-                      • Brain can't distinguish imagined from real<br />
-                      • Builds neural pathways for success<br />
-                      • Creates muscle memory mentally
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Result: Step on stage feeling like you've done this
-                      before.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Prepare Card 8 - Final Checklist -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">✅ 30-Minute Pre-Pitch Protocol</h3>
-                    <div class="card-mnemonic">
-                      "Your pitch starts before you speak"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <div class="card-keypoint" style="font-size: 1.3rem">
-                      <strong>Complete Checklist:</strong><br /><br />
-                      ☐ 5-5-5 Breathing (10 min)<br />
-                      ☐ Power Pose (2 min)<br />
-                      ☐ Hype Music (3 min)<br />
-                      ☐ Voice Warm-up (5 min)<br />
-                      ☐ Body Movement (2 min)<br />
-                      ☐ Smart Snack (5 min)<br />
-                      ☐ Visualization (3 min)
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.3rem;
-                        margin-top: 1.5rem;
-                        font-style: italic;
-                        text-align: center;
-                      "
-                    >
-                      "Your pitch starts 30 minutes before you speak. Prepare
-                      your body, dominate the stage."
-                    </p>
-                  </div>
-                </div>
+                <p
+                  style="
+                    font-size: 1.3rem;
+                    color: #ea2323;
+                    margin-top: 1.5rem;
+                    font-style: italic;
+                  "
+                >
+                  "Your pitch starts 30 minutes before you speak. Prepare your
+                  body, dominate the stage."
+                </p>
               </div>
             </div>
           </div>
 
           <!-- Tips Tab Content -->
           <div id="tips-content" class="slide-content script-slide tab-content">
-            <!-- Card Slider Container -->
-            <div class="card-slider-container">
-              <div class="card-slider-wrapper" id="tipsSlider">
-                <!-- Tip Card 1 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">🎯 Know Your Core Message Cold</h3>
-                    <div class="card-mnemonic">
-                      "Clarity beats complexity - master the 10-second pitch"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> Master the one-sentence pitch:
-                      "Crew-7 gives you a full AI team — 1 Orchestrator + 6
-                      Specialists — that delivers projects in minutes instead of
-                      months."
-                    </p>
+            <h2 style="text-align: center; margin-bottom: 2rem; color: #ea2323">
+              7 Tips to Perform Well When Pitching
+            </h2>
 
-                    <div class="card-keypoint">
-                      <strong>Why It Works:</strong><br />
-                      • Judges remember clarity, not complexity<br />
-                      • If you can't say it in 10 seconds, you don't own it
-                      yet<br />
-                      • Simple messages cut through noise
-                    </div>
+            <div style="max-width: 900px; margin: 0 auto">
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  1. 🎯 Know Your Core Message Cold
+                </h3>
+                <p>
+                  <strong>What:</strong> Master the one-sentence pitch: "Crew-7
+                  gives you a full AI team — 1 Orchestrator + 6 Specialists —
+                  that delivers projects in minutes instead of months."
+                </p>
+                <p>
+                  <strong>Why:</strong> Judges remember clarity, not complexity.
+                  If you can't say it in 10 seconds, you don't own it yet.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Say it 50 times out loud. In the shower, walking,
+                  before bed. Make it muscle memory.
+                </p>
+              </div>
 
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Practice: Say it 50 times out loud. In the shower,
-                      walking, before bed. Make it muscle memory.
-                    </p>
-                  </div>
-                </div>
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  2. 👁️ Eye Contact = Trust
+                </h3>
+                <p>
+                  <strong>What:</strong> Make direct eye contact with each judge
+                  for 2-3 seconds as you speak. Rotate naturally through the
+                  panel.
+                </p>
+                <p>
+                  <strong>Why:</strong> Eye contact signals confidence and
+                  honesty. Breaking it too often suggests uncertainty or fear.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Present to friends/family and have them raise
+                  their hands when you look away. Train yourself to hold gaze.
+                </p>
+              </div>
 
-                <!-- Tip Card 2 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">👁️ Eye Contact = Trust</h3>
-                    <div class="card-mnemonic">
-                      "Your gaze signals confidence and honesty"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> Make direct eye contact with each
-                      judge for 2-3 seconds as you speak. Rotate naturally
-                      through the panel.
-                    </p>
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  3. 🎭 Show Passion, Not Panic
+                </h3>
+                <p>
+                  <strong>What:</strong> Speak with genuine enthusiasm about
+                  solving the problem. Let your voice rise and fall naturally.
+                  Use hand gestures to emphasize key points.
+                </p>
+                <p>
+                  <strong>Why:</strong> Judges invest in founders who care, not
+                  just ideas. Passion is contagious; panic repels.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Record yourself. Watch for flat delivery or
+                  nervous fidgeting. Adjust until you see energy, not anxiety.
+                </p>
+              </div>
 
-                    <div class="card-keypoint">
-                      <strong>The Science:</strong><br />
-                      • Eye contact signals confidence and honesty<br />
-                      • Breaking it too often suggests uncertainty or fear<br />
-                      • 2-3 seconds per person builds connection
-                    </div>
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  4. 📊 Use Numbers as Anchors
+                </h3>
+                <p>
+                  <strong>What:</strong> Drop concrete numbers: "7 agents,"
+                  "minutes not months," "$80B TAM," "1 Orchestrator + 6
+                  Specialists." Numbers stick.
+                </p>
+                <p>
+                  <strong>Why:</strong> Vague claims fade. Specific metrics
+                  create mental hooks judges can recall later.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Highlight 3-5 key numbers in your script. Pause
+                  briefly after saying each one to let it land.
+                </p>
+              </div>
 
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Practice: Present to friends/family and have them raise
-                      their hands when you look away. Train yourself to hold
-                      gaze.
-                    </p>
-                  </div>
-                </div>
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  5. ⏱️ Respect Time Like Gold
+                </h3>
+                <p>
+                  <strong>What:</strong> Keep to 3-4 minutes max. If you have 5
+                  minutes, save 1 minute for Q&A. Never go over.
+                </p>
+                <p>
+                  <strong>Why:</strong> Going over time signals poor execution
+                  skills. Finishing early shows confidence and control.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Time yourself with a stopwatch. Cut ruthlessly.
+                  Every second must earn its place.
+                </p>
+              </div>
 
-                <!-- Tip Card 3 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">🎭 Show Passion, Not Panic</h3>
-                    <div class="card-mnemonic">
-                      "Enthusiasm is contagious, anxiety repels"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> Speak with genuine enthusiasm about
-                      solving the problem. Let your voice rise and fall
-                      naturally. Use hand gestures to emphasize key points.
-                    </p>
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  6. 🎬 Demo > Deck Every Time
+                </h3>
+                <p>
+                  <strong>What:</strong> Show the Agent Graph live. Let judges
+                  see specialists activate in real-time. Visual proof > verbal
+                  claims.
+                </p>
+                <p>
+                  <strong>Why:</strong> "Show, don't tell" is the golden rule. A
+                  working demo crushes skepticism instantly.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: Have a backup plan if tech fails. Pre-record a
+                  30-second screen capture as insurance. Test on venue WiFi
+                  beforehand.
+                </p>
+              </div>
 
-                    <div class="card-keypoint">
-                      <strong>Energy Management:</strong><br />
-                      • Judges invest in founders who care, not just ideas<br />
-                      • Passion is contagious; panic repels<br />
-                      • Controlled energy > forced excitement
-                    </div>
+              <div
+                style="
+                  margin-bottom: 2rem;
+                  padding: 1.5rem;
+                  background: rgba(234, 35, 35, 0.05);
+                  border-left: 4px solid #ea2323;
+                  border-radius: 8px;
+                "
+              >
+                <h3 style="color: #ea2323; margin-bottom: 0.5rem">
+                  7. 🚀 End With a Clear Call to Action
+                </h3>
+                <p>
+                  <strong>What:</strong> "Give us one mission your team is too
+                  busy to ship this quarter — Crew-7 will ship it this month.
+                  Thank you."
+                </p>
+                <p>
+                  <strong>Why:</strong> Judges need to know what you want. A
+                  vague ending wastes momentum. A bold ask shows you're ready to
+                  execute.
+                </p>
+                <p style="color: #ea2323; font-style: italic">
+                  💡 Practice: End with silence. Say "Thank you," hold eye
+                  contact for 1-2 seconds, then step back. Let the ask breathe.
+                </p>
+              </div>
 
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Practice: Record yourself. Watch for flat delivery or
-                      nervous fidgeting. Adjust until you see energy, not
-                      anxiety.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Tip Card 4 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">📊 Use Numbers as Anchors</h3>
-                    <div class="card-mnemonic">
-                      "Concrete metrics create mental hooks"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> Drop concrete numbers: "7 agents,"
-                      "minutes not months," "$80B TAM," "1 Orchestrator + 6
-                      Specialists." Numbers stick.
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>Memory Principle:</strong><br />
-                      • Vague claims fade from memory<br />
-                      • Specific metrics create mental hooks judges can recall
-                      later<br />
-                      • Numbers validate credibility
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Practice: Highlight 3-5 key numbers in your script.
-                      Pause briefly after saying each one to let it land.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Tip Card 5 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">⏱️ Respect Time Like Gold</h3>
-                    <div class="card-mnemonic">
-                      "Finishing early shows confidence and control"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> Keep to 3-4 minutes max. If you
-                      have 5 minutes, save 1 minute for Q&A. Never go over.
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>Time Psychology:</strong><br />
-                      • Going over time signals poor execution skills<br />
-                      • Finishing early shows confidence and control<br />
-                      • Every second must earn its place
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Practice: Time yourself with a stopwatch. Cut
-                      ruthlessly. Remove anything that doesn't drive the core
-                      message.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Tip Card 6 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">🎬 Demo > Deck Every Time</h3>
-                    <div class="card-mnemonic">
-                      "Show, don't tell - visual proof crushes skepticism"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> Show the Agent Graph live. Let
-                      judges see specialists activate in real-time. Visual proof
-                      > verbal claims.
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>The Golden Rule:</strong><br />
-                      • "Show, don't tell" is universal<br />
-                      • A working demo crushes skepticism instantly<br />
-                      • Live interaction beats static slides
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Practice: Have a backup plan if tech fails. Pre-record
-                      a 30-second screen capture as insurance. Test on venue
-                      WiFi beforehand.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Tip Card 7 -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">
-                      🚀 End With a Clear Call to Action
-                    </h3>
-                    <div class="card-mnemonic">
-                      "A bold ask shows you're ready to execute"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p>
-                      <strong>What:</strong> "Give us one mission your team is
-                      too busy to ship this quarter — Crew-7 will ship it this
-                      month. Thank you."
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>Closing Power:</strong><br />
-                      • Judges need to know what you want<br />
-                      • A vague ending wastes momentum<br />
-                      • Bold asks show execution readiness
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.2rem;
-                        margin-top: 1rem;
-                      "
-                    >
-                      💡 Practice: End with silence. Say "Thank you," hold eye
-                      contact for 1-2 seconds, then step back. Let the ask
-                      breathe.
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Final Tip Card -->
-                <div class="philosophy-card">
-                  <div class="card-header">
-                    <h3 class="card-title">🎯 The Ultimate Rule</h3>
-                    <div class="card-mnemonic">
-                      "Energy is your biggest asset"
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <p
-                      style="
-                        font-size: 1.4rem;
-                        text-align: center;
-                        margin: 2rem 0;
-                      "
-                    >
-                      Judges don't remember every detail.<br />
-                      They remember
-                      <strong style="color: #ea2323"
-                        >how you made them feel</strong
-                      >.
-                    </p>
-
-                    <div class="card-keypoint">
-                      <strong>What Wins Pitches:</strong><br />
-                      • Confident presence<br />
-                      • Trustworthy delivery<br />
-                      • Genuine excitement<br />
-                      • Clear vision
-                    </div>
-
-                    <p
-                      style="
-                        color: #ea2323;
-                        font-size: 1.5rem;
-                        text-align: center;
-                        margin-top: 2rem;
-                        font-weight: bold;
-                      "
-                    >
-                      "Your energy is your biggest asset.<br />
-                      Protect it. Project it. Win with it."
-                    </p>
-                  </div>
-                </div>
+              <div
+                style="
+                  margin-top: 3rem;
+                  padding: 2rem;
+                  background: rgba(234, 35, 35, 0.1);
+                  border: 2px solid #ea2323;
+                  border-radius: 12px;
+                  text-align: center;
+                "
+              >
+                <p
+                  style="
+                    font-size: 1.5rem;
+                    color: #ea2323;
+                    font-weight: bold;
+                    margin-bottom: 1rem;
+                  "
+                >
+                  🎯 The Ultimate Rule
+                </p>
+                <p style="font-size: 1.3rem; line-height: 1.6">
+                  Judges don't remember every detail. They remember
+                  <strong>how you made them feel</strong>. Confident?
+                  Trustworthy? Excited? That's what wins.
+                </p>
+                <p
+                  style="
+                    font-size: 1.2rem;
+                    color: #ea2323;
+                    margin-top: 1rem;
+                    font-style: italic;
+                  "
+                >
+                  "Your energy is your biggest asset. Protect it. Project it.
+                  Win with it."
+                </p>
               </div>
             </div>
           </div>
@@ -8160,39 +8007,30 @@
             <!-- Left: Content -->
             <div class="split-content">
               <h2>System Architecture</h2>
-              <p
-                style="font-size: 1.4rem; margin-bottom: 1.2rem; color: #ea2323"
-              >
-                Event-driven microservices with async orchestration
+              <p style="font-size: 1.5rem; margin-bottom: 1.5rem">
+                Multi-layered platform with event-driven orchestration
               </p>
-              <ul style="font-size: 1.3rem; line-height: 1.8">
+              <ul style="font-size: 1.4rem">
                 <li>
-                  <strong>Frontend:</strong> React 19 + TypeScript, XYFlow graph
-                  engine, WebSocket/SSE streaming
+                  <strong>Frontend:</strong> React + XYFlow for Agent Graph
+                  visualization
                 </li>
                 <li>
-                  <strong>API Layer:</strong> FastAPI async, nginx reverse
-                  proxy, rate limiting (Redis), JWT auth
+                  <strong>API Gateway:</strong> FastAPI with REST, WebSocket,
+                  and SSE
                 </li>
                 <li>
-                  <strong>Orchestration:</strong> CrewAI framework, task queue
-                  (Celery), event bus, state machine
+                  <strong>Orchestrator:</strong> CrewAI-powered agent
+                  coordination
                 </li>
                 <li>
-                  <strong>Memory:</strong> Qdrant vector DB (768d embeddings),
-                  semantic search, context window management
+                  <strong>Memory:</strong> Qdrant vector store for context
+                  persistence
                 </li>
+                <li><strong>Storage:</strong> PostgreSQL + Redis cache</li>
                 <li>
-                  <strong>Data:</strong> PostgreSQL (JSONB), Redis cache L1/L2,
-                  MinIO object storage
-                </li>
-                <li>
-                  <strong>LLM:</strong> Gemini 2.0 (orchestrator), aimalapi
-                  (specialists), fallback strategy
-                </li>
-                <li>
-                  <strong>Observability:</strong> OpenTelemetry, distributed
-                  tracing, Prometheus metrics
+                  <strong>LLM Layer:</strong> Gemini (orchestrator) + aimalapi
+                  (specialists)
                 </li>
               </ul>
             </div>
@@ -8290,19 +8128,13 @@
                   text-anchor="middle"
                   style="font-size: 14px"
                 >
-                  API GATEWAY (nginx + FastAPI)
+                  API GATEWAY
                 </text>
                 <text x="70" y="225" class="blueprint-text-small">
-                  REST/WebSocket/SSE • /api/v1
+                  FastAPI • REST/WebSocket/SSE
                 </text>
                 <text x="70" y="240" class="blueprint-text-small">
-                  JWT Auth • Rate Limit (100 req/min)
-                </text>
-                <text x="350" y="225" class="blueprint-text-small">
-                  CORS • Health Checks
-                </text>
-                <text x="350" y="240" class="blueprint-text-small">
-                  Load Balancer (Round Robin)
+                  Auth • Rate Limiting
                 </text>
 
                 <!-- Orchestrator Service -->
@@ -8310,7 +8142,7 @@
                   x="150"
                   y="290"
                   width="300"
-                  height="80"
+                  height="70"
                   class="blueprint-shape"
                   stroke-width="2.5"
                   fill="rgba(234,35,35,0.15)"
@@ -8322,7 +8154,7 @@
                   text-anchor="middle"
                   style="font-size: 15px; fill: #ea2323"
                 >
-                  ORCHESTRATOR (CrewAI + Celery)
+                  ORCHESTRATOR
                 </text>
                 <text
                   x="300"
@@ -8330,7 +8162,7 @@
                   class="blueprint-text-small"
                   text-anchor="middle"
                 >
-                  Task Queue • Event Bus • State Machine
+                  CrewAI • Gemini
                 </text>
                 <text
                   x="300"
@@ -8338,76 +8170,56 @@
                   class="blueprint-text-small"
                   text-anchor="middle"
                 >
-                  Async Coordination • Context Management
-                </text>
-                <text
-                  x="300"
-                  y="365"
-                  class="blueprint-text-small"
-                  text-anchor="middle"
-                  style="font-size: 9px"
-                >
-                  Gemini 2.0 Flash • 1M token context
+                  Task Planning & Coordination
                 </text>
 
                 <!-- Memory Service -->
                 <rect
                   x="50"
-                  y="410"
-                  width="165"
-                  height="80"
+                  y="400"
+                  width="180"
+                  height="70"
                   class="blueprint-shape"
                   stroke-width="2"
                 />
                 <text
-                  x="132"
-                  y="435"
+                  x="140"
+                  y="425"
                   class="blueprint-text"
                   text-anchor="middle"
                   style="font-size: 13px"
                 >
-                  MEMORY (Qdrant)
+                  MEMORY
                 </text>
                 <text
-                  x="132"
-                  y="455"
+                  x="140"
+                  y="445"
                   class="blueprint-text-small"
                   text-anchor="middle"
-                  style="font-size: 10px"
                 >
-                  Vector DB • 768d
+                  Qdrant Vector DB
                 </text>
                 <text
-                  x="132"
-                  y="470"
+                  x="140"
+                  y="460"
                   class="blueprint-text-small"
                   text-anchor="middle"
-                  style="font-size: 10px"
                 >
-                  Semantic Search
-                </text>
-                <text
-                  x="132"
-                  y="485"
-                  class="blueprint-text-small"
-                  text-anchor="middle"
-                  style="font-size: 9px"
-                >
-                  Context Persistence
+                  Crew/Mission Context
                 </text>
 
                 <!-- Run & Trace Service -->
                 <rect
-                  x="240"
-                  y="410"
-                  width="165"
-                  height="80"
+                  x="260"
+                  y="400"
+                  width="180"
+                  height="70"
                   class="blueprint-shape"
                   stroke-width="2"
                 />
                 <text
-                  x="322"
-                  y="435"
+                  x="350"
+                  y="425"
                   class="blueprint-text"
                   text-anchor="middle"
                   style="font-size: 13px"
@@ -8415,158 +8227,134 @@
                   RUN & TRACE
                 </text>
                 <text
-                  x="322"
-                  y="455"
+                  x="350"
+                  y="445"
                   class="blueprint-text-small"
                   text-anchor="middle"
-                  style="font-size: 10px"
                 >
-                  Event Sourcing
+                  Events Storage
                 </text>
                 <text
-                  x="322"
-                  y="470"
+                  x="350"
+                  y="460"
                   class="blueprint-text-small"
                   text-anchor="middle"
-                  style="font-size: 10px"
                 >
-                  OpenTelemetry
-                </text>
-                <text
-                  x="322"
-                  y="485"
-                  class="blueprint-text-small"
-                  text-anchor="middle"
-                  style="font-size: 9px"
-                >
-                  Distributed Tracing
+                  Agent Logs
                 </text>
 
                 <!-- Artifact Service -->
                 <rect
-                  x="430"
-                  y="410"
-                  width="120"
-                  height="80"
+                  x="470"
+                  y="400"
+                  width="80"
+                  height="70"
                   class="blueprint-shape"
                   stroke-width="2"
                 />
                 <text
-                  x="490"
-                  y="435"
+                  x="510"
+                  y="425"
                   class="blueprint-text"
                   text-anchor="middle"
-                  style="font-size: 12px"
+                  style="font-size: 11px"
                 >
                   ARTIFACTS
                 </text>
                 <text
-                  x="490"
-                  y="455"
+                  x="510"
+                  y="445"
                   class="blueprint-text-small"
                   text-anchor="middle"
                   style="font-size: 10px"
                 >
-                  MinIO S3
+                  Code
                 </text>
                 <text
-                  x="490"
-                  y="470"
+                  x="510"
+                  y="460"
                   class="blueprint-text-small"
                   text-anchor="middle"
                   style="font-size: 10px"
                 >
-                  Code/Docs
-                </text>
-                <text
-                  x="490"
-                  y="485"
-                  class="blueprint-text-small"
-                  text-anchor="middle"
-                  style="font-size: 9px"
-                >
-                  Versioned
+                  Docs
                 </text>
 
                 <!-- Data Layer -->
                 <rect
                   x="50"
-                  y="530"
+                  y="510"
                   width="230"
-                  height="75"
+                  height="70"
                   class="blueprint-shape"
                   stroke-width="2"
                 />
                 <text
                   x="165"
-                  y="555"
+                  y="535"
                   class="blueprint-text"
                   text-anchor="middle"
                   style="font-size: 13px"
                 >
-                  DATABASE (PostgreSQL 16)
+                  DATABASE
                 </text>
                 <text
                   x="165"
-                  y="575"
+                  y="555"
                   class="blueprint-text-small"
                   text-anchor="middle"
-                  style="font-size: 10px"
                 >
-                  JSONB • Partitioned Tables
+                  PostgreSQL
                 </text>
                 <text
                   x="165"
-                  y="590"
+                  y="570"
                   class="blueprint-text-small"
                   text-anchor="middle"
-                  style="font-size: 10px"
                 >
-                  Users • Crews • Runs • Agents
+                  Users • Crews • Runs
                 </text>
 
                 <rect
                   x="320"
-                  y="530"
+                  y="510"
                   width="230"
-                  height="75"
+                  height="70"
                   class="blueprint-shape"
                   stroke-width="2"
                 />
                 <text
                   x="435"
-                  y="555"
+                  y="535"
                   class="blueprint-text"
                   text-anchor="middle"
                   style="font-size: 13px"
                 >
-                  CACHE (Redis 7)
+                  CACHE & EVENTS
                 </text>
                 <text
                   x="435"
-                  y="575"
+                  y="555"
                   class="blueprint-text-small"
                   text-anchor="middle"
-                  style="font-size: 10px"
                 >
-                  L1/L2 Cache • Pub/Sub
+                  Redis
                 </text>
                 <text
                   x="435"
-                  y="590"
+                  y="570"
                   class="blueprint-text-small"
                   text-anchor="middle"
-                  style="font-size: 10px"
                 >
-                  Session Store • Rate Limits
+                  Pub/Sub • Cache
                 </text>
 
                 <!-- LLM Providers -->
                 <rect
                   x="150"
-                  y="640"
+                  y="620"
                   width="300"
-                  height="50"
+                  height="60"
                   class="blueprint-shape"
                   stroke-width="2"
                   stroke="#00ff9d"
@@ -8574,7 +8362,7 @@
                 />
                 <text
                   x="300"
-                  y="660"
+                  y="642"
                   class="blueprint-text"
                   text-anchor="middle"
                   style="font-size: 13px; fill: #00ff9d"
@@ -8583,339 +8371,87 @@
                 </text>
                 <text
                   x="300"
-                  y="678"
+                  y="660"
                   class="blueprint-text-small"
                   text-anchor="middle"
-                  style="font-size: 10px"
                 >
-                  Gemini 2.0 (Orch) • aimalapi (Agents) • Fallback Chain
+                  Gemini • aimalapi • Multiple Models
                 </text>
 
-                <!-- Connection Arrows with Protocols -->
-                <!-- Client to API Gateway -->
+                <!-- Connection Arrows -->
                 <line
                   x1="300"
                   y1="140"
                   x2="300"
                   y2="180"
-                  stroke="#0095ff"
-                  stroke-width="2.5"
-                  marker-end="url(#techArrow)"
-                />
-                <text
-                  x="310"
-                  y="160"
-                  class="blueprint-text-small"
-                  style="font-size: 9px; fill: #0095ff"
-                >
-                  HTTP/2
-                </text>
-
-                <!-- WebSocket bidirectional -->
-                <line
-                  x1="280"
-                  y1="150"
-                  x2="280"
-                  y2="180"
                   stroke="#ea2323"
-                  stroke-width="1.5"
-                  stroke-dasharray="5,3"
+                  stroke-width="2"
                   marker-end="url(#techArrow)"
                 />
-                <line
-                  x1="285"
-                  y1="180"
-                  x2="285"
-                  y2="150"
-                  stroke="#00ff9d"
-                  stroke-width="1.5"
-                  stroke-dasharray="5,3"
-                  marker-end="url(#techArrow)"
-                />
-                <text
-                  x="240"
-                  y="165"
-                  class="blueprint-text-small"
-                  style="font-size: 8px; fill: #ea2323"
-                >
-                  SSE/WS
-                </text>
-
-                <!-- API Gateway to Orchestrator -->
                 <line
                   x1="300"
                   y1="250"
                   x2="300"
                   y2="290"
-                  stroke="#0095ff"
-                  stroke-width="2.5"
-                  marker-end="url(#techArrow)"
-                />
-                <text
-                  x="310"
-                  y="270"
-                  class="blueprint-text-small"
-                  style="font-size: 9px; fill: #0095ff"
-                >
-                  gRPC
-                </text>
-
-                <!-- Orchestrator to Memory -->
-                <line
-                  x1="250"
-                  y1="370"
-                  x2="145"
-                  y2="405"
-                  stroke="#0095ff"
+                  stroke="#ea2323"
                   stroke-width="2"
-                  stroke-dasharray="4,4"
                   marker-end="url(#techArrow)"
                 />
-                <text
-                  x="180"
-                  y="385"
-                  class="blueprint-text-small"
-                  style="font-size: 8px; fill: #0095ff"
-                >
-                  Query
-                </text>
-
-                <!-- Orchestrator to Run/Trace -->
                 <line
                   x1="300"
-                  y1="370"
-                  x2="322"
-                  y2="405"
-                  stroke="#ea2323"
-                  stroke-width="2"
-                  marker-end="url(#techArrow)"
-                />
-                <text
-                  x="305"
-                  y="390"
-                  class="blueprint-text-small"
-                  style="font-size: 8px; fill: #ea2323"
-                >
-                  Events
-                </text>
-
-                <!-- Orchestrator to Artifacts -->
-                <line
-                  x1="380"
-                  y1="340"
-                  x2="475"
-                  y2="415"
-                  stroke="#00ff9d"
-                  stroke-width="2"
-                  stroke-dasharray="4,4"
-                  marker-end="url(#techArrow)"
-                />
-                <text
-                  x="420"
-                  y="375"
-                  class="blueprint-text-small"
-                  style="font-size: 8px; fill: #00ff9d"
-                >
-                  S3 API
-                </text>
-
-                <!-- Memory to Database -->
-                <line
-                  x1="132"
-                  y1="490"
-                  x2="155"
-                  y2="525"
-                  stroke="#0095ff"
-                  stroke-width="1.5"
-                  marker-end="url(#techArrow)"
-                />
-                <text
-                  x="125"
-                  y="510"
-                  class="blueprint-text-small"
-                  style="font-size: 8px; fill: #0095ff"
-                >
-                  Write
-                </text>
-
-                <!-- Run/Trace to Database -->
-                <line
-                  x1="290"
-                  y1="490"
-                  x2="225"
-                  y2="525"
+                  y1="360"
+                  x2="140"
+                  y2="400"
                   stroke="#ea2323"
                   stroke-width="1.5"
                   marker-end="url(#techArrow)"
                 />
-                <text
-                  x="250"
-                  y="505"
-                  class="blueprint-text-small"
-                  style="font-size: 8px; fill: #ea2323"
-                >
-                  SQL
-                </text>
-
-                <!-- Run/Trace to Redis -->
                 <line
-                  x1="355"
-                  y1="490"
-                  x2="395"
-                  y2="525"
-                  stroke="#00ff9d"
+                  x1="300"
+                  y1="360"
+                  x2="350"
+                  y2="400"
+                  stroke="#ea2323"
                   stroke-width="1.5"
                   marker-end="url(#techArrow)"
                 />
-                <text
-                  x="365"
-                  y="505"
-                  class="blueprint-text-small"
-                  style="font-size: 8px; fill: #00ff9d"
-                >
-                  Pub/Sub
-                </text>
-
-                <!-- Redis to API Gateway (Cache) -->
+                <line
+                  x1="300"
+                  y1="360"
+                  x2="510"
+                  y2="400"
+                  stroke="#ea2323"
+                  stroke-width="1.5"
+                  marker-end="url(#techArrow)"
+                />
+                <line
+                  x1="165"
+                  y1="470"
+                  x2="165"
+                  y2="510"
+                  stroke="#ea2323"
+                  stroke-width="1.5"
+                  marker-end="url(#techArrow)"
+                />
                 <line
                   x1="435"
-                  y1="530"
-                  x2="365"
-                  y2="255"
-                  stroke="#00ff9d"
+                  y1="470"
+                  x2="435"
+                  y2="510"
+                  stroke="#ea2323"
                   stroke-width="1.5"
-                  stroke-dasharray="3,3"
                   marker-end="url(#techArrow)"
                 />
-                <text
-                  x="405"
-                  y="390"
-                  class="blueprint-text-small"
-                  style="font-size: 8px; fill: #00ff9d"
-                >
-                  L1
-                </text>
-
-                <!-- Orchestrator to LLMs -->
                 <line
                   x1="300"
-                  y1="370"
+                  y1="360"
                   x2="300"
-                  y2="635"
-                  stroke="#ea2323"
-                  stroke-width="2.5"
-                  marker-end="url(#techArrow)"
-                  stroke-dasharray="6,4"
-                />
-                <text
-                  x="240"
-                  y="500"
-                  class="blueprint-text-small"
-                  style="font-size: 9px; fill: #ea2323; font-weight: bold"
-                >
-                  LLM API
-                </text>
-                <text
-                  x="240"
-                  y="515"
-                  class="blueprint-text-small"
-                  style="font-size: 8px; fill: #ea2323"
-                >
-                  (streaming)
-                </text>
-
-                <!-- Performance/Architecture annotations -->
-                <rect
-                  x="15"
-                  y="265"
-                  width="95"
-                  height="32"
-                  fill="rgba(0,149,255,0.1)"
-                  stroke="#0095ff"
-                  stroke-width="1"
-                  stroke-dasharray="2,2"
-                  rx="3"
-                />
-                <text
-                  x="62"
-                  y="279"
-                  class="blueprint-text-small"
-                  text-anchor="middle"
-                  style="font-size: 8px; fill: #0095ff; font-weight: bold"
-                >
-                  ⚡ &lt;50ms p95
-                </text>
-                <text
-                  x="62"
-                  y="291"
-                  class="blueprint-text-small"
-                  text-anchor="middle"
-                  style="font-size: 7px; fill: #0095ff"
-                >
-                  Connection Pool
-                </text>
-
-                <rect
-                  x="490"
-                  y="265"
-                  width="90"
-                  height="32"
-                  fill="rgba(234,35,35,0.1)"
-                  stroke="#ea2323"
-                  stroke-width="1"
-                  stroke-dasharray="2,2"
-                  rx="3"
-                />
-                <text
-                  x="535"
-                  y="279"
-                  class="blueprint-text-small"
-                  text-anchor="middle"
-                  style="font-size: 8px; fill: #ea2323; font-weight: bold"
-                >
-                  🔄 Async
-                </text>
-                <text
-                  x="535"
-                  y="291"
-                  class="blueprint-text-small"
-                  text-anchor="middle"
-                  style="font-size: 7px; fill: #ea2323"
-                >
-                  Task Queue
-                </text>
-
-                <rect
-                  x="15"
-                  y="350"
-                  width="95"
-                  height="32"
-                  fill="rgba(0,255,157,0.1)"
+                  y2="620"
                   stroke="#00ff9d"
-                  stroke-width="1"
-                  stroke-dasharray="2,2"
-                  rx="3"
+                  stroke-width="2"
+                  marker-end="url(#techArrow)"
+                  stroke-dasharray="5,5"
                 />
-                <text
-                  x="62"
-                  y="364"
-                  class="blueprint-text-small"
-                  text-anchor="middle"
-                  style="font-size: 8px; fill: #00ff9d; font-weight: bold"
-                >
-                  🛡️ Failover
-                </text>
-                <text
-                  x="62"
-                  y="376"
-                  class="blueprint-text-small"
-                  text-anchor="middle"
-                  style="font-size: 7px; fill: #00ff9d"
-                >
-                  Circuit Breaker
-                </text>
-                x2="300" y2="620" stroke="#00ff9d" stroke-width="2"
-                marker-end="url(#techArrow)" stroke-dasharray="5,5" />
               </svg>
             </div>
           </div>
@@ -8935,89 +8471,38 @@
             <!-- Left: Content -->
             <div class="split-content">
               <h2>Agentic AI Structure</h2>
-              <p style="font-size: 1.4rem; margin-bottom: 1rem; color: #00ff9d">
-                Hierarchical multi-agent system with event-driven coordination
+              <p style="font-size: 1.5rem; margin-bottom: 1.5rem">
+                1 Orchestrator + 6 Specialists with focused toolsets
               </p>
-
-              <ul style="font-size: 1.3rem; line-height: 1.8">
+              <ul style="font-size: 1.4rem">
                 <li>
-                  <strong>Orchestrator (Gemini 2.0 Flash):</strong>
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.2rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>Task decomposition & dependency resolution</li>
-                    <li>Sequential execution with context passing</li>
-                    <li>Error handling & retry strategy (3x max)</li>
-                    <li>1M token context for full mission history</li>
-                  </ul>
+                  <strong>Orchestrator (Gemini):</strong> Planning, task
+                  decomposition, coordination
                 </li>
-
                 <li>
-                  <strong>Specialist Agents (aimalapi):</strong>
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.2rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>
-                      <em>Backend Architect:</em> OpenAPI spec, schema design,
-                      DB modeling
-                    </li>
-                    <li>
-                      <em>Backend Implementer:</em> FastAPI routes, business
-                      logic, tests
-                    </li>
-                    <li>
-                      <em>Frontend Architect:</em> Component hierarchy, state
-                      management, UX flow
-                    </li>
-                    <li>
-                      <em>Frontend Implementer:</em> React 19, TypeScript,
-                      Tailwind CSS
-                    </li>
-                    <li>
-                      <em>QA Engineer:</em> pytest, integration tests, coverage
-                      reports
-                    </li>
-                    <li>
-                      <em>DevOps Engineer:</em> Dockerfile, K8s manifests, CI/CD
-                      pipelines
-                    </li>
-                  </ul>
+                  <strong>Backend Architect:</strong> API design, schema,
+                  architecture
                 </li>
-
-                <li style="margin-top: 1rem">
-                  <strong>Tool Invocation:</strong>
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.2rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>Function calling with JSON schema validation</li>
-                    <li>1-3 specialized tools per agent (focused expertise)</li>
-                    <li>Tool results stored in Qdrant for RAG</li>
-                    <li>Async execution with result streaming</li>
-                  </ul>
+                <li>
+                  <strong>Backend Implementer:</strong> Code generation, testing
+                </li>
+                <li>
+                  <strong>Frontend Architect:</strong> UI/UX design, component
+                  structure
+                </li>
+                <li>
+                  <strong>Frontend Implementer:</strong> React components,
+                  styling
+                </li>
+                <li>
+                  <strong>QA Engineer:</strong> Test generation, validation
+                </li>
+                <li>
+                  <strong>DevOps Engineer:</strong> Docker, CI/CD, deployment
                 </li>
               </ul>
-
-              <p
-                style="
-                  font-size: 1.2rem;
-                  margin-top: 1.5rem;
-                  color: #ea2323;
-                  font-weight: bold;
-                "
-              >
-                💡 Hierarchical process ensures quality gates at each step
+              <p style="font-size: 1.3rem; margin-top: 1rem; color: #00ff9d">
+                Each agent has 1-3 specialized tools for maximum efficiency
               </p>
             </div>
 
@@ -9547,129 +9032,25 @@
             <!-- Left: Content -->
             <div class="split-content">
               <h2>Mission Workflow</h2>
-              <p style="font-size: 1.4rem; margin-bottom: 1rem; color: #00ff9d">
-                Event-sourced execution with distributed tracing (OpenTelemetry)
+              <p style="font-size: 1.5rem; margin-bottom: 1.5rem">
+                End-to-end mission execution timeline
               </p>
-
-              <ul style="font-size: 1.3rem; line-height: 1.8">
+              <ul style="font-size: 1.4rem">
+                <li><strong>T0:</strong> User submits mission via chat</li>
                 <li>
-                  <strong>T0 (0-100ms):</strong> Mission Submission
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.2rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>User submits via WebSocket</li>
-                    <li>Request validation (Pydantic)</li>
-                    <li>Trace context initialized (span ID)</li>
-                  </ul>
+                  <strong>T1:</strong> Orchestrator retrieves memory context
                 </li>
-
+                <li><strong>T2:</strong> Task planning and decomposition</li>
+                <li><strong>T3:</strong> Architects design system structure</li>
+                <li><strong>T4:</strong> Implementers generate code</li>
                 <li>
-                  <strong>T1 (100-500ms):</strong> Memory Retrieval
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.2rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>Qdrant semantic search (k=5)</li>
-                    <li>Previous crew context loaded</li>
-                    <li>User preferences enrichment</li>
-                  </ul>
+                  <strong>T5:</strong> QA creates tests, DevOps prepares
+                  deployment
                 </li>
-
-                <li>
-                  <strong>T2 (0.5-2s):</strong> Task Decomposition
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.2rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>Orchestrator plans task DAG</li>
-                    <li>Dependency graph computed</li>
-                    <li>Sequential execution order determined</li>
-                  </ul>
-                </li>
-
-                <li>
-                  <strong>T3 (2-10s):</strong> Architecture Phase
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.2rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>Backend & Frontend architects design</li>
-                    <li>Schema/API specs generated</li>
-                    <li>Component hierarchy defined</li>
-                  </ul>
-                </li>
-
-                <li>
-                  <strong>T4 (10-60s):</strong> Implementation Phase
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.2rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>Code generation with streaming output</li>
-                    <li>Real-time progress updates (SSE)</li>
-                    <li>Artifacts saved to MinIO (versioned)</li>
-                  </ul>
-                </li>
-
-                <li>
-                  <strong>T5 (60-90s):</strong> QA & DevOps (Parallel)
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.2rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>Test generation & validation</li>
-                    <li>Docker/K8s manifests created</li>
-                    <li>CI/CD pipeline configured</li>
-                  </ul>
-                </li>
-
-                <li>
-                  <strong>T6 (90-95s):</strong> Delivery
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.2rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>Zip archive packaged (S3)</li>
-                    <li>Download link generated</li>
-                    <li>Mission marked complete</li>
-                  </ul>
-                </li>
+                <li><strong>T6:</strong> Artifacts packaged and delivered</li>
               </ul>
-
-              <p
-                style="
-                  font-size: 1.2rem;
-                  margin-top: 1rem;
-                  color: #ea2323;
-                  font-weight: bold;
-                "
-              >
-                ⚡ Typical mission: 60-120s | Complex: 3-5 min
-              </p>
-              <p style="font-size: 1.1rem; color: #0095ff">
-                🔄 Retry on failure: 3x max with exponential backoff
+              <p style="font-size: 1.3rem; margin-top: 1rem; color: #00ff9d">
+                All events logged in real-time, visualized in Agent Graph
               </p>
             </div>
 
@@ -10066,122 +9447,29 @@
             <!-- Left: Content -->
             <div class="split-content">
               <h2>Tech Stack Layers</h2>
-              <p style="font-size: 1.4rem; margin-bottom: 1rem; color: #00ff9d">
-                Production-grade polyglot architecture with observability
+              <p style="font-size: 1.5rem; margin-bottom: 1.5rem">
+                Production-grade infrastructure with enterprise security
               </p>
-
-              <ul style="font-size: 1.25rem; line-height: 1.8">
+              <ul style="font-size: 1.3rem">
                 <li>
-                  <strong>Presentation Layer:</strong>
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.15rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>React 19 + TypeScript 5.8 (Vite 6.4 bundler)</li>
-                    <li>XYFlow for DAG visualization (D3.js alternative)</li>
-                    <li>anime.js v4 for micro-interactions (60fps)</li>
-                    <li>TailwindCSS 3.x + Blueprint design tokens</li>
-                    <li>WebSocket + SSE for real-time updates</li>
-                  </ul>
+                  <strong>Data Layer:</strong> PostgreSQL, Qdrant, Object
+                  Storage
                 </li>
-
                 <li>
-                  <strong>Application Layer:</strong>
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.15rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>FastAPI (Python 3.11+, async/await)</li>
-                    <li>CrewAI framework for agent orchestration</li>
-                    <li>Celery for async task processing</li>
-                    <li>Pydantic v2 for data validation</li>
-                    <li>Dependency injection pattern</li>
-                  </ul>
+                  <strong>Backend Layer:</strong> FastAPI, CrewAI, Redis cache
                 </li>
-
                 <li>
-                  <strong>Data Layer:</strong>
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.15rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>PostgreSQL 16 (JSONB, partitioning, asyncpg pool)</li>
-                    <li>Qdrant 1.7+ (HNSW index, 768d embeddings)</li>
-                    <li>Redis 7 (Pub/Sub, L1/L2 cache, session store)</li>
-                    <li>MinIO S3 (artifact storage, versioning)</li>
-                  </ul>
+                  <strong>Frontend Layer:</strong> React 19, XYFlow, anime.js
                 </li>
-
                 <li>
-                  <strong>AI Layer:</strong>
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.15rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>Gemini 2.0 Flash (orchestrator, 1M context)</li>
-                    <li>aimalapi (Claude 3.7, GPT-4, DeepSeek R1)</li>
-                    <li>Streaming responses with token counting</li>
-                    <li>Model fallback strategy (3-tier)</li>
-                  </ul>
+                  <strong>AI Layer:</strong> Gemini + aimalapi multi-model
                 </li>
-
                 <li>
-                  <strong>Security & Observability:</strong>
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.15rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>JWT with refresh token rotation (httpOnly cookies)</li>
-                    <li>Rate limiting (Redis sliding window)</li>
-                    <li>OpenTelemetry (distributed tracing)</li>
-                    <li>Prometheus metrics + Grafana dashboards</li>
-                  </ul>
+                  <strong>Security:</strong> JWT auth, encrypted secrets,
+                  sandboxed tools
                 </li>
-
                 <li>
-                  <strong>Infrastructure:</strong>
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.15rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>Docker Compose (local) / Kubernetes (prod)</li>
-                    <li>nginx reverse proxy (gzip, HTTP/2)</li>
-                    <li>Horizontal pod autoscaling (HPA)</li>
-                    <li>Blue/green deployments</li>
-                  </ul>
-                </li>
-
-                <li>
-                  <strong>Web3 (Planned):</strong>
-                  <ul
-                    style="
-                      margin-left: 1.5rem;
-                      font-size: 1.15rem;
-                      margin-top: 0.5rem;
-                    "
-                  >
-                    <li>C7T utility token (ERC-20)</li>
-                    <li>On-chain reputation system</li>
-                    <li>Decentralized storage (IPFS)</li>
-                  </ul>
+                  <strong>Web3 (Future):</strong> C7T token, on-chain reputation
                 </li>
               </ul>
             </div>
@@ -11054,19 +10342,6 @@
       let indicatorDots = [];
       let currentSlide = 0;
       let indicatorHideTimer = null;
-      let currentViewId = "pitch-deck-view"; // Track current view
-
-      // Track slides per view
-      const viewSlides = {
-        "pitch-deck-view": document.querySelectorAll(
-          "#pitch-deck-view .deck-container .slide"
-        ),
-        "technical-view": document.querySelectorAll("#technical-view .slide"),
-      };
-      let currentViewSlideIndex = {
-        "pitch-deck-view": 0,
-        "technical-view": 0,
-      };
 
       // Debug: Check slide count
       console.log("Total slides found:", slides.length);
@@ -11107,54 +10382,14 @@
         });
       }
 
-      function nextSlideInView() {
-        const currentViewSlides = viewSlides[currentViewId];
-        if (!currentViewSlides) return;
-
-        const currentIndex = currentViewSlideIndex[currentViewId];
-        const nextIndex = (currentIndex + 1) % currentViewSlides.length;
-        currentViewSlideIndex[currentViewId] = nextIndex;
-        showSlideInView(currentViewId, nextIndex);
-      }
-
-      function prevSlideInView() {
-        const currentViewSlides = viewSlides[currentViewId];
-        if (!currentViewSlides) return;
-
-        const currentIndex = currentViewSlideIndex[currentViewId];
-        const prevIndex =
-          (currentIndex - 1 + currentViewSlides.length) %
-          currentViewSlides.length;
-        currentViewSlideIndex[currentViewId] = prevIndex;
-        showSlideInView(currentViewId, prevIndex);
-      }
-
-      function showSlideInView(viewId, index) {
-        const currentViewSlides = viewSlides[viewId];
-        if (!currentViewSlides) return;
-
-        currentViewSlides.forEach((slide, i) => {
-          slide.classList.remove("active");
-        });
-        currentViewSlides[index].classList.add("active");
-      }
-
       function nextSlide() {
-        if (currentViewId === "pitch-deck-view") {
-          currentSlide = (currentSlide + 1) % slides.length;
-          showSlide(currentSlide);
-        } else if (viewSlides[currentViewId]) {
-          nextSlideInView();
-        }
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
       }
 
       function prevSlide() {
-        if (currentViewId === "pitch-deck-view") {
-          currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-          showSlide(currentSlide);
-        } else if (viewSlides[currentViewId]) {
-          prevSlideInView();
-        }
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(currentSlide);
       }
 
       function switchView(viewId) {
@@ -11162,7 +10397,6 @@
           view.classList.add("hidden");
         });
         document.getElementById(viewId).classList.remove("hidden");
-        currentViewId = viewId;
 
         const isPitchDeck = viewId === "pitch-deck-view";
 
@@ -11175,11 +10409,10 @@
       }
 
       function updateNavVisibility(viewId) {
-        const hasSlides = viewId === "pitch-deck-view" || viewSlides[viewId];
-        nextBtn.style.display = hasSlides ? "block" : "none";
-        prevBtn.style.display = hasSlides ? "block" : "none";
-
         const isPitchDeck = viewId === "pitch-deck-view";
+        nextBtn.style.display = isPitchDeck ? "block" : "none";
+        prevBtn.style.display = isPitchDeck ? "block" : "none";
+
         slideIndicator.style.display = isPitchDeck ? "flex" : "none";
 
         if (window.innerWidth <= 768) {
@@ -11206,20 +10439,16 @@
       prevBtn.addEventListener("click", prevSlide);
 
       document.addEventListener("keydown", (e) => {
-        // Allow navigation in pitch-deck-view and technical-view
-        const activeView = document.querySelector(".view:not(.hidden)");
-        if (!activeView) return;
-
-        const activeViewId = activeView.id;
-        if (activeViewId !== "pitch-deck-view" && !viewSlides[activeViewId]) {
+        if (
+          document
+            .getElementById("pitch-deck-view")
+            .classList.contains("hidden")
+        ) {
           return;
         }
-
-        if (e.key === "ArrowRight" || e.key === " ") {
-          e.preventDefault();
+        if (e.key === "ArrowRight") {
           nextSlide();
         } else if (e.key === "ArrowLeft") {
-          e.preventDefault();
           prevSlide();
         }
       });
@@ -11301,122 +10530,87 @@
           // Show corresponding tab content
           const tabId = button.getAttribute("data-tab");
           document.getElementById(tabId).classList.add("active");
-
-          // Initialize slider for the active tab
-          const activeContent = document.getElementById(tabId);
-          const sliderId = activeContent.querySelector(
-            ".card-slider-wrapper"
-          )?.id;
-          if (sliderId) {
-            initSlider(sliderId);
-          }
         });
       });
 
-      // Multi-Slider Management System
-      const sliders = {
-        philosophySlider: { index: 0, initialized: false },
-        tipsSlider: { index: 0, initialized: false },
-        prepareSlider: { index: 0, initialized: false },
-      };
+      // Card Slider Functionality for Philosophy Cards
+      let currentCardIndex = 0;
+      const cardsPerView = 1; // Show one card at a time
+      const slider = document.getElementById("philosophySlider");
+      const cards = document.querySelectorAll(".philosophy-card");
+      const totalCards = cards.length;
+      const maxIndex = totalCards - 1; // Total cards minus 1
 
-      let activeSlider = "philosophySlider";
-
-      function initSlider(sliderId) {
-        if (!sliders[sliderId]) return;
-
-        activeSlider = sliderId;
-        const slider = document.getElementById(sliderId);
-        if (!slider) return;
-
-        const cards = slider.querySelectorAll(".philosophy-card");
-        if (cards.length === 0) return;
-
-        if (!sliders[sliderId].initialized) {
-          sliders[sliderId].cards = cards;
-          sliders[sliderId].totalCards = cards.length;
-          sliders[sliderId].maxIndex = cards.length - 1;
-          sliders[sliderId].initialized = true;
+      // Create indicator dots
+      function createSliderDots() {
+        const dotsContainer = document.getElementById("sliderDots");
+        dotsContainer.innerHTML = "";
+        for (let i = 0; i < totalCards; i++) {
+          const dot = document.createElement("div");
+          dot.className = "slider-dot";
+          if (i === 0) dot.classList.add("active");
+          dot.onclick = () => goToCardSet(i);
+          dotsContainer.appendChild(dot);
         }
-
-        updateSliderPosition(sliderId);
       }
 
       // Update slider position
-      function updateSliderPosition(sliderId = activeSlider) {
-        const sliderData = sliders[sliderId];
-        if (!sliderData || !sliderData.initialized) return;
-
-        const slider = document.getElementById(sliderId);
-        const cards = sliderData.cards;
-        if (!slider || !cards || cards.length === 0) return;
-
+      function updateSliderPosition() {
+        if (cards.length === 0) return;
         const cardWidth = cards[0].offsetWidth;
-        const offset = -(sliderData.index * cardWidth);
+        const offset = -(currentCardIndex * cardWidth);
         slider.style.transform = `translateX(${offset}px)`;
 
-        // Update navigation buttons
+        // Update dots
+        document.querySelectorAll(".slider-dot").forEach((dot, index) => {
+          dot.classList.toggle("active", index === currentCardIndex);
+        });
+
+        // Update button states
         const prevBtn = document.getElementById("prevSliderBtn");
         const nextBtn = document.getElementById("nextSliderBtn");
-        if (prevBtn) prevBtn.disabled = sliderData.index === 0;
-        if (nextBtn)
-          nextBtn.disabled = sliderData.index === sliderData.maxIndex;
+        if (prevBtn) prevBtn.disabled = currentCardIndex === 0;
+        if (nextBtn) nextBtn.disabled = currentCardIndex === maxIndex;
       }
 
       // Navigate cards
       function slideCards(direction) {
-        const sliderData = sliders[activeSlider];
-        if (!sliderData || !sliderData.initialized) return;
-
-        sliderData.index += direction;
-        if (sliderData.index < 0) sliderData.index = 0;
-        if (sliderData.index > sliderData.maxIndex)
-          sliderData.index = sliderData.maxIndex;
-        updateSliderPosition(activeSlider);
+        currentCardIndex += direction;
+        if (currentCardIndex < 0) currentCardIndex = 0;
+        if (currentCardIndex > maxIndex) currentCardIndex = maxIndex;
+        updateSliderPosition();
       }
 
-      // Go to specific card
+      // Go to specific card set
       function goToCardSet(index) {
-        const sliderData = sliders[activeSlider];
-        if (!sliderData || !sliderData.initialized) return;
-
-        sliderData.index = index;
-        updateSliderPosition(activeSlider);
+        currentCardIndex = index;
+        updateSliderPosition();
       }
 
-      // Keyboard navigation for card sliders
+      // Keyboard navigation for card slider
       document.addEventListener("keydown", (e) => {
         if (
           !document
             .getElementById("philosophy-view")
             .classList.contains("hidden")
         ) {
-          const sliderData = sliders[activeSlider];
-          if (!sliderData || !sliderData.initialized) return;
-
-          if (
-            e.key === "ArrowRight" &&
-            sliderData.index < sliderData.maxIndex
-          ) {
+          if (e.key === "ArrowRight" && currentCardIndex < maxIndex) {
             slideCards(1);
-          } else if (e.key === "ArrowLeft" && sliderData.index > 0) {
+          } else if (e.key === "ArrowLeft" && currentCardIndex > 0) {
             slideCards(-1);
           }
         }
       });
 
-      // Initialize philosophy slider on page load
+      // Initialize slider on page load
       window.addEventListener("load", () => {
-        initSlider("philosophySlider");
+        createSliderDots();
+        updateSliderPosition();
       });
 
       // Update on window resize
       window.addEventListener("resize", () => {
-        Object.keys(sliders).forEach((sliderId) => {
-          if (sliders[sliderId].initialized) {
-            updateSliderPosition(sliderId);
-          }
-        });
+        updateSliderPosition();
       });
 
       // Make slideCards function globally available

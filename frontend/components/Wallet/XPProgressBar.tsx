@@ -77,8 +77,7 @@ export const XPProgressBar: React.FC<XPProgressBarProps> = ({
   // Animate fill on mount and when XP changes
   useEffect(() => {
     if (fillRef.current && animated) {
-      animate({
-        targets: fillRef.current,
+      animate(fillRef.current, {
         width: [`0%`, `${percentage}%`],
         opacity: [0, 1],
         easing: 'easeOutCubic',
@@ -90,8 +89,7 @@ export const XPProgressBar: React.FC<XPProgressBarProps> = ({
   // Pulse glow animation
   useEffect(() => {
     if (barRef.current && animated) {
-      animate({
-        targets: barRef.current,
+      animate(barRef.current, {
         boxShadow: [
           '0 0 10px rgba(234, 35, 35, 0.3), 0 0 20px rgba(6, 182, 212, 0.2)',
           '0 0 15px rgba(234, 35, 35, 0.5), 0 0 30px rgba(6, 182, 212, 0.3)',

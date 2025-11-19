@@ -25,77 +25,86 @@
         font-style: normal;
       }
     </style>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://f005.backblazeb2.com/file/zyniqsolutionsbucket/cdn/tailwind-cdn.js"></script>
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ["Space Grotesk", "sans-serif"],
-            },
-            colors: {
-              "brand-bg": "#F1F6F9",
-              "brand-header": "#14274E",
-              "brand-text": "#394867",
-              "brand-outline": "#9BA4B4",
-              "brand-crew-red": "#ea2323",
-            },
-            animation: {
-              "slow-blink": "slow-blink 1.5s ease-in-out infinite",
-              "crew-move-up": "crew-move-up 0.8s ease-in-out forwards",
-              "slogan-fade-in": "slogan-fade-in 0.5s ease-out forwards",
-              "input-slide-up": "input-slide-up 0.7s ease-out forwards",
-              "shadow-pulse": "shadow-pulse 2s infinite",
-              "modal-fade-in": "modal-fade-in 0.2s ease-out",
-              "background-lines": "background-lines 20s linear infinite",
-              "fade-in-down": "fade-in-down 0.8s ease-out forwards",
-              "fade-out-up": "fade-out-up 0.6s ease-in forwards",
-            },
-            keyframes: {
-              "slow-blink": {
-                "0%, 100%": { opacity: "1" },
-                "50%": { opacity: "0.3" },
-              },
-              "crew-move-up": {
-                from: { transform: "translateY(0) scale(1)", opacity: 1 },
-                to: { transform: "translateY(-12vh) scale(4.0)", opacity: 1 },
-              },
-              "slogan-fade-in": {
-                from: { opacity: 0, transform: "translateY(10px)" },
-                to: { opacity: 1, transform: "translateY(0)" },
-              },
-              "input-slide-up": {
-                from: {
-                  opacity: 0,
-                  transform: "translateY(100px) scale(0.95)",
+      // Wait for Tailwind to load before configuring
+      window.addEventListener("load", () => {
+        if (window.tailwind) {
+          tailwind.config = {
+            theme: {
+              extend: {
+                fontFamily: {
+                  sans: ["Space Grotesk", "sans-serif"],
                 },
-                to: { opacity: 1, transform: "translateY(0) scale(1)" },
-              },
-              "shadow-pulse": {
-                "50%": {
-                  boxShadow: "0 0 12px 3px theme('colors.brand-header / 40%')",
+                colors: {
+                  "brand-bg": "#F1F6F9",
+                  "brand-header": "#14274E",
+                  "brand-text": "#394867",
+                  "brand-outline": "#9BA4B4",
+                  "brand-crew-red": "#ea2323",
+                },
+                animation: {
+                  "slow-blink": "slow-blink 1.5s ease-in-out infinite",
+                  "crew-move-up": "crew-move-up 0.8s ease-in-out forwards",
+                  "slogan-fade-in": "slogan-fade-in 0.5s ease-out forwards",
+                  "input-slide-up": "input-slide-up 0.7s ease-out forwards",
+                  "shadow-pulse": "shadow-pulse 2s infinite",
+                  "modal-fade-in": "modal-fade-in 0.2s ease-out",
+                  "background-lines": "background-lines 20s linear infinite",
+                  "fade-in-down": "fade-in-down 0.8s ease-out forwards",
+                  "fade-out-up": "fade-out-up 0.6s ease-in forwards",
+                },
+                keyframes: {
+                  "slow-blink": {
+                    "0%, 100%": { opacity: "1" },
+                    "50%": { opacity: "0.3" },
+                  },
+                  "crew-move-up": {
+                    from: { transform: "translateY(0) scale(1)", opacity: 1 },
+                    to: {
+                      transform: "translateY(-12vh) scale(4.0)",
+                      opacity: 1,
+                    },
+                  },
+                  "slogan-fade-in": {
+                    from: { opacity: 0, transform: "translateY(10px)" },
+                    to: { opacity: 1, transform: "translateY(0)" },
+                  },
+                  "input-slide-up": {
+                    from: {
+                      opacity: 0,
+                      transform: "translateY(100px) scale(0.95)",
+                    },
+                    to: { opacity: 1, transform: "translateY(0) scale(1)" },
+                  },
+                  "shadow-pulse": {
+                    "50%": {
+                      boxShadow:
+                        "0 0 12px 3px theme('colors.brand-header / 40%')",
+                    },
+                  },
+                  "modal-fade-in": {
+                    from: { opacity: "0", transform: "scale(0.95)" },
+                    to: { opacity: "1", transform: "scale(1)" },
+                  },
+                  "background-lines": {
+                    from: { transform: "translateY(-100%)" },
+                    to: { transform: "translateY(0%)" },
+                  },
+                  "fade-in-down": {
+                    "0%": { opacity: "0", transform: "translateY(-20px)" },
+                    "100%": { opacity: "1", transform: "translateY(0)" },
+                  },
+                  "fade-out-up": {
+                    "0%": { opacity: "1", transform: "translateY(0)" },
+                    "100%": { opacity: "0", transform: "translateY(-20px)" },
+                  },
                 },
               },
-              "modal-fade-in": {
-                from: { opacity: "0", transform: "scale(0.95)" },
-                to: { opacity: "1", transform: "scale(1)" },
-              },
-              "background-lines": {
-                from: { transform: "translateY(-100%)" },
-                to: { transform: "translateY(0%)" },
-              },
-              "fade-in-down": {
-                "0%": { opacity: "0", transform: "translateY(-20px)" },
-                "100%": { opacity: "1", transform: "translateY(0)" },
-              },
-              "fade-out-up": {
-                "0%": { opacity: "1", transform: "translateY(0)" },
-                "100%": { opacity: "0", transform: "translateY(-20px)" },
-              },
             },
-          },
-        },
-      };
+          };
+        }
+      });
     </script>
     <script type="importmap">
       {

@@ -11,6 +11,7 @@ from app.routes import (
     crews,
     crew_portfolio,
     dashboard_stats,
+    env_setup,
     evals,
     graph,
     health,
@@ -20,6 +21,7 @@ from app.routes import (
     pricing,
     ratings,
     runs,
+    settings,
     stream,
     tools,
     # wallet,  # Temporarily disabled - needs UserCtx migration
@@ -87,6 +89,7 @@ app.include_router(auth.router)
 app.include_router(agents.router)
 app.include_router(crews.router)
 app.include_router(crew_portfolio.router)
+app.include_router(env_setup.router)
 # app.include_router(wallet.router)  # Temporarily disabled - needs UserCtx migration
 app.include_router(dashboard_stats.router)
 app.include_router(tools.router)
@@ -98,6 +101,7 @@ app.include_router(metadata.router)
 app.include_router(pricing.router)
 app.include_router(ratings.router)
 app.include_router(runs.router)
+app.include_router(settings.router)
 app.include_router(graph.router)
 app.include_router(stream.router)
 app.include_router(ws.router)

@@ -99,13 +99,13 @@ export const MarketplacePage: React.FC = () => {
         />
       )}
 
-      <div className="min-h-screen bg-gradient-to-br from-[#05070B] via-[#0B0F19] to-[#05070B] text-white">
+      <div className="h-full text-white">
       {/* Hex Grid Background */}
       <div className="fixed inset-0 hex-grid-bg opacity-40 pointer-events-none" />
       
       {/* Ambient Particles */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute w-96 h-96 bg-[#ea2323]/10 rounded-full blur-3xl -top-48 -left-48 animate-pulse" />
+        <div className="absolute w-96 h-96 " />
         <div className="absolute w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
