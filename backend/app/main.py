@@ -76,9 +76,10 @@ app.add_middleware(SecurityHeaders)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
-    allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Crew-Key"],
     allow_credentials=True,
+    expose_headers=["*"],
 )
 
 Instrumentator().instrument(app).expose(app, endpoint="/metrics")
