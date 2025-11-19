@@ -22,6 +22,11 @@ def upgrade() -> None:
     """Upgrade schema."""
     
     # Create enum types (if they don't exist)
+    runstatus_enum = postgresql.ENUM('queued', 'running', 'succeeded', 'failed', 'cancelled', name='runstatus', create_type=False)
+    chaintype_enum = postgresql.ENUM('ethereum', 'polygon', 'arbitrum', 'optimism', 'local', 'test', name='chaintype', create_type=False)
+    transactiondirection_enum = postgresql.ENUM('credit', 'debit', name='transactiondirection', create_type=False)
+    
+    # Create types if they don't exist
     op.execute("""
         DO $$ BEGIN
             CREATE TYPE runstatus AS ENUM ('queued', 'running', 'succeeded', 'failed', 'cancelled');
@@ -108,7 +113,7 @@ def upgrade() -> None:
         'runs',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('crew_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('status', sa.Enum('queued', 'running', 'succeeded', 'failed', 'cancelled', name='runstatus'), nullable=False, server_default='queued'),
+        sa.Column('status', runstatus_enum, nullable=False, server_default='queued'),
         sa.Column('started_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('finished_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('prompt', sa.String(), nullable=False, server_default=''),
@@ -144,11 +149,11 @@ def upgrade() -> None:
         sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False, unique=True),
         sa.Column('address', sa.String(42), nullable=False),
-        sa.Column('chain', sa.Enum('ethereum', 'polygon', 'arbitrum', 'optimism', 'local', 'test', name='chaintype'), nullable=False, server_default='test'),
+        sa.Column('chain', chaintype_enum, nullable=False, server_default='test'),
         sa.Column('verified_at', sa.DateTime(), nullable=True),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     )
     op.create_index('idx_user_wallet_address', 'user_wallets', ['address'])
     
@@ -172,13 +177,13 @@ def upgrade() -> None:
         sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('token_symbol', sa.String(10), nullable=False, server_default='C7T'),
         sa.Column('amount', sa.Float(), nullable=False),
-        sa.Column('direction', sa.Enum('credit', 'debit', name='transactiondirection'), nullable=False),
+        sa.Column('direction', transactiondirection_enum, nullable=False),
         sa.Column('reason', sa.String(255), nullable=False),
         sa.Column('balance_after', sa.Float(), nullable=False),
         sa.Column('reference_id', sa.String(100), nullable=True),
         sa.Column('reference_type', sa.String(50), nullable=True),
         sa.Column('created_at', sa.DateTime(), nullable=False),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id']),
+        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     )
     op.create_index('idx_token_tx_user_created', 'token_transactions', ['user_id', 'created_at'])
     op.create_index('idx_token_tx_reference', 'token_transactions', ['reference_type', 'reference_id'])
