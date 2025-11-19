@@ -45,7 +45,8 @@ def login_user(body: LoginIn, db: Session = Depends(get_db)) -> dict[str, str]:
 @router.get("/me")
 def get_current_user(ctx: UserCtx = Depends(auth), db: Session = Depends(get_db)) -> dict[str, str]:
     """Get current user information from token."""
-    user = db.query(User).filter(User.id == ctx.user_id).first()
+    from uuid import UUID
+    user = db.query(User).filter(User.id == UUID(ctx.user_id)).first()
     if not user:
         raise HTTPException(404, "User not found")
     return {

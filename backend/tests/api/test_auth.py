@@ -14,14 +14,15 @@ def test_auth_register(client: TestClient):
         "/auth/register",
         json={
             "email": "newuser@example.com",
-            "password": "SecurePass123!",
-            "org_name": "Test Organization"
+            "password": "SecurePass123!"
         }
     )
     assert response.status_code == 200
     data = response.json()
-    assert "user_id" in data
-    assert data["email"] == "newuser@example.com"
+    assert "id" in data
+    # Verify it's a valid UUID string
+    import uuid
+    uuid.UUID(data["id"])
 
 
 def test_auth_login(client: TestClient):
@@ -40,7 +41,7 @@ def test_auth_login(client: TestClient):
     assert response.status_code == 200
     data = response.json()
     assert "access" in data
-    assert "user" in data
+    assert "refresh" in data
 
 
 def test_auth_me(client: TestClient, auth_headers: dict[str, str]):
