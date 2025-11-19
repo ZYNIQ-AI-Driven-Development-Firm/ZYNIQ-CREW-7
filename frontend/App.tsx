@@ -934,13 +934,17 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     try {
       let runId: string;
       
+      // Determine the mode based on chatMode flag
+      const mode = chatMode ? 'chat' : 'tool';
+      
       // Use Full-Stack crew if selected, otherwise standard crew
       if (crewType === 'fullstack') {
-        pushRunEvent('log', '🚀 Starting Full-Stack SaaS Crew (7 specialized agents)...');
+        pushRunEvent('log', `🚀 Starting Full-Stack SaaS Crew (${chatMode ? 'Chat Mode' : 'Orchestrator Mode'})...`);
         const result = await runFullStackCrew(content);
         runId = result.id;
       } else {
-        const result = await createRun(activeCrewId, content, { mode: 'chat' });
+        pushRunEvent('log', `Starting run in ${chatMode ? 'Chat' : 'Orchestrator'} mode...`);
+        const result = await createRun({ crew_id: activeCrewId, prompt: content, mode });
         runId = result.id;
       }
       
@@ -1876,15 +1880,24 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
   onToggleAdvancedMode,
   chatMode = false,
   onToggleChatMode,
-}) => (
-  <section className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-    <div className="flex-1 overflow-y-auto px-5 pb-4 pt-5 md:px-8">
+}) => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isResponding]);
+
+  return (
+  <section className="flex h-full min-h-0 flex-1 flex-col">
+    {/* Scrollable messages area */}
+    <div className="flex-1 overflow-y-auto px-5 pt-5 md:px-8" style={{ scrollbarGutter: 'stable' }}>
       {messages.length === 0 ? (
         <div className="flex h-full items-center justify-center text-center text-sm md:text-base text-[#acb6cf]">
           Drop your first directive to light up the command feed.
         </div>
       ) : (
-        <ul className="space-y-4 pb-8">
+        <ul className="space-y-4 pb-6">
           {messages.map((message) => {
             const isUser = message.role === 'user';
             return (
@@ -1892,10 +1905,10 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
                 <div className="max-w-[80%] space-y-2">
                   <div
                     className={classNames(
-                      'rounded-2xl px-4 py-3 text-xs md:text-sm shadow-sm transition',
+                      'rounded-2xl px-4 py-3 text-xs md:text-sm transition whitespace-pre-wrap',
                       isUser
-                        ? 'bg-[#ea2323] text-white shadow-[#ea232336]'
-                        : 'bg-[#1e2635] text-[#f8fafc]'
+                        ? 'bg-[#ea2323] text-white'
+                        : 'bg-slate-900/80 text-[#f8fafc]'
                     )}
                   >
                     {message.content}
@@ -1904,26 +1917,26 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
                     <button
                       type="button"
                       onClick={() => onMessageAction('share', message)}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-[#1e2635]/80 text-[#acb6cf] transition hover:border-[#ea2323]/60 hover:text-white"
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-900/60 text-[#acb6cf] transition hover:bg-[#ea2323]/20 hover:text-white"
                       aria-label="Share message"
                     >
-                      <ShareIcon className="h-4 w-4" />
+                      <ShareIcon className="h-3.5 w-3.5" />
                     </button>
                     <button
                       type="button"
                       onClick={() => onMessageAction('copy', message)}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-[#1e2635]/80 text-[#acb6cf] transition hover:border-[#ea2323]/60 hover:text-white"
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-900/60 text-[#acb6cf] transition hover:bg-[#ea2323]/20 hover:text-white"
                       aria-label="Copy message"
                     >
-                      <CopyIcon className="h-4 w-4" />
+                      <CopyIcon className="h-3.5 w-3.5" />
                     </button>
                     <button
                       type="button"
                       onClick={() => onMessageAction('regenerate', message)}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-[#1e2635]/80 text-[#acb6cf] transition hover:border-[#ea2323]/60 hover:text-white"
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-900/60 text-[#acb6cf] transition hover:bg-[#ea2323]/20 hover:text-white"
                       aria-label="Regenerate message"
                     >
-                      <ReplayIcon className="h-4 w-4" />
+                      <ReplayIcon className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
@@ -1932,8 +1945,8 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
           })}
           {isResponding ? (
             <li className="flex justify-start">
-              <div className="max-w-[80%] space-y-2">
-                <div className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-[#1e2635] px-4 py-3 text-sm text-[#f8fafc] shadow-sm">
+              <div className="max-w-[80%]">
+                <div className="inline-flex items-center gap-2 rounded-2xl bg-slate-900/80 px-4 py-3 text-sm text-[#f8fafc]">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-[#ea2323]" aria-hidden="true" />
                   Thinking...
                 </div>
@@ -1942,9 +1955,13 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
           ) : null}
         </ul>
       )}
+      
+      {/* Auto-scroll anchor */}
+      <div ref={messagesEndRef} />
     </div>
-  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#1e2635] via-[#1e2635]/95 to-transparent z-[5]" />
-  <div className="sticky bottom-0 z-20 border-t border-white/15 bg-[#1e2635] px-5 pb-3 pt-3 md:px-8">
+    
+    {/* Sticky input at bottom */}
+    <div className="shrink-0 border-t border-white/10 bg-[#1e2635]/95 backdrop-blur-sm px-5 py-3 md:px-8">
       <ChatInput
         isSending={isResponding}
         onSendMessage={onSendMessage}
@@ -1957,7 +1974,8 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
       />
     </div>
   </section>
-);
+  );
+};
 
 type SectionPlaceholderProps = {
   title: string;
