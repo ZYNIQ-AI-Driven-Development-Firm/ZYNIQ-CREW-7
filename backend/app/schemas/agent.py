@@ -7,8 +7,9 @@ from __future__ import annotations
 
 from datetime import datetime
 from uuid import UUID
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional, Any
+import json
 
 
 class AgentBase(BaseModel):
@@ -19,8 +20,16 @@ class AgentBase(BaseModel):
     specialist_type: Optional[str] = Field(None, description="Specific expertise area")
     backstory: Optional[str] = Field(None, description="Agent backstory")
     goal: Optional[str] = Field(None, description="Agent goal")
-    llm_config: Optional[str] = Field(None, description="LLM configuration JSON")
+    llm_config: Optional[str | dict[str, Any]] = Field(None, description="LLM configuration JSON or dict")
     tools_list: Optional[str] = Field(None, description="Comma-separated tool names")
+    
+    @field_validator('llm_config', mode='before')
+    @classmethod
+    def validate_llm_config(cls, v):
+        """Convert dict to JSON string if needed."""
+        if isinstance(v, dict):
+            return json.dumps(v)
+        return v
 
 
 class AgentCreate(AgentBase):
@@ -36,8 +45,16 @@ class AgentPatch(BaseModel):
     specialist_type: Optional[str] = None
     backstory: Optional[str] = None
     goal: Optional[str] = None
-    llm_config: Optional[str] = None
+    llm_config: Optional[str | dict[str, Any]] = None
     tools_list: Optional[str] = None
+    
+    @field_validator('llm_config', mode='before')
+    @classmethod
+    def validate_llm_config(cls, v):
+        """Convert dict to JSON string if needed."""
+        if isinstance(v, dict):
+            return json.dumps(v)
+        return v
 
 
 class AgentOut(AgentBase):
