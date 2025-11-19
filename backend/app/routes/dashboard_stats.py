@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
 from typing import Optional
+from uuid import UUID
 import logging
 
 from app.deps import UserCtx, auth, get_db
@@ -64,13 +65,15 @@ async def get_dashboard_stats(
         Crew.owner_id == user.user_id
     ).scalar() or 0
     
-    # User-specific run count
-    user_runs_count = db.query(func.count(Run.id)).filter(
-        Run.owner_id == user.user_id
+    # User-specific run count (join through Crew since Run doesn't have owner_id)
+    user_runs_count = db.query(func.count(Run.id)).join(
+        Crew, Run.crew_id == Crew.id
+    ).filter(
+        Crew.owner_id == user.user_id
     ).scalar() or 0
     
     # User C7T balance
-    user_c7t_balance = token_service.get_balance(user.user_id)
+    user_c7t_balance = token_service.get_balance(UUID(user.user_id))
     
     # User owned crews count (same as user_crews_count but explicit)
     user_crews_owned_count = user_crews_count
@@ -78,7 +81,7 @@ async def get_dashboard_stats(
     # User active rentals (where user is renter)
     user_active_rentals_count = db.query(func.count(CrewRental.id)).filter(
         and_(
-            CrewRental.renter_user_id == user.user_id,
+            CrewRental.renter_user_id == UUID(user.user_id),
             CrewRental.status == "active"
         )
     ).scalar() or 0
@@ -88,7 +91,7 @@ async def get_dashboard_stats(
         func.coalesce(func.sum(TokenTransaction.amount), 0)
     ).filter(
         and_(
-            TokenTransaction.user_id == user.user_id,
+            TokenTransaction.user_id == UUID(user.user_id),
             TokenTransaction.direction == TransactionDirection.CREDIT
         )
     ).scalar() or 0.0
@@ -98,7 +101,7 @@ async def get_dashboard_stats(
         func.coalesce(func.sum(TokenTransaction.amount), 0)
     ).filter(
         and_(
-            TokenTransaction.user_id == user.user_id,
+            TokenTransaction.user_id == UUID(user.user_id),
             TokenTransaction.direction == TransactionDirection.DEBIT
         )
     ).scalar() or 0.0
@@ -171,14 +174,14 @@ async def get_token_stats(
     """Get detailed token statistics for the current user."""
     token_service = TokenService(db)
     
-    balance = token_service.get_balance(user.user_id)
+    balance = token_service.get_balance(UUID(user.user_id))
     
     # Total earned
     total_earned = db.query(
         func.coalesce(func.sum(TokenTransaction.amount), 0)
     ).filter(
         and_(
-            TokenTransaction.user_id == user.user_id,
+            TokenTransaction.user_id == UUID(user.user_id),
             TokenTransaction.direction == TransactionDirection.CREDIT
         )
     ).scalar() or 0.0
@@ -188,19 +191,19 @@ async def get_token_stats(
         func.coalesce(func.sum(TokenTransaction.amount), 0)
     ).filter(
         and_(
-            TokenTransaction.user_id == user.user_id,
+            TokenTransaction.user_id == UUID(user.user_id),
             TokenTransaction.direction == TransactionDirection.DEBIT
         )
     ).scalar() or 0.0
     
     # Transaction count
     transaction_count = db.query(func.count(TokenTransaction.id)).filter(
-        TokenTransaction.user_id == user.user_id
+        TokenTransaction.user_id == UUID(user.user_id)
     ).scalar() or 0
     
     # Recent transactions
     recent_txs = token_service.get_transaction_history(
-        user.user_id,
+        UUID(user.user_id),
         limit=limit
     )
     
@@ -240,10 +243,12 @@ async def get_rental_stats(
     db: Session = Depends(get_db),
 ):
     """Get rental statistics for the current user."""
+    user_uuid = UUID(user.user_id)
+    
     # Active rentals where user is renter
     active_as_renter = db.query(func.count(CrewRental.id)).filter(
         and_(
-            CrewRental.renter_user_id == user.user_id,
+            CrewRental.renter_user_id == user_uuid,
             CrewRental.status == "active"
         )
     ).scalar() or 0
@@ -251,7 +256,7 @@ async def get_rental_stats(
     # Active rentals where user is owner
     active_as_owner = db.query(func.count(CrewRental.id)).filter(
         and_(
-            CrewRental.owner_user_id == user.user_id,
+            CrewRental.owner_user_id == user_uuid,
             CrewRental.status == "active"
         )
     ).scalar() or 0
@@ -259,8 +264,8 @@ async def get_rental_stats(
     # Total completed rentals (as renter or owner)
     total_completed = db.query(func.count(CrewRental.id)).filter(
         and_(
-            (CrewRental.renter_user_id == user.user_id) |
-            (CrewRental.owner_user_id == user.user_id),
+            (CrewRental.renter_user_id == user_uuid) |
+            (CrewRental.owner_user_id == user_uuid),
             CrewRental.status == "completed"
         )
     ).scalar() or 0
@@ -270,7 +275,7 @@ async def get_rental_stats(
         func.coalesce(func.sum(TokenTransaction.amount), 0)
     ).filter(
         and_(
-            TokenTransaction.user_id == user.user_id,
+            TokenTransaction.user_id == user_uuid,
             TokenTransaction.direction == TransactionDirection.CREDIT,
             TokenTransaction.reference_type == "crew_rental_income"
         )
@@ -281,7 +286,7 @@ async def get_rental_stats(
         func.coalesce(func.sum(TokenTransaction.amount), 0)
     ).filter(
         and_(
-            TokenTransaction.user_id == user.user_id,
+            TokenTransaction.user_id == user_uuid,
             TokenTransaction.direction == TransactionDirection.DEBIT,
             TokenTransaction.reference_type == "crew_rental"
         )

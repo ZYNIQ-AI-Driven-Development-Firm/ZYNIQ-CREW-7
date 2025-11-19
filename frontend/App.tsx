@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import * as anime from 'animejs';
+import { animate, remove, stagger } from 'animejs';
 
 import ChatInput from './components/ChatInput';
 import Dashboard, { type RunLogEvent } from './components/Dashboard';
@@ -600,9 +600,10 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
   const [crews, setCrews] = useState<Crew[]>([]);
   const [activeCrewId, setActiveCrewId] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      return window.localStorage.getItem('crew7_active_crew_id') ?? '59aa8570-f55b-4422-8d8b-8c78bf6f6e7d';
+      const stored = window.localStorage.getItem('crew7_active_crew_id');
+      return stored ?? '';
     }
-    return '59aa8570-f55b-4422-8d8b-8c78bf6f6e7d';
+    return '';
   });
   const streamCloseRef = useRef<(() => void) | null>(null);
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
@@ -690,11 +691,10 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         if (!cancelled) {
           setUser({
             id: 'default-user',
-            name: 'Commander',
             email: 'commander@crew7.ai',
-            timezone: 'UTC',
-            role: 'Member',
-          } as User);
+            org_id: 'default',
+            role: 'owner',
+          });
         }
       }
     };
@@ -706,11 +706,12 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     };
   }, []);
 
+  // Set default timezone info
   useEffect(() => {
-    if (!user?.timezone) return;
-    setTimeZoneInfo({ id: user.timezone, label: formatTimeZoneLabel(user.timezone) });
-    setLocalTime(formatLocalTime(user.timezone));
-  }, [user?.timezone]);
+    const defaultTz = 'UTC';
+    setTimeZoneInfo({ id: defaultTz, label: formatTimeZoneLabel(defaultTz) });
+    setLocalTime(formatLocalTime(defaultTz));
+  }, []);
 
   // Save notifications to localStorage whenever they change
   useEffect(() => {
@@ -730,6 +731,10 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         const crewsData = await listCrews();
         if (!cancelled) {
           setCrews(crewsData);
+          // If no active crew is set and we have crews, set the first one
+          if (!activeCrewId && crewsData.length > 0) {
+            setActiveCrewId(crewsData[0].id);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch crews', error);
@@ -741,7 +746,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [activeCrewId]);
 
   useEffect(() => {
     if (!activeCrewId) {
@@ -760,6 +765,14 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         console.error('Failed to fetch crew', error);
         if (!cancelled) {
           setActiveCrew(null);
+          // Clear invalid crew ID from storage
+          window.localStorage.removeItem('crew7_active_crew_id');
+          // Try to set the first available crew from the list
+          if (crews.length > 0) {
+            setActiveCrewId(crews[0].id);
+          } else {
+            setActiveCrewId('');
+          }
         }
       }
     };
@@ -769,9 +782,18 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     return () => {
       cancelled = true;
     };
-  }, [activeCrewId]);
+  }, [activeCrewId, crews]);
 
   useEffect(() => {
+    // Only connect WebSocket if user is authenticated
+    if (!user) {
+      return;
+    }
+
+    const handleError = (error: Event) => {
+      console.warn('Mission WebSocket connection failed - this is normal if not authenticated');
+    };
+
     const ws = missionSocket((message: MissionMessage) => {
       if (message.type === 'signal') {
         const payload = (message.payload ?? {}) as Record<string, unknown>;
@@ -827,12 +849,12 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
           ].slice(0, 20)
         );
       }
-    });
+    }, handleError);
 
     return () => {
-      if (ws) ws();
+      if (ws) ws.close();
     };
-  }, [activeCrewId]);
+  }, [activeCrewId, user]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -901,7 +923,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         const result = await runFullStackCrew(content);
         runId = result.id;
       } else {
-        const result = await createRun({ crew_id: activeCrewId, prompt: content, mode: 'chat' });
+        const result = await createRun(activeCrewId, content, { mode: 'chat' });
         runId = result.id;
       }
       
@@ -1205,9 +1227,8 @@ const ShellSidebar: React.FC<ShellSidebarProps> = ({ activeSection, onNavigate, 
   useEffect(() => {
     if (!sidebarRef.current) return;
 
-    anime.remove(sidebarRef.current);
-    (anime as any)({
-      targets: sidebarRef.current,
+    remove(sidebarRef.current);
+    animate(sidebarRef.current, {
       width: isExpanded ? 240 : 64,
       duration: 200,
       easing: 'easeOutQuad',
@@ -1215,13 +1236,12 @@ const ShellSidebar: React.FC<ShellSidebarProps> = ({ activeSection, onNavigate, 
 
     if (navRef.current) {
       const navItems = navRef.current.querySelectorAll('button');
-      anime.remove(navItems);
-      (anime as any)({
-        targets: navItems,
+      remove(navItems);
+      animate(navItems, {
         opacity: [0.7, 1],
         scale: [0.98, 1],
         duration: 150,
-        delay: anime.stagger(20),
+        delay: stagger(20),
         easing: 'easeOutQuad',
       });
     }

@@ -21,6 +21,7 @@ from app.routes import (
     pricing,
     ratings,
     runs,
+    settings as settings_routes,
     stream,
     tools,
     # wallet,  # Temporarily disabled - needs UserCtx migration
@@ -76,9 +77,10 @@ app.add_middleware(SecurityHeaders)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
-    allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Crew-Key"],
     allow_credentials=True,
+    expose_headers=["*"],
 )
 
 Instrumentator().instrument(app).expose(app, endpoint="/metrics")
@@ -101,7 +103,7 @@ app.include_router(metadata.router)
 app.include_router(pricing.router)
 app.include_router(ratings.router)
 app.include_router(runs.router)
-app.include_router(settings_router.router)
+app.include_router(settings_routes.router)
 app.include_router(graph.router)
 app.include_router(stream.router)
 app.include_router(ws.router)

@@ -156,40 +156,48 @@ else
     fi
 fi
 echo ""
-
-# Create test user (Note: User table schema only has id, email, password_hash, org_id, role)
+# Create test user via Python script (ensures password is hashed correctly)
 echo -e "${BLUE}[7/9]${NC} Creating test user..."
+docker-compose exec -T api python -c "
+import sys
+sys.path.insert(0, '/app')
+from app.infra.db import SessionLocal
+from app.models.user import User
+from app.services.auth_service import hash_pw
+import uuid
 
-# Generate password hash using Python/bcrypt
-PASSWORD_HASH=$(docker-compose exec -T api python -c "import bcrypt; print(bcrypt.hashpw(b'${DEFAULT_USER_PASSWORD}', bcrypt.gensalt()).decode('utf-8'))")
-
-cat << EOF | docker-compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
--- Check if user exists
-DO \$\$
-BEGIN
-    -- Delete existing user if present
-    DELETE FROM users WHERE email = '${DEFAULT_USER_EMAIL}';
+db = SessionLocal()
+try:
+    # Delete existing user if present
+    existing = db.query(User).filter(User.email == '${DEFAULT_USER_EMAIL}').first()
+    if existing:
+        db.delete(existing)
+        db.commit()
     
-    -- Create new user (matching the actual schema from Alembic migration)
-    INSERT INTO users (id, email, password_hash, org_id, role)
-    VALUES (
-        gen_random_uuid(),
-        '${DEFAULT_USER_EMAIL}',
-        '${PASSWORD_HASH}',
-        'default',
-        'admin'
-    );
-    
-    RAISE NOTICE 'User created: ${DEFAULT_USER_EMAIL}';
-END \$\$;
-EOF
+    # Create new user with properly hashed password
+    user = User(
+        id=uuid.uuid4(),
+        email='${DEFAULT_USER_EMAIL}',
+        password_hash=hash_pw('${DEFAULT_USER_PASSWORD}'),
+        org_id='default',
+        role='admin'
+    )
+    db.add(user)
+    db.commit()
+    print('User created: ${DEFAULT_USER_EMAIL}')
+except Exception as e:
+    print(f'Error: {e}')
+    sys.exit(1)
+finally:
+    db.close()
+"
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓${NC} Test user created"
     echo -e "${CYAN}  Email: ${DEFAULT_USER_EMAIL}${NC}"
     echo -e "${CYAN}  Password: ${DEFAULT_USER_PASSWORD}${NC}"
 else
-    echo -e "${YELLOW}⚠ Warning: User creation had issues (may already exist)${NC}"
+    echo -e "${YELLOW}⚠ Warning: User creation had issues${NC}"
 fi
 echo ""
 

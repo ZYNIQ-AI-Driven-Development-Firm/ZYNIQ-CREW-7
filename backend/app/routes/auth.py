@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
-from app.deps import get_db
+from app.deps import auth, get_db, UserCtx
 from app.models.user import User
 from app.services.auth_service import mk_token, register, verify_pw
 
@@ -39,4 +39,19 @@ def login_user(body: LoginIn, db: Session = Depends(get_db)) -> dict[str, str]:
     return {
         "access": mk_token(str(user.id), user.org_id, user.role, "access"),
         "refresh": mk_token(str(user.id), user.org_id, user.role, "refresh"),
+    }
+
+
+@router.get("/me")
+def get_current_user(ctx: UserCtx = Depends(auth), db: Session = Depends(get_db)) -> dict[str, str]:
+    """Get current user information from token."""
+    from uuid import UUID
+    user = db.query(User).filter(User.id == UUID(ctx.user_id)).first()
+    if not user:
+        raise HTTPException(404, "User not found")
+    return {
+        "id": str(user.id),
+        "email": user.email,
+        "org_id": user.org_id,
+        "role": user.role,
     }

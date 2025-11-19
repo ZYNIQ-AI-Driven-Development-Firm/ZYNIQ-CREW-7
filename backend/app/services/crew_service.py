@@ -37,7 +37,7 @@ def create_crew(db: Session, payload: CrewCreate, owner_id: str, org_id: str) ->
     
     # Create default 7-agent formation for this crew
     try:
-        create_default_agents_for_crew(db, crew.id, crew.role)
+        create_default_agents_for_crew(db, crew)
     except Exception as e:
         print(f"ERROR creating default agents: {e}")
         import traceback
@@ -68,7 +68,7 @@ def fork_crew(db: Session, crew_id: UUID, new_name: str, owner_id: str, org_id: 
     kv_set(clone.kv_namespace, "forked_from", {"crew_id": str(base.id)})
     
     # Create default 7-agent formation for the forked crew
-    create_default_agents_for_crew(db, clone.id, clone.role)
+    create_default_agents_for_crew(db, clone)
     
     return clone
 
