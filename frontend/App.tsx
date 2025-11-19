@@ -583,11 +583,10 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         if (!cancelled) {
           setUser({
             id: 'default-user',
-            name: 'Commander',
             email: 'commander@crew7.ai',
-            timezone: 'UTC',
-            role: 'Member',
-          } as User);
+            org_id: 'default',
+            role: 'owner',
+          });
         }
       }
     };
@@ -599,11 +598,12 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     };
   }, []);
 
+  // Set default timezone info
   useEffect(() => {
-    if (!user?.timezone) return;
-    setTimeZoneInfo({ id: user.timezone, label: formatTimeZoneLabel(user.timezone) });
-    setLocalTime(formatLocalTime(user.timezone));
-  }, [user?.timezone]);
+    const defaultTz = 'UTC';
+    setTimeZoneInfo({ id: defaultTz, label: formatTimeZoneLabel(defaultTz) });
+    setLocalTime(formatLocalTime(defaultTz));
+  }, []);
 
   // Save notifications to localStorage whenever they change
   useEffect(() => {
@@ -723,7 +723,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
     });
 
     return () => {
-      if (ws) ws();
+      if (ws) ws.close();
     };
   }, [activeCrewId]);
 
@@ -794,7 +794,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
         const result = await runFullStackCrew(content);
         runId = result.id;
       } else {
-        const result = await createRun({ crew_id: activeCrewId, prompt: content, mode: 'chat' });
+        const result = await createRun(activeCrewId, content, { mode: 'chat' });
         runId = result.id;
       }
       
