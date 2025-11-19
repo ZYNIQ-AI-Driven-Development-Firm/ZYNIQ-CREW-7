@@ -31,8 +31,13 @@ def _to_out(run: Run) -> RunOut:
 
 
 def _authorize(crew: Crew, user: UserCtx | None, api_key: str | None) -> None:
+    # Allow access to public crews for any authenticated user
+    if crew.org_id == 'public' and user:
+        return
+    # Allow access if user owns the crew
     if user and crew.org_id == user.org_id:
         return
+    # Allow access with valid API key
     if api_key and crew.api_key and hmac.compare_digest(api_key, crew.api_key):
         return
     raise HTTPException(403, "forbidden")

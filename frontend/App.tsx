@@ -31,6 +31,8 @@ import {
   missionSocket,
   streamRun,
   runFullStackCrew,
+  setAuthToken,
+  getAuthToken,
   type Crew,
   type MissionMessage,
   type StreamEvent,
@@ -225,7 +227,7 @@ const formatLocalTime = (timeZoneId: string) => {
 const App: React.FC = () => {
   const [view, setView] = useState<'landing' | 'auth' | 'shell'>(() => {
     // Check if user is already authenticated
-    const token = localStorage.getItem('crew7_token') || localStorage.getItem('crew7_access_token');
+    const token = getAuthToken();
     return token ? 'shell' : 'landing';
   });
   const [activeSection, setActiveSection] = useState<Section>('chat');
@@ -275,6 +277,12 @@ const App: React.FC = () => {
     };
   }, []);
 
+  // Handle sign out
+  const handleSignOut = () => {
+    setAuthToken(null);
+    setView('auth');
+  };
+
   // Main App Content Component (for routing)
   const AppContent = () => {
     if (view === 'landing') {
@@ -290,7 +298,7 @@ const App: React.FC = () => {
         <ApplicationShell
           activeSection={activeSection}
           onNavigate={setActiveSection}
-          onSignOut={() => setView('auth')}
+          onSignOut={handleSignOut}
         />
       </WalletProvider>
     );
@@ -330,34 +338,43 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
       '/new-logo-sign-only.png'
     ];
     let currentIndex = 0;
+    let timeoutId: number | undefined;
 
     const animateLogo = () => {
       if (!logoRef.current) return;
 
-      (animate as any)({
-        targets: logoRef.current,
-        opacity: [1, 0],
-        duration: 800,
-        easing: 'easeInOutQuad',
-        complete: () => {
-          if (!logoRef.current) return;
-          currentIndex = (currentIndex + 1) % logos.length;
-          logoRef.current.src = logos[currentIndex];
-          
-          (animate as any)({
-            targets: logoRef.current,
-            opacity: [0, 1],
-            duration: 800,
-            easing: 'easeInOutQuad',
-            complete: () => {
-              setTimeout(animateLogo, 2000);
-            }
-          });
-        }
-      });
+      try {
+        animate(logoRef.current, {
+          opacity: [1, 0],
+          duration: 800,
+          easing: 'easeInOutQuad',
+          complete: () => {
+            if (!logoRef.current) return;
+            currentIndex = (currentIndex + 1) % logos.length;
+            logoRef.current.src = logos[currentIndex];
+            
+            animate(logoRef.current, {
+              opacity: [0, 1],
+              duration: 800,
+              easing: 'easeInOutQuad',
+              complete: () => {
+                timeoutId = window.setTimeout(animateLogo, 2000);
+              }
+            });
+          }
+        });
+      } catch (error) {
+        console.warn('Logo animation error:', error);
+      }
     };
 
-    setTimeout(animateLogo, 2000);
+    timeoutId = window.setTimeout(animateLogo, 2000);
+    
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   const isSignUp = mode === 'signUp';
@@ -382,11 +399,11 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
         await register({ email: formData.email, password: formData.password });
         // After registration, log in
         const loginResponse = await login({ email: formData.email, password: formData.password });
-        localStorage.setItem('crew7_token', loginResponse.access);
+        setAuthToken(loginResponse.access);
       } else {
         // Sign in existing user
         const loginResponse = await login({ email: formData.email, password: formData.password });
-        localStorage.setItem('crew7_token', loginResponse.access);
+        setAuthToken(loginResponse.access);
       }
       onAuthenticated();
     } catch (err: any) {
