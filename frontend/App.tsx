@@ -334,7 +334,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
     const animateLogo = () => {
       if (!logoRef.current) return;
 
-      (anime as any)({
+      (animate as any)({
         targets: logoRef.current,
         opacity: [1, 0],
         duration: 800,
@@ -344,7 +344,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
           currentIndex = (currentIndex + 1) % logos.length;
           logoRef.current.src = logos[currentIndex];
           
-          (anime as any)({
+          (animate as any)({
             targets: logoRef.current,
             opacity: [0, 1],
             duration: 800,
@@ -1138,7 +1138,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
       />
       <main
         className={classNames(
-          'flex-1 flex flex-col px-5 py-6 md:px-10 md:py-8 lg:px-16 overflow-visible transition-[filter,opacity] duration-200 ease-out',
+          'relative flex-1 flex flex-col px-5 py-6 md:px-10 md:py-8 lg:px-16 overflow-visible transition-[filter,opacity] duration-200 ease-out',
           isSidebarExpanded ? 'filter blur-sm opacity-70' : 'filter-none opacity-100'
         )}
       >
@@ -1201,7 +1201,7 @@ const ApplicationShell: React.FC<ApplicationShellProps> = ({ activeSection, onNa
           advancedMode={advancedMode}
           onToggleAdvancedMode={() => setAdvancedMode((prev) => !prev)}
         />
-        <section className={`mt-2 flex-1 flex ${activeSection === 'chat' ? 'flex-col' : ''} overflow-y-auto rounded-3xl bg-slate-900/60 shadow-[0_25px_60px_rgba(0,0,0,0.4)]`}>
+        <section className={`relative z-10 mt-2 flex-1 flex ${activeSection === 'chat' ? 'flex-col' : ''} overflow-y-auto rounded-3xl bg-slate-900/60 shadow-[0_25px_60px_rgba(0,0,0,0.4)]`}>
           <div className={activeSection !== 'chat' ? 'flex-col' : ''}>
             {renderMainPanel()}
           </div>
@@ -1458,7 +1458,7 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
   const overflowCount = Math.max(crewMembers.length - crewPreview.length, 0);
 
   return (
-    <header className="relative z-20 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+    <header className="relative z-40 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm text-[#acb6cf]">
           <span className="text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-[#9ba7c2]">Mission signal</span>
@@ -1485,7 +1485,7 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
               </button>
               
               {isCrewMenuOpen && (
-                <div className="absolute left-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635] shadow-[0_24px_70px_rgba(0,0,0,0.5)] z-30">
+                <div className="absolute left-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635] shadow-[0_24px_70px_rgba(0,0,0,0.5)] z-50">
                   <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
                     <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[#7c859f]">Select Crew</p>
                   </div>
@@ -1570,7 +1570,7 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
           <span className="text-sm font-semibold text-white">0.00 C7T</span>
         </button>
         {isWalletMenuOpen ? (
-          <div className="absolute right-0 mt-3 w-96 rounded-3xl border border-white/15 bg-[#1e2635] shadow-[0_24px_70px_rgba(0,0,0,0.5)] z-30">
+          <div className="absolute right-0 mt-3 w-96 rounded-3xl border border-white/15 bg-[#1e2635] shadow-[0_24px_70px_rgba(0,0,0,0.5)] z-50">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-[#ea2323] to-[#ff2e2e] rounded-full flex items-center justify-center font-bold shadow-lg">
@@ -1645,7 +1645,7 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
           ) : null}
         </button>
         {isNotificationMenuOpen ? (
-          <div className="absolute right-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635]/95 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl z-30">
+          <div className="absolute right-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635]/95 shadow-[0_24px_70px_rgba(0,0,0,0.5)] backdrop-blur-xl z-50">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
               <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[#7c859f]">Signal feed</p>
               <button
@@ -1712,7 +1712,7 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
           </span>
         </button>
         {isWorkspaceMenuOpen ? (
-          <div className="absolute right-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635] shadow-[0_24px_70px_rgba(0,0,0,0.5)] z-30">
+          <div className="absolute right-0 mt-3 w-80 rounded-3xl border border-white/15 bg-[#1e2635] shadow-[0_24px_70px_rgba(0,0,0,0.5)] z-50">
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
               <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[#7c859f]">Workspaces</p>
             </div>
@@ -1768,7 +1768,7 @@ const ShellHeader: React.FC<ShellHeaderProps> = ({
           </span>
         </button>
         {isProfileMenuOpen ? (
-          <div className="absolute right-0 mt-3 w-72 rounded-3xl border border-white/15 bg-[#1e2635] shadow-[0_24px_70px_rgba(0,0,0,0.5)] z-30">
+          <div className="absolute right-0 mt-3 w-72 rounded-3xl border border-white/15 bg-[#1e2635] shadow-[0_24px_70px_rgba(0,0,0,0.5)] z-50">
             <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
               <span className="relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#ea2323] via-[#f26464] to-[#f2a45c] text-base font-semibold uppercase">
                 <span className="relative z-10 text-white">{profileInitials}</span>
@@ -1926,7 +1926,7 @@ const ChatSurface: React.FC<ChatSurfaceProps> = ({
         </ul>
       )}
     </div>
-  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#1e2635] via-[#1e2635]/95 to-transparent" />
+  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#1e2635] via-[#1e2635]/95 to-transparent z-[5]" />
   <div className="sticky bottom-0 z-20 border-t border-white/15 bg-[#1e2635] px-5 pb-3 pt-3 md:px-8">
       <ChatInput
         isSending={isResponding}
